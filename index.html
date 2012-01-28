@@ -15,9 +15,36 @@
 
   <!-- CSS concatenated and minified via ant build script-->
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/fontkit/fontsheet.css">
+  <style>
+    body {
+			font-family: 'DejaVuSansMonoBook';
+		}
+    
+    .tile {
+      float:left; 
+      background: #E9E9EB;
+      -webkit-box-shadow: 10px 10px 5px #888;
+      box-shadow: 10px 10px 5px #888;
+    }
+    .tile p {
+      margin: 8px;
+    }
+  </style>
   <!-- end CSS-->
+	<link type="text/css" href="css/libs/jquery-ui/css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
 
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
+  <script type="text/javascript" src="js/libs/jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
+	<script>
+	$(function() {
+		$( ".draggable" ).draggable();
+	});
+	</script>
+
+
 </head>
 
 <body>
@@ -27,7 +54,15 @@
 
     </header>
     <div id="main" role="main">
+      <div class="demo">
+      <div id="tile2" class="">
+        <p>foo<p>
+      </div>
+      <div id="tile1" class="tile draggable ui-widget-content">
+        <p>hook_user</p>
+      </div>
 
+      </div><!-- End demo -->
     </div>
     <footer>
 
@@ -35,8 +70,6 @@
   </div> <!--! end of #container -->
 
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
 
 
   <!-- scripts concatenated and minified via ant build script-->
