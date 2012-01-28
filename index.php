@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fontkit/fontsheet.css">
   <style>
-  
+
     html {
       height: 100%;
     }
@@ -79,10 +79,24 @@
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
   <script type="text/javascript" src="js/libs/jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
 	<script>
-	$(function() {
-		$( ".draggable" ).draggable();
-	});
-	</script>
+  jQuery(document).ready(function($) {
+    var words=[];
+    var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
+    var hookFunctions=["_hook","_preprocess"];
+    var functions=["init","form","filter","rdf"];
+    var words = entities.concat(hookFunctions, functions);
+    $.each(words, function(i,value) {
+      $("#tile" + i + " p").text(value);
+      rand = Math.floor(Math.random()*2);
+      console.log(rand);
+      if( rand == 1 ) {
+        console.log(i);
+        $("#tile" + i).css("-webkit-transform", "rotate(-2deg)");
+      }
+    });
+    $( ".draggable" ).draggable();
+  });
+  </script>
 
 
 </head>
@@ -94,13 +108,13 @@
 
     </header>
     <div id="main" role="main" class="group">
-      <div class="demo">
-        <div id="tile1" class="tile draggable ui-widget-content">
-          <div class="tile-inside group">
+      <div id="tiles" class="demo">
+        <?php $num_tiles = 20; ?>
+        <?php for($i = 0; $i <= $num_tiles; $i++): ?>
+          <div id="tile<?php print $i; ?>" class="tile draggable ui-widget-content">
             <p>hook_user</p>
           </div>
-        </div>
-
+        <?php endfor; ?>
       </div><!-- End demo -->
     </div>
     <footer>
