@@ -70,6 +70,11 @@
     .tile p {
       margin: .3em;
     }
+    #droppable {
+      height: 200px;
+      margin-top: 200px;
+      background: pink;
+    }
   </style>
   <!-- end CSS-->
 	<link type="text/css" href="css/libs/jquery-ui/css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
@@ -83,19 +88,28 @@
     var words=[];
     var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
     var hookFunctions=["_hook","_preprocess"];
-    var functions=["init","form","filter","rdf"];
+    var functions=["init","form","filter","rdf","dashboard","book","blog","color","block","file","system","path","shortcut","tracker"];
     var words = entities.concat(hookFunctions, functions);
     $.each(words, function(i,value) {
       $("#tile" + i + " p").text(value);
       rand = Math.floor(Math.random()*2);
-      console.log(rand);
       if( rand == 1 ) {
-        console.log(i);
         $("#tile" + i).css("-webkit-transform", "rotate(-2deg)");
       }
     });
     $( ".draggable" ).draggable();
+	$( "#droppable" ).droppable({
+			drop: function( event, ui ) {
+				$( this )
+					.addClass( "ui-state-highlight" )
+					.find( "p" )
+						.html( "Dropped!" );
+			}
+		});
+
   });
+
+
   </script>
 
 
@@ -117,6 +131,7 @@
         <?php endfor; ?>
       </div><!-- End demo -->
     </div>
+    <div id="droppable"><p></p> </div>
     <footer>
 
     </footer>
