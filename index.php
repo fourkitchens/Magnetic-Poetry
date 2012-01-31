@@ -84,27 +84,48 @@
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
   <script type="text/javascript" src="js/libs/jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
 	<script>
+  if(typeof(String.prototype.trim) === "undefined")
+  {
+      String.prototype.trim = function() 
+      {
+          return String(this).replace(/^\s+|\s+$/g, '');
+      };
+  }
+  function Word(string) {
+    this.string = string;
+    this.snap = 'none'; 
+  }
   jQuery(document).ready(function($) {
     var words=[];
     var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
     var hookFunctions=["_hook","_preprocess"];
     var functions=["init","form","filter","rdf","dashboard","book","blog","color","block","file","system","path","shortcut","tracker"];
     var words = entities.concat(hookFunctions, functions);
+    wordObjects = [];
+    for ( var i = 0; i <= words.length; i++) {
+      wordObjects[words[i]] = new Word(words[i]);
+    }
+    wordObjects['_hook'].snap = 'left';
+    var currentPoem =[];
+    // a little bit of wiggle cuz we love to wiggle.
     $.each(words, function(i,value) {
       $("#tile" + i + " p").text(value);
       rand = Math.floor(Math.random()*2);
-      if( rand == 1 ) {
+      if ( rand == 1 ) {
         $("#tile" + i).css("-webkit-transform", "rotate(-2deg)");
       }
     });
     $( ".draggable" ).draggable();
-	$( "#droppable" ).droppable({
-			drop: function( event, ui ) {
-				$( this )
-					.addClass( "ui-state-highlight" )
-					.find( "p" )
-						.html( "Dropped!" );
-			}
+	  $( "#droppable" ).droppable({
+      drop: function( event, ui ) {
+        $( this ).addClass( "ui-state-highlight" );
+        var word = ui.draggable.text();
+        var trimmed = word.trim();
+        if (!currentPoem[trimmed]) {
+          currentPoem[trimmed] = wordObjects[trimmed];
+          $( "<span></span>" ).text( trimmed ).appendTo( this );
+        }
+      }
 		});
 
   });
