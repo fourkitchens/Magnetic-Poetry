@@ -1,0 +1,57 @@
+html {
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%; 
+}
+#container {
+  margin: auto;
+  min-height: 100%;
+  width: 960px;
+  background: #BABBB5;
+}
+/* clearfix group */ 
+.group:before,
+.group:after {
+    content:"";
+    display:table;
+}
+.group:after {
+    clear:both;
+}
+.group {
+    zoom:1; /* For IE 6/7 (trigger hasLayout) */
+}
+body {
+  font-family: 'DejaVuSansMonoBook';
+  font-size: 1.5em;
+}
+#main {
+  min-height: 100%;
+  width: 960px;
+}
+.tile {
+  float:left;
+  background: #D5DCE2;
+  border-left: 2px solid white;
+  border-top:  2px solid white;
+  border-bottom: 3px solid grey;
+  border-right: 2px solid grey;
+  -webkit-box-shadow: 4px 4px 3px #888;
+  box-shadow: 4px 4px 3px #888;
+  -webkit-transform:rotate(2deg);
+}
+.ui-draggable-dragging {
+  -webkit-box-shadow: 8px 8px 6px #888;
+  box-shadow: 8px 8px 6px #888;
+}
+.tile p {
+  margin: .3em;
+}
+#droppable {
+  height: 200px;
+  margin-top: 200px;
+  background: pink;
+}

@@ -17,14 +17,17 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fontkit/fontsheet.css">
   <link rel="stylesheet" href="css/myStyle.css">
-  
   <!-- end CSS-->
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
   <script type="text/javascript" src="js/libs/jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
-	<script>
+  <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+  <script src="js/mylibs/underscore-min.js"></script>
+  <script src="js/mylibs/backbone-min.js"></script>
+
+  <script>
   if(typeof(String.prototype.trim) === "undefined") {
     String.prototype.trim = function() {
       return String(this).replace(/^\s+|\s+$/g, '');
@@ -112,8 +115,47 @@
   <script defer src="js/plugins.js"></script>
   <script defer src="js/script.js"></script>
   <!-- end scripts-->
+  <script>
+    // backbone.js
+    (function($){
+      var Word = Backbone.Model.extend({
+        defaults: {
+          string: 'hello',
+          snap: 'none'
+        }
+      });
+      var WordView = Backbone.View.extend({
+        tagName: 'div',
+        initilaze: function(){
+          _.bindAll(this, 'render');
+        }
+        render: function(){
+          $(this.el).html('<span>' + this.model.get('string') + '</span>');
+          return this;
+        }
+      });
+      var Drawer = Backbone.Collection.extend({
+        model: Word
+      });
+      var DrawerView = Backbone.View.extend({
+        el: $('#container'),
 
+        initialize: function(){
+          _.bindAll(this, 'render');
 
+          this.collection = new Drawer(['this', 'that', 'the other']);
+          console.log(this.collection);
+          this.render();
+        },
+
+        render: function(){
+          $(this.el).prepend('<div class="drawer"></div>');
+        }
+      });
+
+      var drawerView = new DrawerView();
+    })(jQuery);
+  </script>
   <script> // Change UA-XXXXX-X to be your site's ID
     window._gaq = [['_setAccount','UAXXXXXXXX1'],['_trackPageview'],['_trackPageLoadTime']];
     Modernizr.load({
