@@ -9,18 +9,21 @@
       });
       var WordView = Backbone.View.extend({
         tagName: 'div',
-        attributes: {class: 'draggable tile'},  
+        attributes: {
+          class: 'draggable tile',
+          'data-cid': 'foo',
+        },
         initilaze: function(){
-          _.bindAll(this, 'render');
+          _.bindAll(this, 'render', 'attributes');
         },
         render: function(){
           $(this.el).html('<span>' + this.model.get('string') + '</span>');
+          $(this.el).attr('data-cid', this.cid);
           return this;
         }
       });
       var Drawer = Backbone.Collection.extend({
         model: Word,
-        sync: function(){}
       });
       var DrawerView = Backbone.View.extend({
         el: $('#container'),
@@ -54,6 +57,32 @@
         }
       });
 
+      var Poem = Backbone.Collection.extend({
+        model: Word,
+      });
+
+      var PoemArenaView = Backbone.View.extend({
+        el: $('#droppable'),
+        attributes: {
+          id: 'PoemArena',
+        },
+        events: {
+          'drop #droppable': 'wordDropped',
+        },
+        initialize: function() {
+          _.bindAll(this, 'render');
+          this.render();
+
+          this.collection = new Poem();
+        },
+        render: function() {
+          $(this.el).append('boom');
+        },
+        wordDropped: function(e, ui) {
+        },
+      });
+
       var drawerView = new DrawerView();
+      var poemArenaView = new PoemArenaView();
     })(jQuery);
 
