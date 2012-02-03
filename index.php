@@ -25,7 +25,7 @@
   <script type="text/javascript" src="js/libs/jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
   <script src="js/mylibs/underscore-min.js"></script>
-  <script src="js/mylibs/backbone-min.js"></script>
+  <script src="js/mylibs/backbone.js"></script>
 
   <script>
   if(typeof(String.prototype.trim) === "undefined") {
@@ -37,9 +37,10 @@
     this.string = string;
     this.snap = 'none'; 
   }
-  var currentPoem = {};
   jQuery(document).ready(function($) {
-    var words=[];
+  $( ".draggable" ).draggable();
+
+  /*  var words=[];
     var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
     var hookFunctions=["_hook","_preprocess"];
     var functions=["init","form","filter","rdf","dashboard","book","blog","color","block","file","system","path","shortcut","tracker"];
@@ -77,7 +78,7 @@
         console.log(currentPoem);
       }
 		});
-
+   */
   });
 
 
@@ -114,48 +115,8 @@
   <!-- scripts concatenated and minified via ant build script-->
   <script defer src="js/plugins.js"></script>
   <script defer src="js/script.js"></script>
+  <script defer src="js/magpo.js"></script>
   <!-- end scripts-->
-  <script>
-    // backbone.js
-    (function($){
-      var Word = Backbone.Model.extend({
-        defaults: {
-          string: 'hello',
-          snap: 'none'
-        }
-      });
-      var WordView = Backbone.View.extend({
-        tagName: 'div',
-        initilaze: function(){
-          _.bindAll(this, 'render');
-        }
-        render: function(){
-          $(this.el).html('<span>' + this.model.get('string') + '</span>');
-          return this;
-        }
-      });
-      var Drawer = Backbone.Collection.extend({
-        model: Word
-      });
-      var DrawerView = Backbone.View.extend({
-        el: $('#container'),
-
-        initialize: function(){
-          _.bindAll(this, 'render');
-
-          this.collection = new Drawer(['this', 'that', 'the other']);
-          console.log(this.collection);
-          this.render();
-        },
-
-        render: function(){
-          $(this.el).prepend('<div class="drawer"></div>');
-        }
-      });
-
-      var drawerView = new DrawerView();
-    })(jQuery);
-  </script>
   <script> // Change UA-XXXXX-X to be your site's ID
     window._gaq = [['_setAccount','UAXXXXXXXX1'],['_trackPageview'],['_trackPageLoadTime']];
     Modernizr.load({
