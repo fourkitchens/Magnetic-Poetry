@@ -16,85 +16,25 @@
   <!-- CSS concatenated and minified via ant build script-->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fontkit/fontsheet.css">
-  <style>
-
-    html {
-      height: 100%;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%; 
-    }
-    #container {
-      margin: auto;
-      min-height: 100%;
-      width: 960px;
-      background: #BABBB5;
-    }
-    /* clearfix group */ 
-    .group:before,
-    .group:after {
-        content:"";
-        display:table;
-    }
-    .group:after {
-        clear:both;
-    }
-    .group {
-        zoom:1; /* For IE 6/7 (trigger hasLayout) */
-    }
-    body {
-			font-family: 'DejaVuSansMonoBook';
-		  font-size: 1.5em;
-    }
-    #main {
-      min-height: 100%;
-      width: 960px;
-    }
-    .tile {
-      float:left;
-      background: #D5DCE2;
-      border-left: 2px solid white;
-      border-top:  2px solid white;
-      border-bottom: 3px solid grey;
-      border-right: 2px solid grey;
-      -webkit-box-shadow: 4px 4px 3px #888;
-      box-shadow: 4px 4px 3px #888;
-      -webkit-transform:rotate(2deg);
-    }
-    .ui-draggable-dragging {
-      -webkit-box-shadow: 8px 8px 6px #888;
-      box-shadow: 8px 8px 6px #888;
-    }
-    .tile p {
-      margin: .3em;
-    }
-    #droppable {
-      height: 200px;
-      margin-top: 200px;
-      background: pink;
-    }
-  </style>
+  <link rel="stylesheet" href="css/myStyle.css">
+  
   <!-- end CSS-->
-	<link type="text/css" href="css/libs/jquery-ui/css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
   <script type="text/javascript" src="js/libs/jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
 	<script>
-  if(typeof(String.prototype.trim) === "undefined")
-  {
-      String.prototype.trim = function() 
-      {
-          return String(this).replace(/^\s+|\s+$/g, '');
-      };
+  if(typeof(String.prototype.trim) === "undefined") {
+    String.prototype.trim = function() {
+      return String(this).replace(/^\s+|\s+$/g, '');
+    };
   }
   function Word(string) {
     this.string = string;
     this.snap = 'none'; 
   }
+  var currentPoem = {};
   jQuery(document).ready(function($) {
     var words=[];
     var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
@@ -106,10 +46,11 @@
       wordObjects[words[i]] = new Word(words[i]);
     }
     wordObjects['_hook'].snap = 'left';
-    var currentPoem =[];
     // a little bit of wiggle cuz we love to wiggle.
     $.each(words, function(i,value) {
       $("#tile" + i + " p").text(value);
+      $("#tile" + i).addClass('tile-' + value);
+      //$("#tile" + i).addClass('snap-' + 
       rand = Math.floor(Math.random()*2);
       if ( rand == 1 ) {
         $("#tile" + i).css("-webkit-transform", "rotate(-2deg)");
@@ -123,8 +64,14 @@
         var trimmed = word.trim();
         if (!currentPoem[trimmed]) {
           currentPoem[trimmed] = wordObjects[trimmed];
-          $( "<span></span>" ).text( trimmed ).appendTo( this );
+          $( "<span></span>" ).text( trimmed ).appendTo( 'footer' );
         }
+        currentPoem[trimmed].position = $(".tile-" + trimmed).position();
+        $.each(currentPoem, function(i, value) {
+          
+          console.log(value.position.left);
+        });
+        console.log(currentPoem);
       }
 		});
 
