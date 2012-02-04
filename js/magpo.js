@@ -72,6 +72,10 @@
 
           $(this.el).droppable({
             drop: function(event, ui) {
+              poem.add($(ui.draggable).data('backbone-view').model);
+            },
+            out: function(event, ui) {
+              poem.remove($(ui.draggable).data('backbone-view').model);
             },
           });
         },
