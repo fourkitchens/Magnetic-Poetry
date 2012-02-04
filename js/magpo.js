@@ -70,14 +70,16 @@
       var FridgeView = Backbone.View.extend({
         el: $('#fridge'),
         initialize: function() {
-          _.bindAll(this, 'render');
+          _.bindAll(this, 'render', 'wordDropped');
           this.render();
 
           var poem = this.collection = new Poem();
 
           $(this.el).droppable({
             drop: function(event, ui) {
-              poem.add($(ui.draggable).data('backbone-view').model);
+              //if (!poem.find($(ui.draggable).data('backbone-view').model)) {
+                poem.add($(ui.draggable).data('backbone-view').model);
+              //}
             },
             out: function(event, ui) {
               poem.remove($(ui.draggable).data('backbone-view').model);
@@ -91,6 +93,6 @@
       });
 
       var drawerView = new DrawerView();
-      var poemArenaView = new PoemArenaView();
+      var fridgeView = new FridgeView();
     })(jQuery);
 

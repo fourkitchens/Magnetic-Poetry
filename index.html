@@ -29,43 +29,10 @@
 
   <script>
   jQuery(document).ready(function($) {
-  //Add the draggable
-  $( ".draggable" ).draggable();
-
-  // add the random rotation
-  /*
-  $('.tile').each(function() {
-  }); */
-  /*  var words=[];
     var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
     var hookFunctions=["_hook","_preprocess"];
     var functions=["init","form","filter","rdf","dashboard","book","blog","color","block","file","system","path","shortcut","tracker"];
     var words = entities.concat(hookFunctions, functions);
-    wordObjects = [];
-    for ( var i = 0; i <= words.length; i++) {
-      wordObjects[words[i]] = new Word(words[i]);
-    }
-    wordObjects['_hook'].snap = 'left';
-    // a little bit of wiggle cuz we love to wiggle.
-    $( ".draggable" ).draggable();
-	  $( "#droppable" ).droppable({
-      drop: function( event, ui ) {
-        $( this ).addClass( "ui-state-highlight" );
-        var word = ui.draggable.text();
-        var trimmed = word.trim();
-        if (!currentPoem[trimmed]) {
-          currentPoem[trimmed] = wordObjects[trimmed];
-          $( "<span></span>" ).text( trimmed ).appendTo( 'footer' );
-        }
-        currentPoem[trimmed].position = $(".tile-" + trimmed).position();
-        $.each(currentPoem, function(i, value) {
-          
-          console.log(value.position.left);
-        });
-        console.log(currentPoem);
-      }
-		});
-   */
   });
 
 
