@@ -34,7 +34,7 @@
         model: Word,
       });
       var DrawerView = Backbone.View.extend({
-        el: $('#container'),
+        el: $('#drawers'),
 
         initialize: function(){
           _.bindAll(this, 'render');
@@ -67,22 +67,26 @@
         model: Word,
       });
 
+      var poem = new Poem;
+
       var FridgeView = Backbone.View.extend({
         el: $('#fridge'),
         initialize: function() {
           _.bindAll(this, 'render', 'wordDropped');
           this.render();
 
-          var poem = this.collection = new Poem();
+          var collection = this.collection;
 
           $(this.el).droppable({
             drop: function(event, ui) {
-              //if (!poem.find($(ui.draggable).data('backbone-view').model)) {
-                poem.add($(ui.draggable).data('backbone-view').model);
-              //}
+              var dropped = $(ui.draggable).data('backbone-view').model;
+              if (!poem.getByCid((dropped.cid))) {
+                poem.add(dropped);
+              }
             },
             out: function(event, ui) {
-              poem.remove($(ui.draggable).data('backbone-view').model);
+              var dropped = $(ui.draggable).data('backbone-view').model
+              poem.remove(dropped);
             },
           });
         },
@@ -91,8 +95,21 @@
         wordDropped: function(e, ui) {
         },
       });
+      var PoemView = Backbone.View.extend({
+        el: $('#poemText'),
+        initialize: function() {
+          _.bindAll(this, 'render');
 
+          this.collection.bind('add', this.render, this);
+          this.collection.bind('remove', this.render, this);
+        },
+        render: function() {
+          $(this.el).html(
+          JSON.stringify(poem.pluck('string')));
+        }
+      });
       var drawerView = new DrawerView();
-      var fridgeView = new FridgeView();
-    })(jQuery);
+      var fridgeView = new FridgeView({collection:poem});
+      var poemView = new PoemView({collection:poem});
+   })(jQuery);
 
