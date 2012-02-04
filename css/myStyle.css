@@ -32,7 +32,7 @@ body {
   min-height: 100%;
   width: 960px;
 }
-.tile {
+.tiles {
   float:left;
   background: #D5DCE2;
   border-left: 2px solid white;

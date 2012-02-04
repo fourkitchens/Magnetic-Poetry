@@ -10,13 +10,13 @@
       var WordView = Backbone.View.extend({
         tagName: 'div',
         attributes: {
-          class: 'draggable tile',
+          class: 'draggable tiles',
         },
         initilaze: function(){
           _.bindAll(this, 'render', 'attributes');
         },
         render: function(){
-          $(this.el).draggable();
+          $(this.el).draggable({stack: '.tiles'});
           $(this.el).data('backbone-view', this);
 
           $(this.el).html('<span>' + this.model.get('string') + '</span>');
