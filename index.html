@@ -38,7 +38,6 @@
     this.snap = 'none'; 
   }
   jQuery(document).ready(function($) {
-  $( ".draggable" ).draggable();
 
   /*  var words=[];
     var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
@@ -95,12 +94,6 @@
     </header>
     <div id="main" role="main" class="group">
       <div id="tiles" class="demo">
-        <?php $num_tiles = 20; ?>
-        <?php for($i = 0; $i <= $num_tiles; $i++): ?>
-          <div id="tile<?php print $i; ?>" class="tile draggable ui-widget-content">
-            <p>hook_user</p>
-          </div>
-        <?php endfor; ?>
       </div><!-- End demo -->
     </div>
     <div id="droppable"><p></p> </div>

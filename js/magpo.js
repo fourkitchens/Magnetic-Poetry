@@ -11,14 +11,14 @@
         tagName: 'div',
         attributes: {
           class: 'draggable tile',
-          'data-cid': 'foo',
         },
         initilaze: function(){
           _.bindAll(this, 'render', 'attributes');
         },
         render: function(){
+          $(this.el).draggable();
+          $(this.el).data('backbone-view', this);
           $(this.el).html('<span>' + this.model.get('string') + '</span>');
-          $(this.el).attr('data-cid', this.cid);
           return this;
         }
       });
@@ -35,10 +35,8 @@
 
           _.each([{string:'this'}, {string:'that'}, {string:'the other'}], function(item){
             collection.create(item)})
-          _(this.collection).each(function(item){console.log(item.get('string'))})
 
           $(this).append(this.collection.each.render);
-          console.log(this.collection);
           this.render();
         },
 
@@ -66,17 +64,18 @@
         attributes: {
           id: 'PoemArena',
         },
-        events: {
-          'drop #droppable': 'wordDropped',
-        },
         initialize: function() {
           _.bindAll(this, 'render');
           this.render();
 
-          this.collection = new Poem();
+          var poem = this.collection = new Poem();
+
+          $(this.el).droppable({
+            drop: function(event, ui) {
+            },
+          });
         },
         render: function() {
-          $(this.el).append('boom');
         },
         wordDropped: function(e, ui) {
         },
