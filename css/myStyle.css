@@ -47,11 +47,20 @@ body {
   -webkit-box-shadow: 8px 8px 6px #888;
   box-shadow: 8px 8px 6px #888;
 }
-.tile p {
+.tile span {
   margin: .3em;
 }
-#droppable {
-  height: 200px;
+#fridge {
+  height: 600px;
   margin-top: 200px;
-  background: pink;
 }
+.brushed-metal {
+  background: #cedce7; /* Old browsers */
+  background: -moz-linear-gradient(top,  #cedce7 0%, #596a72 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cedce7), color-stop(100%,#596a72)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #cedce7 0%,#596a72 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #cedce7 0%,#596a72 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #cedce7 0%,#596a72 100%); /* IE10+ */
+  background: linear-gradient(top,  #cedce7 0%,#596a72 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 ); /* IE6-9 */
+}  

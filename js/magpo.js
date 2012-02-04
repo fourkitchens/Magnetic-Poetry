@@ -18,7 +18,15 @@
         render: function(){
           $(this.el).draggable();
           $(this.el).data('backbone-view', this);
+
           $(this.el).html('<span>' + this.model.get('string') + '</span>');
+
+          // add the random tilt.
+          rand = Math.floor(Math.random()*2);
+          if ( rand == 1 ) {
+            $(this.el).css("-webkit-transform", "rotate(-2deg)");
+          }
+
           return this;
         }
       });
@@ -59,11 +67,8 @@
         model: Word,
       });
 
-      var PoemArenaView = Backbone.View.extend({
-        el: $('#droppable'),
-        attributes: {
-          id: 'PoemArena',
-        },
+      var FridgeView = Backbone.View.extend({
+        el: $('#fridge'),
         initialize: function() {
           _.bindAll(this, 'render');
           this.render();

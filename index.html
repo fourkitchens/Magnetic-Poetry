@@ -28,17 +28,14 @@
   <script src="js/mylibs/backbone.js"></script>
 
   <script>
-  if(typeof(String.prototype.trim) === "undefined") {
-    String.prototype.trim = function() {
-      return String(this).replace(/^\s+|\s+$/g, '');
-    };
-  }
-  function Word(string) {
-    this.string = string;
-    this.snap = 'none'; 
-  }
   jQuery(document).ready(function($) {
+  //Add the draggable
+  $( ".draggable" ).draggable();
 
+  // add the random rotation
+  /*
+  $('.tile').each(function() {
+  }); */
   /*  var words=[];
     var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
     var hookFunctions=["_hook","_preprocess"];
@@ -50,15 +47,6 @@
     }
     wordObjects['_hook'].snap = 'left';
     // a little bit of wiggle cuz we love to wiggle.
-    $.each(words, function(i,value) {
-      $("#tile" + i + " p").text(value);
-      $("#tile" + i).addClass('tile-' + value);
-      //$("#tile" + i).addClass('snap-' + 
-      rand = Math.floor(Math.random()*2);
-      if ( rand == 1 ) {
-        $("#tile" + i).css("-webkit-transform", "rotate(-2deg)");
-      }
-    });
     $( ".draggable" ).draggable();
 	  $( "#droppable" ).droppable({
       drop: function( event, ui ) {
@@ -92,18 +80,12 @@
     <header>
 
     </header>
-    <div id="main" role="main" class="group">
-      <div id="tiles" class="demo">
-      </div><!-- End demo -->
-    </div>
-    <div id="droppable"><p></p> </div>
+    <div id="drawers" role="main" class="group"></div>
+    <div id="fridge" class="brushed-metal"> </div>
     <footer>
 
     </footer>
   </div> <!--! end of #container -->
-
-
-
 
   <!-- scripts concatenated and minified via ant build script-->
   <script defer src="js/plugins.js"></script>
