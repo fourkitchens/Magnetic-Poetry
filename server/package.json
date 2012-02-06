@@ -1,0 +1,16 @@
+{
+ "name": "server",
+ "private": true,
+ "version": "0.0.0",
+ "dependencies": {
+  "director": "0.1.9",
+  "flatiron": "0.1.9"
+ },
+ "devDependencies": {
+  "vows": "0.6.x"
+ },
+ "scripts": {
+  "test": "vows",
+  "start": "node app.js"
+ }
+}
