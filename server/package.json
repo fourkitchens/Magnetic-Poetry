@@ -3,8 +3,8 @@
  "private": true,
  "version": "0.0.0",
  "dependencies": {
-  "director": "0.1.9",
-  "flatiron": "0.1.9"
+  "flatiron": "0.1.9",
+  "union": "0.1.7"
  },
  "devDependencies": {
   "vows": "0.6.x"
