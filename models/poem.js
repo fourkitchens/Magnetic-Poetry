@@ -5,8 +5,9 @@
 /**
  * Type definition for Poem model.
  */
-var Word = require('word');
+var Word = require('./word');
 var Poem = {
+  id: null,
   words: [ Word ],
 };
 
