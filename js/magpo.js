@@ -2,10 +2,7 @@
       // when we want to talk to a server start understanding this.
       Backbone.sync = function(method, model){};
       var Word = Backbone.Model.extend({
-        defaults: {
-          string: 'hello',
-          snap: 'none'
-        }
+        defaults: window.MagPo.models.Word,
       });
       var WordView = Backbone.View.extend({
         tagName: 'div',
