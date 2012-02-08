@@ -9,6 +9,8 @@ var settings = require('../local');
 
 var MagPo = exports;
 
+MagPo.name = 'magpo';
+
 MagPo.attach = function() {
   /**
    * Loads a poem by id from persistant storage.
@@ -86,4 +88,8 @@ MagPo.init = function(done) {
   this.PoemModel = mongoose.model('Poem', poemSchema);
 
   return done();
+};
+
+MagPo.detach = function() {
+  mongoose.connection.close();
 };
