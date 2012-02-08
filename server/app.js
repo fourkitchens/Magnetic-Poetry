@@ -22,42 +22,62 @@ app.router.get('/', function() {
   this.res.writeHead(200, { 'Content-Type': 'application/json' });
   this.res.end(JSON.stringify({ status: 'ok' }));
 });
-app.router.get('/save', function() {
-  this.res.writeHead(400, { 'Content-Type': 'application/json' });
-  this.res.end(JSON.stringify({
-    status: 'error',
-    error: 'Only POST saves are accepted.'
-  }));
-});
 
 /**
  * POST routes.
  */
+app.router.post('/load/:id', function(id) {
+  var self = this;
+  app.loadPoem(id, function onLoad(err, doc) {
+    if (err) {
+      console.error(err);
+      self.res.writeHead(500, { 'Content-Type': 'application/json' });
+      self.res.end(JSON.stringify({ status: 'error', error: 'Error loading poem.' }));
+      return;
+    }
+    self.res.writeHead(200, { 'Content-Type': 'application/json' });
+    self.res.end(JSON.stringify({ status: 'ok', poem: doc }));
+  });
+});
 app.router.post('/save', function() {
-  if (typeof this.req.body.poem === 'undefined') {
-    this.res.writeHead(400, { 'Content-Type': 'application/json' });
-    this.res.end(JSON.stringify({
+  var self = this;
+  if (typeof self.req.body.poem === 'undefined') {
+    self.res.writeHead(400, { 'Content-Type': 'application/json' });
+    self.res.end(JSON.stringify({
       status: 'error',
       error: 'Missing or incomplete poem.'
     }));
     return;
   }
 
-  app.savePoem(this.req.body.poem, function onSaved(err, poem) {
+  app.savePoem(self.req.body.poem, function onSaved(err, poem) {
     if (err) {
       console.error(err);
-      this.res.writeHead(500, { 'Content-Type': 'application/json' });
-      this.res.end(JSON.stringify({
+      self.res.writeHead(500, { 'Content-Type': 'application/json' });
+      self.res.end(JSON.stringify({
         status: 'error',
         error: 'Error saving poem.'
       }));
       return;
     }
-    this.res.writeHead(200, { 'Content-Type': 'application/json' });
-    this.res.end(JSON.stringify({
+    self.res.writeHead(200, { 'Content-Type': 'application/json' });
+    self.res.end(JSON.stringify({
       status: 'ok',
       poem: poem
     }));
+  });
+});
+app.router.post('/remove/:id', function(id) {
+  var self = this;
+  app.removePoem(id, function onRemoved(err) {
+    if (err) {
+      console.error(err);
+      self.res.writeHead(500, { 'Content-Type': 'application/json' });
+      self.res.end(JSON.stringify({ status: 'error', error: 'Error removing poem.' }));
+      return;
+    }
+    self.res.writeHead(200, { 'Content-type': 'application/json' });
+    self.res.end(JSON.stringify({ status: 'ok' }));
   });
 });
 

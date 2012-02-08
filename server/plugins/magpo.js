@@ -17,6 +17,7 @@ MagPo.attach = function() {
    *  The unique identifier for the poem.
    */
   this.loadPoem = function(id, callback) {
+    this.PoemModel.findOne({ _id: id }, callback);
   };
 
   /**
@@ -35,7 +36,7 @@ MagPo.attach = function() {
       poemObj.words.push(word);
     }
 
-    if (typeof poem.id !== 'unefined') {
+    if (typeof poem.id !== 'undefined') {
       this.PoemModel.update(
         { _id: poem.id },
         { $set: { words: poemObj.words } },
@@ -53,7 +54,7 @@ MagPo.attach = function() {
         if (err) {
           callback(err, null);
         }
-        poem.id = poemObj._id;
+        poem.id = poemObj._id.__id;
         callback(err, poem);
       });
     }
@@ -66,6 +67,7 @@ MagPo.attach = function() {
    *   The unique identifier for the poem.
    */
   this.removePoem = function(id, callback) {
+    this.PoemModel.remove({ _id: id }, callback);
   };
 };
 
@@ -79,7 +81,7 @@ MagPo.init = function(done) {
 
   // We'll use mongo's built in hash ID, so remove it from our internal model.
   delete Poem.id;
-  Poem.words = [ this.WordModel ];
+  Poem.words = [ wordSchema ];
   var poemSchema = new mongoose.Schema(Poem);
   this.PoemModel = mongoose.model('Poem', poemSchema);
 
