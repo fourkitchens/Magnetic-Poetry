@@ -38,7 +38,7 @@ MagPo.attach = function() {
       poemObj.words.push(word);
     }
 
-    if (typeof poem.id !== 'undefined') {
+    if (typeof poem.id !== 'undefined' && poem.id != null) {
       this.PoemModel.update(
         { _id: poem.id },
         { $set: { words: poemObj.words } },

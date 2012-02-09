@@ -5,10 +5,9 @@
 /**
  * Type definition for Poem model.
  */
-var Word = require('./word');
 var Poem = {
   id: null,
-  words: [ Word ],
+  words: [],
 };
 
 if (typeof module === 'undefined') {
@@ -22,6 +21,8 @@ if (typeof module === 'undefined') {
   window.MagPo.models.Poem = Poem;
 }
 else {
+  var Word = require('./word');
+  Poem.words = [ Word ];
   module.exports = Poem;
 }
 

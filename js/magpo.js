@@ -153,7 +153,7 @@
     },
     savePoem: function() {
       poem.save({
-        id: poem.get('id'),
+        id: poem.id,
         words: poem.getWords(),
       });
     },
