@@ -27,18 +27,7 @@ app.router.get('/', function() {
   this.res.writeHead(200, headers);
   this.res.end(JSON.stringify({ status: 'ok' }));
 });
-app.router.get('/save', function() {
-  this.res.writeHead(400, headers);
-  this.res.end(JSON.stringify({
-    status: 'error',
-    error: 'Only POST requests are accepted.'
-  }));
-});
-
-/**
- * POST routes.
- */
-app.router.post('/load/:id', function(id) {
+app.router.get('/load/:id', function(id) {
   var self = this;
   app.loadPoem(id, function onLoad(err, doc) {
     if (err) {
@@ -51,6 +40,17 @@ app.router.post('/load/:id', function(id) {
     self.res.end(JSON.stringify({ status: 'ok', poem: doc }));
   });
 });
+app.router.get('/save', function() {
+  this.res.writeHead(400, headers);
+  this.res.end(JSON.stringify({
+    status: 'error',
+    error: 'Only POST requests are accepted.'
+  }));
+});
+
+/**
+ * POST routes.
+ */
 app.router.post('/save', function() {
   var self = this;
   if (typeof self.req.body.poem === 'undefined') {

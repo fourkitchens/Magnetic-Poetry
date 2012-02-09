@@ -1,24 +1,53 @@
 (function($){
   Backbone.sync = function(method, model) {
-    if (model instanceof Poem) {
+    var baseUrl = window.location.protocol + '//' + window.location.host;
+    if (model instanceof Poem && (method == 'create' || method == 'update')) {
+      var redirect = false;
+      if (model.id == null) {
+        redirect = true;
+      }
       // Send to server!
       $.ajax({
-        // Assumes we're hosting from the root.
-        url: window.location.toString() + 'app/save',
+        url: baseUrl + '/app/save',
         contentType: 'application/json',
         data: JSON.stringify({ poem: model.toJSON() }),
         dataType: 'json',
         type: 'POST',
         success: function(data) {
           if (data.status != 'ok') {
-            alert(':(');
+            console.error('Error saving poem to server.');
             return;
           }
           model.id = data.poem.id;
+          if (redirect) {
+            router.navigate(model.id, { trigger: true });
+          }
         },
       });
     }
+    else if (model instanceof Poem && method == 'read') {
+      $.getJSON(
+        baseUrl + '/app/load/' + model.id,
+        function(data) {
+          if (data.status != 'ok') {
+            console.error('Error fetching poem from server.');
+            return;
+          }
+          model.words.reset(data.poem.words);
+        }
+      );
+    }
   };
+
+  var AppRouter = Backbone.Router.extend({
+    routes: {
+      ':id': 'load',
+    },
+    load: function(id) {
+      poem.id = id;
+      poem.fetch({ id: poem.id });
+    },
+  });
 
   var Word = Backbone.Model.extend({
     defaults: window.MagPo.models.Word,
@@ -156,9 +185,12 @@
     },
   });
 
+  var router = new AppRouter();
   var drawerView = new DrawerView();
   var fridgeView = new FridgeView({collection:poem});
   var poemView = new PoemView({collection:poem});
   var submitView = new SubmitView();
+
+  Backbone.history.start();
 })(jQuery);
 
