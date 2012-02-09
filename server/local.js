@@ -4,5 +4,6 @@
 
 module.exports = {
   db: 'mongodb://localhost/magpo',
-  port: 8081,
+  port: 3001,
+  origin_access: 'local.mag.com',
 };

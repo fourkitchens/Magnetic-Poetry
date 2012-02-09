@@ -12,7 +12,14 @@ var Poem = {
 };
 
 if (typeof module === 'undefined') {
-  // TODO - not needed yet.
+  Poem.words = Backbone.Collection.extend({
+    model: Word
+  });
+  // Set usable defaults.
+  if (typeof window['MagPo'] === 'undefined') {
+    window.MagPo = { models: {} };
+  }
+  window.MagPo.models.Poem = Poem;
 }
 else {
   module.exports = Poem;

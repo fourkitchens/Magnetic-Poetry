@@ -1,12 +1,30 @@
 (function($){
-  // when we want to talk to a server start understanding this.
-  Backbone.sync = function(method, model){};
+  var settings = {
+    server: 'http://local.mag.com:8081',
+  };
+
+  Backbone.sync = function(method, model) {
+    if (model instanceof Poem) {
+      // Send to server!
+      $.ajax({
+        url: settings.server + '/save',
+        contentType: 'application/json',
+        data: JSON.stringify({ poem: model.toJSON() }),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
+          if (data.status != 'ok') {
+            alert(':(');
+            return;
+          }
+          model.id = data.poem.id;
+        },
+      });
+    }
+  };
+
   var Word = Backbone.Model.extend({
     defaults: window.MagPo.models.Word,
-    defaults: {
-      string: 'hello',
-      snap: 'none'
-    }
   });
   var WordView = Backbone.View.extend({
     tagName: 'div',
@@ -64,11 +82,28 @@
     }
   });
 
-  var Poem = Backbone.Collection.extend({
-    model: Word,
+  var Poem = Backbone.Model.extend({
+    defaults: window.MagPo.models.Poem,
+    initialize: function() {
+      var poemCollection = Backbone.Collection.extend({
+        model: Word,
+      });
+      this.words = new poemCollection();
+    },
+    getWords: function() {
+      return this.words.toJSON();
+    },
+    toJSON: function() {
+      // TODO - need to do this in a more general way so it always
+      // matches the externally defined model.
+      return {
+        id: this.id,
+        words: this.words.toJSON(),
+      };
+    },
   });
 
-  var poem = new Poem;
+  var poem = new Poem();
 
   var FridgeView = Backbone.View.extend({
     el: $('#fridge'),
@@ -81,13 +116,13 @@
       $(this.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
-          if (!poem.getByCid((dropped.cid))) {
-            poem.add(dropped);
+          if (!poem.words.getByCid((dropped.cid))) {
+            poem.words.add(dropped);
           }
         },
         out: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model
-          poem.remove(dropped);
+          poem.words.remove(dropped);
         },
       });
     },
@@ -96,6 +131,7 @@
     wordDropped: function(e, ui) {
     },
   });
+
   var PoemView = Backbone.View.extend({
     el: $('#poemText'),
     initialize: function() {
@@ -106,11 +142,26 @@
     },
     render: function() {
       $(this.el).html(
-      JSON.stringify(poem.pluck('string')));
+      JSON.stringify(poem.words.pluck('string')));
     }
   });
+
+  var SubmitView = Backbone.View.extend({
+    el: $('#publish'),
+    events: {
+      'click': 'savePoem',
+    },
+    savePoem: function() {
+      poem.save({
+        id: poem.get('id'),
+        words: poem.getWords(),
+      });
+    },
+  });
+
   var drawerView = new DrawerView();
   var fridgeView = new FridgeView({collection:poem});
   var poemView = new PoemView({collection:poem});
+  var submitView = new SubmitView();
 })(jQuery);
 
