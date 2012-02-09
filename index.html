@@ -29,10 +29,32 @@
 
   <script>
   jQuery(document).ready(function($) {
-    var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
-    var hookFunctions=["_hook","_preprocess"];
-    var functions=["init","form","filter","rdf","dashboard","book","blog","color","block","file","system","path","shortcut","tracker"];
-    var words = entities.concat(hookFunctions, functions);
+    if (typeof window.MagPo === 'undefined') {
+      window.MagPo = { };
+    }
+    window.MagPo.words = [
+      "term",
+      "node",
+      "user",
+      "relation",
+      "commerce",
+      "wysiwyg",
+      "commerce",
+      "hook_init",
+      "hook_form",
+      "hook_filter",
+      "hook_rdf",
+      "hook_dashboard",
+      "hook_book",
+      "hook_blog",
+      "hook_color",
+      "hook_block",
+      "hook_file",
+      "hook_system",
+      "hook_path",
+      "hook_shortcut",
+      "hook_tracker"
+    ];
   });
 
 

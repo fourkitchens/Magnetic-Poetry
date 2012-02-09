@@ -19,7 +19,7 @@ if (typeof module === 'undefined') {
   Word.snap = 'none';
   Word.row = 0;
   Word.column = 0;
-  if (typeof window['MagPo'] === 'undefined') {
+  if (typeof window.MagPo === 'undefined') {
     window.MagPo = { models: {} };
   }
   window.MagPo.models.Word = Word;
