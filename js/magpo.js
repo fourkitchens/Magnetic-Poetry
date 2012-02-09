@@ -1,13 +1,10 @@
 (function($){
-  var settings = {
-    server: 'http://local.mag.com:8081',
-  };
-
   Backbone.sync = function(method, model) {
     if (model instanceof Poem) {
       // Send to server!
       $.ajax({
-        url: settings.server + '/app/save',
+        // Assumes we're hosting from the root.
+        url: window.location.toString() + 'app/save',
         contentType: 'application/json',
         data: JSON.stringify({ poem: model.toJSON() }),
         dataType: 'json',
