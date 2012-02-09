@@ -7,7 +7,7 @@
     if (model instanceof Poem) {
       // Send to server!
       $.ajax({
-        url: settings.server + '/save',
+        url: settings.server + '/app/save',
         contentType: 'application/json',
         data: JSON.stringify({ poem: model.toJSON() }),
         dataType: 'json',
