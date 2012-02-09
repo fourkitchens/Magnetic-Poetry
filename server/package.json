@@ -3,7 +3,7 @@
  "private": true,
  "version": "0.0.0",
  "dependencies": {
-  "flatiron": "0.1.9",
+  "flatiron": "0.1.11",
   "union": "0.1.7"
  },
  "devDependencies": {
