@@ -1,6 +1,8 @@
 Magnetic Poetry
 ===============
 
+Let's make something together.
+
 Server configuration
 --------------------
 
