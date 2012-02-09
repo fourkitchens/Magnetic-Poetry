@@ -36,6 +36,11 @@ app.router.get('/load/:id', function(id) {
       self.res.end(JSON.stringify({ status: 'error', error: 'Error loading poem.' }));
       return;
     }
+    if (doc == null) {
+      self.res.writeHead(404, headers);
+      self.res.end(JSON.stringify({ status: 'error', error: 'Poem not found.' }));
+      return;
+    }
     self.res.writeHead(200, headers);
     self.res.end(JSON.stringify({ status: 'ok', poem: doc }));
   });
