@@ -20,7 +20,7 @@
           }
           model.id = data.poem.id;
           if (redirect) {
-            router.navigate(model.id, { trigger: true });
+            router.navigate(model.id, { trigger: false });
           }
         },
       });
