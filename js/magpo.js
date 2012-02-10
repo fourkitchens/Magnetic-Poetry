@@ -1,4 +1,13 @@
-(function($){
+(function($) {
+
+  /**
+   * Defines sync behavior to the backend.
+   *
+   * @param {string} method
+   *   The sync method.
+   * @param {object} model
+   *   The model object that is being synced.
+   */
   Backbone.sync = function(method, model) {
     var baseUrl = window.location.protocol + '//' + window.location.host;
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
@@ -57,6 +66,9 @@
     }
   };
 
+  /**
+   * Defines the application router.
+   */
   var AppRouter = Backbone.Router.extend({
     routes: {
       ':id': 'load',
@@ -67,9 +79,25 @@
     },
   });
 
+  /**
+   * Defines the word model.
+   *
+   * @see models/word.js
+   */
   var Word = Backbone.Model.extend({
     defaults: window.MagPo.models.Word,
   });
+
+  /**
+   * Defines the words collection.
+   */
+  var Words = Backbone.Collection.extend({
+    model: Word,
+  });
+
+  /**
+   * Defines a word view.
+   */
   var WordView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
@@ -93,19 +121,28 @@
       return this;
     }
   });
-  var Drawer = Backbone.Collection.extend({
-    model: Word,
-  });
+
+  /**
+   * Defines a drawer view.
+   */
   var DrawerView = Backbone.View.extend({
     el: $('#drawers'),
 
     initialize: function(){
       _.bindAll(this, 'render');
 
-      this.collection = new Drawer();
-      this.collection.reset(window.MagPo.words);
+      this.words = new Words();
 
-      $(this).append(this.collection.each.render);
+      // If this is a new poem we can render everybody.
+      if (typeof poem.id === 'undefined' || poem.id == null) {
+        this.words.reset(words.models);
+      }
+      // Otherwise intersect the poem's words with the full list.
+      else {
+        this.words.reset(_.difference(words.models, poem.words.models));
+      }
+
+      $(this).append(this.words.each.render);
       this.render();
     },
 
@@ -124,6 +161,11 @@
     }
   });
 
+  /**
+   * Defines the poem model.
+   *
+   * @see models/poem.js
+   */
   var Poem = Backbone.Model.extend({
     defaults: window.MagPo.models.Poem,
     initialize: function() {
@@ -145,8 +187,11 @@
     },
   });
 
-  var poem = new Poem();
-
+  /**
+   * Defines the fridge (workspace) view.
+   *
+   * TODO - rename to PoemView and deprecate existing PoemView?
+   */
   var FridgeView = Backbone.View.extend({
     el: $('#fridge'),
     initialize: function() {
@@ -174,6 +219,9 @@
     },
   });
 
+  /**
+   * Defines the textual representation view of a poem.
+   */
   var PoemView = Backbone.View.extend({
     el: $('#poemText'),
     initialize: function() {
@@ -188,6 +236,9 @@
     }
   });
 
+  /**
+   * Defines the submit view.
+   */
   var SubmitView = Backbone.View.extend({
     el: $('#publish'),
     events: {
@@ -201,11 +252,19 @@
     },
   });
 
-  var router = new AppRouter();
+  /**
+   * Local variables.
+   */
+  var poem = new Poem();
+
+  var words = new Words();
+  words.reset(window.MagPo.words);
+
   var drawerView = new DrawerView();
   var fridgeView = new FridgeView({collection:poem});
   var poemView = new PoemView({collection:poem});
   var submitView = new SubmitView();
+  var router = new AppRouter();
 
   Backbone.history.start();
 })(jQuery);
