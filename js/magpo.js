@@ -11,8 +11,9 @@
       };
 
       // If this is an update we should always be sending along our uuid.
-      if (typeof localStorage.me !== 'undefined') {
-        body.poem.author = localStorage.me;
+      // TODO - store a cookie if local storage isn't supported?
+      if (typeof localStorage.MagPo.me !== 'undefined') {
+        body.poem.author = localStorage.MagPo.me;
       }
       else {
         // Fork it, baby!
@@ -20,7 +21,7 @@
         redirect = true;
       }
 
-      // Send to server!
+      // Send to server.
       $.ajax({
         url: baseUrl + '/app/save',
         contentType: 'application/json',
@@ -34,7 +35,7 @@
           }
           model.id = data.poem.id;
           if (typeof data.poem.author !== 'undefined') {
-            localStorage.me = data.poem.author;
+            localStorage.MagPo.me = data.poem.author;
           }
           if (redirect) {
             router.navigate(model.id, { trigger: false });
