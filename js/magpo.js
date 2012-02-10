@@ -84,10 +84,8 @@
     initialize: function(){
       _.bindAll(this, 'render');
 
-      var collection = this.collection = new Drawer();
-
-      _.each([{string:'this'}, {string:'that'}, {string:'the other'}], function(item){
-        collection.create(item)})
+      this.collection = new Drawer();
+      this.collection.reset(window.MagPo.words);
 
       $(this).append(this.collection.each.render);
       this.render();

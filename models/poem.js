@@ -15,8 +15,11 @@ if (typeof module === 'undefined') {
     model: Word
   });
   // Set usable defaults.
-  if (typeof window['MagPo'] === 'undefined') {
+  if (typeof window.MagPo === 'undefined') {
     window.MagPo = { models: {} };
+  }
+  else if (typeof window.MagPo.models === 'undefined') {
+    window.MagPo.models = {};
   }
   window.MagPo.models.Poem = Poem;
 }

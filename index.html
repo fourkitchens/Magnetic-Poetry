@@ -28,39 +28,34 @@
   <script src="js/mylibs/backbone.js"></script>
 
   <script>
-  jQuery(document).ready(function($) {
     if (typeof window.MagPo === 'undefined') {
       window.MagPo = { };
     }
     window.MagPo.words = [
-      "term",
-      "node",
-      "user",
-      "relation",
-      "commerce",
-      "wysiwyg",
-      "commerce",
-      "hook_init",
-      "hook_form",
-      "hook_filter",
-      "hook_rdf",
-      "hook_dashboard",
-      "hook_book",
-      "hook_blog",
-      "hook_color",
-      "hook_block",
-      "hook_file",
-      "hook_system",
-      "hook_path",
-      "hook_shortcut",
-      "hook_tracker"
+      { string: "hook_" },
+      { string: "term" },
+      { string: "node" },
+      { string: "user" },
+      { string: "relation" },
+      { string: "commerce" },
+      { string: "wysiwyg" },
+      { string: "commerce" },
+      { string: "init" },
+      { string: "form" },
+      { string: "filter" },
+      { string: "rdf" },
+      { string: "dashboard" },
+      { string: "book" },
+      { string: "blog" },
+      { string: "color" },
+      { string: "block" },
+      { string: "file" },
+      { string: "system" },
+      { string: "path" },
+      { string: "shortcut" },
+      { string: "tracker" }
     ];
-  });
-
-
   </script>
-
-
 </head>
 
 <body>

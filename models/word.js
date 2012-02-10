@@ -22,6 +22,9 @@ if (typeof module === 'undefined') {
   if (typeof window.MagPo === 'undefined') {
     window.MagPo = { models: {} };
   }
+  else if (typeof window.MagPo.models === 'undefined') {
+    window.MagPo.models = {};
+  }
   window.MagPo.models.Word = Word;
 }
 // Else export for use on server side.
