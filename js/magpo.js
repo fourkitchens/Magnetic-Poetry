@@ -158,6 +158,7 @@
       $(this.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
+          dropped.set('position', $(ui.draggable).position());
           if (!poem.words.getByCid((dropped.cid))) {
             poem.words.add(dropped);
           }
