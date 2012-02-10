@@ -26,6 +26,7 @@ if (typeof module === 'undefined') {
 else {
   var Word = require('./word');
   Poem.words = [ Word ];
+  Poem.author = String;
   module.exports = Poem;
 }
 

@@ -6,6 +6,20 @@
       if (model.id == null) {
         redirect = true;
       }
+      var body = {
+        poem: model.toJSON(),
+      };
+
+      // If this is an update we should always be sending along our uuid.
+      if (typeof localStorage.me !== 'undefined') {
+        body.poem.author = localStorage.me;
+      }
+      else {
+        // Fork it, baby!
+        model.id = null;
+        redirect = true;
+      }
+
       // Send to server!
       $.ajax({
         url: baseUrl + '/app/save',
@@ -19,6 +33,9 @@
             return;
           }
           model.id = data.poem.id;
+          if (typeof data.poem.author !== 'undefined') {
+            localStorage.me = data.poem.author;
+          }
           if (redirect) {
             router.navigate(model.id, { trigger: false });
           }
