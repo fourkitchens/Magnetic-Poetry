@@ -19,7 +19,9 @@ MagPo.attach = function() {
    *  The unique identifier for the poem.
    */
   this.loadPoem = function(id, callback) {
-    this.PoemModel.findOne({ _id: id }, callback);
+    // TODO - this is fragile, need to think about selecting all EXCEPT
+    // the author.
+    this.PoemModel.findOne({ _id: id }, ['_id', 'words'], callback);
   };
 
   /**
@@ -38,9 +40,13 @@ MagPo.attach = function() {
       poemObj.words.push(word);
     }
 
-    if (typeof poem.id !== 'undefined' && poem.id != null) {
+    // TODO - figure out what to do if the author is set but is not the author
+    // of the poem they're trying to update!
+    // If the id exists and the author is set, try to update.
+    if (typeof poem.id !== 'undefined' && poem.id != null && poem.author != null) {
+      // TODO - this is fragile and assumes words is all we need to save.
       this.PoemModel.update(
-        { _id: poem.id },
+        { _id: poem.id, author: poem.author },
         { $set: { words: poemObj.words } },
         function(err) {
           if (err) {
@@ -51,12 +57,18 @@ MagPo.attach = function() {
         }
       );
     }
+    // Else it's a new one!
     else {
+      // Generate a unique identifier that will be used to "authenticate" the
+      // author. The only time this value is returned (for local storage) is
+      // on initial save.
+      poemObj.author = require('node-uuid').v4();
       poemObj.save(function(err) {
         if (err) {
           callback(err, null);
         }
         poem.id = poemObj._id.__id;
+        poem.author = poemObj.author;
         callback(err, poem);
       });
     }
