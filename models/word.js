@@ -6,19 +6,21 @@
  * Type definition for Word model.
  */
 var Word = {
+  id: Number,
   string: String,
   snap: String,
-  row: Number,
-  column: Number,
+  top: Number,
+  left: Number,
 };
 
 // If this is browser-side.
 if (typeof module === 'undefined') {
   // Set usable defaults.
+  Word.id = 0;
   Word.string = 'hello';
   Word.snap = 'none';
-  Word.row = 0;
-  Word.column = 0;
+  Word.top = null;
+  Word.left = null;
   if (typeof window.MagPo === 'undefined') {
     window.MagPo = { models: {} };
   }
