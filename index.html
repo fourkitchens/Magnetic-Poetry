@@ -31,17 +31,34 @@
   <script src="js/mylibs/backbone.js"></script>
 
   <script>
-  jQuery(document).ready(function($) {
-    var entities=["term","node","user","relation","commerce","wysiwyg","commerce"];
-    var hookFunctions=["_hook","_preprocess"];
-    var functions=["init","form","filter","rdf","dashboard","book","blog","color","block","file","system","path","shortcut","tracker"];
-    var words = entities.concat(hookFunctions, functions);
-  });
-
-
+    if (typeof window.MagPo === 'undefined') {
+      window.MagPo = { };
+    }
+    window.MagPo.words = [
+      { string: "hook_" },
+      { string: "term" },
+      { string: "node" },
+      { string: "user" },
+      { string: "relation" },
+      { string: "commerce" },
+      { string: "wysiwyg" },
+      { string: "commerce" },
+      { string: "init" },
+      { string: "form" },
+      { string: "filter" },
+      { string: "rdf" },
+      { string: "dashboard" },
+      { string: "book" },
+      { string: "blog" },
+      { string: "color" },
+      { string: "block" },
+      { string: "file" },
+      { string: "system" },
+      { string: "path" },
+      { string: "shortcut" },
+      { string: "tracker" }
+    ];
   </script>
-
-
 </head>
 
 <body>
@@ -56,10 +73,15 @@
 
     </footer>
   </div> <!--! end of #container -->
+  <div id="publish">
+    Publish this poem
+  </div>
 
   <!-- scripts concatenated and minified via ant build script-->
   <script defer src="js/plugins.js"></script>
   <script defer src="js/script.js"></script>
+  <script defer src="models/word.js"></script>
+  <script defer src="models/poem.js"></script>
   <script defer src="js/magpo.js"></script>
   <!-- end scripts-->
   <script> // Change UA-XXXXX-X to be your site's ID
