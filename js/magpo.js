@@ -12,8 +12,8 @@
 
       // If this is an update we should always be sending along our uuid.
       // TODO - store a cookie if local storage isn't supported?
-      if (typeof localStorage.MagPo.me !== 'undefined') {
-        body.poem.author = localStorage.MagPo.me;
+      if (typeof localStorage.MagPo_me !== 'undefined') {
+        body.poem.author = localStorage.MagPo_me;
       }
       else {
         // Fork it, baby!
@@ -35,7 +35,7 @@
           }
           model.id = data.poem.id;
           if (typeof data.poem.author !== 'undefined') {
-            localStorage.MagPo.me = data.poem.author;
+            localStorage.MagPo_me = data.poem.author;
           }
           if (redirect) {
             router.navigate(model.id, { trigger: false });
