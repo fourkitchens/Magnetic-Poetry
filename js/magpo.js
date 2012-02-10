@@ -61,6 +61,10 @@
             return;
           }
           model.words.reset(data.poem.words);
+          _(data.poem.words).each(function(serverWord) {
+            var word = words.get(serverWord.id);
+            word.set({ top: serverWord.top, left: serverWord.left });
+          });
         }
       );
     }
@@ -104,7 +108,8 @@
       class: 'draggable tiles',
     },
     initilaze: function(){
-      _.bindAll(this, 'render', 'attributes');
+      this.model.bind('change', this.render, this);
+      this.model.bind('change', function() { console.log('boom'); }, this);
     },
     render: function(){
       $(this.el).draggable({stack: '.tiles'});
@@ -118,46 +123,50 @@
         $(this.el).css("-webkit-transform", "rotate(-2deg)");
       }
 
+      var top = this.model.get('top');
+      var left = this.model.get('left');
+      if (top != null && left != null) {
+        $(this.el).offset({ top: top, left: left });
+      }
+
       return this;
     }
   });
 
   /**
-   * Defines a drawer view.
+   * Defines the global workspace.
    */
-  var DrawerView = Backbone.View.extend({
-    el: $('#drawers'),
+  var WorkspaceView = Backbone.View.extend({
+    el: $('#workspace'),
 
     initialize: function(){
       _.bindAll(this, 'render');
 
-      this.words = new Words();
-
       // If this is a new poem we can render everybody.
-      if (typeof poem.id === 'undefined' || poem.id == null) {
-        this.words.reset(words.models);
-      }
-      // Otherwise intersect the poem's words with the full list.
-      else {
-        this.words.reset(_.difference(words.models, poem.words.models));
+      if (typeof poem.id !== 'undefined' && poem.id != null) {
+
       }
 
-      $(this).append(this.words.each.render);
-      this.render();
+      words.bind('reset', this.addAll, this);
+      words.bind('all', this.render, this);
+      //$('#drawers', this.el).append(words.each.render);
+      //this.render();
     },
 
     appendItem: function(word){
       var wordView = new WordView({
         model: word
       });
-      $('.drawer', this.el).append(wordView.render().el);
+      wordView.render();
+      if (word.get('top') == null || word.get('left') == null) {
+        $('#drawers').append(wordView.$el);
+      }
     },
     render: function(){
-      var self = this;
       $(this.el).prepend('<div class="drawer"></div>');
-      _(this.collection.models).each(function(item){
-        self.appendItem(item);
-      }, this);
+    },
+    addAll: function() {
+      words.each(this.appendItem);
     }
   });
 
@@ -259,16 +268,16 @@
    * Local variables.
    */
   var poem = new Poem();
-
   var words = new Words();
-  words.reset(window.MagPo.words);
 
-  var drawerView = new DrawerView();
+  var router = new AppRouter();
+  Backbone.history.start();
+
+  var workspaceView = new WorkspaceView();
   var fridgeView = new FridgeView({collection:poem});
   var poemView = new PoemView({collection:poem});
   var submitView = new SubmitView();
-  var router = new AppRouter();
 
-  Backbone.history.start();
+  words.reset(window.MagPo.words);
 })(jQuery);
 
