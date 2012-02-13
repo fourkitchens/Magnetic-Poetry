@@ -62,7 +62,12 @@ MagPo.attach = function() {
       // Generate a unique identifier that will be used to "authenticate" the
       // author. The only time this value is returned (for local storage) is
       // on initial save.
-      poemObj.author = require('node-uuid').v4();
+      if (typeof poem.author === 'undefined') {
+        poemObj.author = require('node-uuid').v4();
+      }
+      else {
+        poemObj.author = poem.author;
+      }
       poemObj.save(function(err) {
         if (err) {
           callback(err, null);

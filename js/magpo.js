@@ -21,7 +21,7 @@
 
       // If this is an update we should always be sending along our uuid.
       // TODO - store a cookie if local storage isn't supported?
-      if (typeof localStorage.MagPo_me !== 'undefined') {
+      if (typeof localStorage.getItem('MagPo_me') !== 'undefined') {
         body.poem.author = localStorage.MagPo_me;
       }
       else {
@@ -34,7 +34,7 @@
       $.ajax({
         url: baseUrl + '/app/save',
         contentType: 'application/json',
-        data: JSON.stringify({ poem: model.toJSON() }),
+        data: JSON.stringify(body),
         dataType: 'json',
         type: 'POST',
         success: function(data) {
@@ -44,7 +44,7 @@
           }
           model.id = data.poem.id;
           if (typeof data.poem.author !== 'undefined') {
-            localStorage.MagPo_me = data.poem.author;
+            localStorage.setItem('MagPo_me', data.poem.author);
           }
           if (redirect) {
             router.navigate(model.id, { trigger: false });
@@ -276,10 +276,12 @@
 
   words.reset(window.MagPo.words);
 
+  var router = null;
+
   // Positions behave strangely in webkit browsers if the page isn't fully
   // loaded yet.
   $(window).load(function() {
-    var router = new AppRouter();
+    router = new AppRouter();
     Backbone.history.start();
   });
 })(jQuery);
