@@ -1,4 +1,13 @@
-(function($){
+(function($) {
+
+  /**
+   * Defines sync behavior to the backend.
+   *
+   * @param {string} method
+   *   The sync method.
+   * @param {object} model
+   *   The model object that is being synced.
+   */
   Backbone.sync = function(method, model) {
     var baseUrl = window.location.protocol + '//' + window.location.host;
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
@@ -52,11 +61,18 @@
             return;
           }
           model.words.reset(data.poem.words);
+          _(data.poem.words).each(function(serverWord) {
+            var word = words.get(serverWord.id);
+            word.set({ top: serverWord.top, left: serverWord.left });
+          });
         }
       );
     }
   };
 
+  /**
+   * Defines the application router.
+   */
   var AppRouter = Backbone.Router.extend({
     routes: {
       ':id': 'load',
@@ -67,16 +83,32 @@
     },
   });
 
+  /**
+   * Defines the word model.
+   *
+   * @see models/word.js
+   */
   var Word = Backbone.Model.extend({
     defaults: window.MagPo.models.Word,
   });
+
+  /**
+   * Defines the words collection.
+   */
+  var Words = Backbone.Collection.extend({
+    model: Word,
+  });
+
+  /**
+   * Defines a word view.
+   */
   var WordView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
       class: 'draggable tiles',
     },
-    initilaze: function(){
-      _.bindAll(this, 'render', 'attributes');
+    initialize: function(){
+      this.model.bind('change', this.render, this);
     },
     render: function(){
       $(this.el).draggable({stack: '.tiles'});
@@ -90,40 +122,58 @@
         $(this.el).css("-webkit-transform", "rotate(-2deg)");
       }
 
+      var top = this.model.get('top');
+      var left = this.model.get('left');
+      if (top != null && left != null) {
+        $(this.el).offset({ top: top, left: left });
+      }
+
       return this;
     }
   });
-  var Drawer = Backbone.Collection.extend({
-    model: Word,
-  });
-  var DrawerView = Backbone.View.extend({
-    el: $('#drawers'),
+
+  /**
+   * Defines the global workspace.
+   */
+  var WorkspaceView = Backbone.View.extend({
+    el: $('#workspace'),
 
     initialize: function(){
       _.bindAll(this, 'render');
 
-      this.collection = new Drawer();
-      this.collection.reset(window.MagPo.words);
+      // If this is a new poem we can render everybody.
+      if (typeof poem.id !== 'undefined' && poem.id != null) {
 
-      $(this).append(this.collection.each.render);
-      this.render();
+      }
+
+      words.bind('reset', this.addAll, this);
+      words.bind('all', this.render, this);
+      //$('#drawers', this.el).append(words.each.render);
+      //this.render();
     },
 
     appendItem: function(word){
       var wordView = new WordView({
         model: word
       });
-      $('.drawer', this.el).append(wordView.render().el);
+      wordView.render();
+      if (word.get('top') == null || word.get('left') == null) {
+        $('#drawers').append(wordView.$el);
+      }
     },
     render: function(){
-      var self = this;
       $(this.el).prepend('<div class="drawer"></div>');
-      _(this.collection.models).each(function(item){
-        self.appendItem(item);
-      }, this);
+    },
+    addAll: function() {
+      words.each(this.appendItem);
     }
   });
 
+  /**
+   * Defines the poem model.
+   *
+   * @see models/poem.js
+   */
   var Poem = Backbone.Model.extend({
     defaults: window.MagPo.models.Poem,
     initialize: function() {
@@ -145,8 +195,11 @@
     },
   });
 
-  var poem = new Poem();
-
+  /**
+   * Defines the fridge (workspace) view.
+   *
+   * TODO - rename to PoemView and deprecate existing PoemView?
+   */
   var FridgeView = Backbone.View.extend({
     el: $('#fridge'),
     initialize: function() {
@@ -177,6 +230,9 @@
     },
   });
 
+  /**
+   * Defines the textual representation view of a poem.
+   */
   var PoemView = Backbone.View.extend({
     el: $('#poemText'),
     initialize: function() {
@@ -191,6 +247,9 @@
     }
   });
 
+  /**
+   * Defines the submit view.
+   */
   var SubmitView = Backbone.View.extend({
     el: $('#publish'),
     events: {
@@ -204,12 +263,20 @@
     },
   });
 
+  /**
+   * Local variables.
+   */
+  var poem = new Poem();
+  var words = new Words();
+
   var router = new AppRouter();
-  var drawerView = new DrawerView();
+  Backbone.history.start();
+
+  var workspaceView = new WorkspaceView();
   var fridgeView = new FridgeView({collection:poem});
   var poemView = new PoemView({collection:poem});
   var submitView = new SubmitView();
 
-  Backbone.history.start();
+  words.reset(window.MagPo.words);
 })(jQuery);
 
