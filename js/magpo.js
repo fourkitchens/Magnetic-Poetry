@@ -269,14 +269,18 @@
   var poem = new Poem();
   var words = new Words();
 
-  var router = new AppRouter();
-  Backbone.history.start();
-
   var workspaceView = new WorkspaceView();
   var fridgeView = new FridgeView({collection:poem});
   var poemView = new PoemView({collection:poem});
   var submitView = new SubmitView();
 
   words.reset(window.MagPo.words);
+
+  // Positions behave strangely in webkit browsers if the page isn't fully
+  // loaded yet.
+  $(window).load(function() {
+    var router = new AppRouter();
+    Backbone.history.start();
+  });
 })(jQuery);
 
