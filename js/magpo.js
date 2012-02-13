@@ -107,9 +107,8 @@
     attributes: {
       class: 'draggable tiles',
     },
-    initilaze: function(){
+    initialize: function(){
       this.model.bind('change', this.render, this);
-      this.model.bind('change', function() { console.log('boom'); }, this);
     },
     render: function(){
       $(this.el).draggable({stack: '.tiles'});
