@@ -214,7 +214,7 @@
           var pos = $(ui.draggable).position();
           dropped.set('top', pos.top);
           dropped.set('left', pos.left);
-          if (!poem.words.getByCid((dropped.cid))) {
+          if (!poem.words.get({ id: dropped.id })) {
             poem.words.add(dropped);
           }
         },
