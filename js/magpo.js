@@ -179,6 +179,25 @@
     initialize: function() {
       var poemCollection = Backbone.Collection.extend({
         model: Word,
+        comparator: function(a, b) {
+          var third = rowHeight / 3;
+          var up = a.get('top') - third;
+          var row = up - third;
+          var down = row - third;
+          // Sort the collection in a "multi-dimensional" array where:
+          if (b.get('top') < a.get('top')) {
+            return 1;
+          }
+          else if (b.get('top') >= a.get('top') && b.get('top') <= (a.get('top') + rowHeight)) {
+            if (b.get('left') < a.get('left')) {
+              return 1;
+            }
+            return -1;
+          }
+          else {
+            return -1;
+          }
+        },
       });
       this.words = new poemCollection();
     },
@@ -192,6 +211,14 @@
         id: this.id,
         words: this.words.toJSON(),
       };
+    },
+    stringify: function() {
+      var out = '';
+      this.words.each(function(word) {
+        out += word.get('string') + ' ';
+      });
+
+      return out;
     },
   });
 
@@ -217,6 +244,10 @@
           if (!poem.words.get({ id: dropped.id })) {
             poem.words.add(dropped);
           }
+          else {
+            poem.words.sort();
+          }
+          poemView.render();
         },
         out: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model
@@ -242,8 +273,7 @@
       this.collection.bind('remove', this.render, this);
     },
     render: function() {
-      $(this.el).html(
-      JSON.stringify(poem.words.pluck('string')));
+      $(this.el).text(poem.stringify());
     }
   });
 
@@ -277,6 +307,8 @@
   words.reset(window.MagPo.words);
 
   var router = null;
+
+  var rowHeight = $('.tiles').height();
 
   // Positions behave strangely in webkit browsers if the page isn't fully
   // loaded yet.
