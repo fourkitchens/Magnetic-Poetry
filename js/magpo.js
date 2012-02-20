@@ -214,12 +214,18 @@
     stringify: function() {
       var out = '';
       var lastRight = false;
+      var lastBottom = false;
       this.words.each(function(word) {
+        if (lastBottom && (word.get('top') > (lastBottom + (rowHeight / 3)))) {
+          out += "\r";
+          lastRight = false;
+        }
         if (lastRight) {
           out += Array(Math.floor((word.get('left') - lastRight) / charWidth)).join(' ');
         }
         out += word.get('string');
         lastRight = word.get('left') + (word.get('string').length * charWidth);
+        lastBottom = word.get('top') + rowHeight;
       });
 
       return out;
