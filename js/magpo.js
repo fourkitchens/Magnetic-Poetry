@@ -199,7 +199,6 @@
         },
       });
       this.words = new poemCollection();
-      this.lowestLeft = false;
     },
     getWords: function() {
       return this.words.toJSON();
@@ -227,11 +226,11 @@
       var lastBottom = false;
       this.words.each(function(word) {
         if (!lastBottom) {
-          out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth)).join(' ');
+          out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth) + 1).join(' ');
         }
         else if (lastBottom && (word.get('top') > (lastBottom + (rowHeight / 3)))) {
-          out += Array(Math.floor((word.get('top') - lastBottom) / rowHeight)).join("\r");
-          out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth)).join(' ');
+          out += Array(Math.ceil((word.get('top') - lastBottom) / rowHeight) + 1).join("\r");
+          out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth) + 1).join(' ');
           lastRight = false;
         }
         if (lastRight) {
