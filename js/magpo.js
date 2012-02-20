@@ -217,7 +217,7 @@
       var lastBottom = false;
       this.words.each(function(word) {
         if (lastBottom && (word.get('top') > (lastBottom + (rowHeight / 3)))) {
-          out += "\r";
+          out += Array(Math.floor((word.get('top') - lastBottom) / rowHeight)).join("\r");
           lastRight = false;
         }
         if (lastRight) {
