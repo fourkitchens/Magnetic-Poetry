@@ -235,7 +235,11 @@
           lastRight = false;
         }
         if (lastRight) {
-          out += Array(Math.floor((word.get('left') - lastRight) / charWidth)).join(' ');
+          var spaces = Math.floor((word.get('left') - lastRight) / charWidth);
+          if (spaces <= 0 ) {
+            spaces = 0;
+          }
+          out += Array(spaces).join(' ');
         }
         out += word.get('string');
         lastRight = word.get('left') + (word.get('string').length * charWidth);
