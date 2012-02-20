@@ -181,14 +181,13 @@
         model: Word,
         comparator: function(a, b) {
           var third = rowHeight / 3;
-          var up = a.get('top') - third;
-          var row = up - third;
-          var down = row - third;
+          var aTop = a.get('top');
+          var bTop = b.get('top');
           // Sort the collection in a "multi-dimensional" array where:
-          if (b.get('top') < a.get('top')) {
+          if (bTop < (aTop - third)) {
             return 1;
           }
-          else if (b.get('top') >= a.get('top') && b.get('top') <= (a.get('top') + rowHeight)) {
+          else if (bTop >= aTop && bTop <= (aTop + rowHeight)) {
             if (b.get('left') < a.get('left')) {
               return 1;
             }
@@ -214,8 +213,13 @@
     },
     stringify: function() {
       var out = '';
+      var lastRight = false;
       this.words.each(function(word) {
-        out += word.get('string') + ' ';
+        if (lastRight) {
+          out += Array(Math.floor((word.get('left') - lastRight) / charWidth)).join(' ');
+        }
+        out += word.get('string');
+        lastRight = word.get('left') + (word.get('string').length * charWidth);
       });
 
       return out;
@@ -309,6 +313,9 @@
   var router = null;
 
   var rowHeight = $('.tiles').height();
+  var span = $('.tiles span');
+  var charWidth = (span.width() / span.html().length);
+
 
   // Positions behave strangely in webkit browsers if the page isn't fully
   // loaded yet.
