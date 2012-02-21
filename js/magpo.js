@@ -187,7 +187,7 @@
           if (bTop < (aTop - third)) {
             return 1;
           }
-          else if (bTop >= aTop && bTop <= (aTop + rowHeight)) {
+          else if (bTop >= (aTop - third) && bTop <= (aTop + rowHeight + third)) {
             if (b.get('left') < a.get('left')) {
               return 1;
             }
@@ -213,6 +213,7 @@
     },
     stringify: function() {
       var out = '';
+      var third = rowHeight / 3;
       var lowestLeft = false;
       this.words.each(function(word) {
         if (!lowestLeft) {
@@ -223,13 +224,13 @@
         }
       });
       var lastRight = false;
-      var lastBottom = false;
+      var lastTop = false;
       this.words.each(function(word) {
-        if (!lastBottom) {
+        if (!lastTop) {
           out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth) + 1).join(' ');
         }
-        else if (lastBottom && (word.get('top') > (lastBottom + (rowHeight / 3)))) {
-          out += Array(Math.ceil((word.get('top') - lastBottom) / rowHeight) + 1).join("\r");
+        else if (lastTop && (word.get('top') > (lastTop + rowHeight + third))) {
+          out += Array(Math.floor((word.get('top') - lastTop) / rowHeight) + 1).join("\r");
           out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth) + 1).join(' ');
           lastRight = false;
         }
@@ -242,7 +243,7 @@
         }
         out += word.get('string');
         lastRight = word.get('left') + (word.get('string').length * charWidth);
-        lastBottom = word.get('top') + rowHeight;
+        lastTop = word.get('top');
       });
 
       return out;
