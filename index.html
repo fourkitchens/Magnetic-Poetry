@@ -34,29 +34,40 @@
     if (typeof window.MagPo === 'undefined') {
       window.MagPo = { };
     }
-    window.MagPo.words = [
-      { id: 1, string: "hook_" },
-      { id: 2, string: "term" },
-      { id: 3, string: "node" },
-      { id: 4, string: "user" },
-      { id: 5, string: "relation" },
-      { id: 6, string: "commerce" },
-      { id: 7, string: "wysiwyg" },
-      { id: 8, string: "commerce" },
-      { id: 9, string: "init" },
-      { id: 10, string: "form" },
-      { id: 11, string: "filter" },
-      { id: 12, string: "rdf" },
-      { id: 13, string: "dashboard" },
-      { id: 14, string: "book" },
-      { id: 15, string: "blog" },
-      { id: 16, string: "color" },
-      { id: 17, string: "block" },
-      { id: 18, string: "file" },
-      { id: 19, string: "system" },
-      { id: 20, string: "path" },
-      { id: 21, string: "shortcut" },
-      { id: 22, string: "tracker" }
+    window.MagPo.drawers = [
+      {
+        id: 1,
+        name: 'Core',
+        words: [
+          { vid: 1, id: 1, string: "hook_" },
+          { vid: 1, id: 2, string: "term" },
+          { vid: 1, id: 3, string: "node" },
+          { vid: 1, id: 4, string: "user" },
+          { vid: 1, id: 5, string: "relation" },
+          { vid: 1, id: 9, string: "init" },
+          { vid: 1, id: 10, string: "form" },
+          { vid: 1, id: 11, string: "filter" },
+          { vid: 1, id: 12, string: "rdf" },
+          { vid: 1, id: 14, string: "book" },
+          { vid: 1, id: 16, string: "color" },
+          { vid: 1, id: 17, string: "block" },
+          { vid: 1, id: 18, string: "file" },
+          { vid: 1, id: 19, string: "system" },
+          { vid: 1, id: 20, string: "path" },
+          { vid: 1, id: 21, string: "shortcut" },
+          { vid: 1, id: 22, string: "tracker" }
+        ],
+      },
+      {
+        id: 2,
+        name: 'Contrib',
+        words: [
+          { vid: 1, id: 6, string: "commerce" },
+          { vid: 1, id: 7, string: "wysiwyg" },
+          { vid: 1, id: 13, string: "dashboard" },
+          { vid: 1, id: 15, string: "blog" },
+        ],
+      },
     ];
   </script>
 </head>
@@ -69,6 +80,7 @@
       <div id="publish">Publish this poem</div>
     </header>
     <div id="drawers" role="main" class="group"></div>
+    <div id="drawer-tabs"></div>
     <div id="fridge" class="brushed-metal"> </div>
     <footer>
     </footer>

@@ -7,6 +7,7 @@
  */
 var Word = {
   id: Number,
+  vid: Number,
   string: String,
   snap: String,
   top: Number,
@@ -17,6 +18,7 @@ var Word = {
 if (typeof module === 'undefined') {
   // Set usable defaults.
   Word.id = 0;
+  Word.vid = 0;
   Word.string = 'hello';
   Word.snap = 'none';
   Word.top = null;
