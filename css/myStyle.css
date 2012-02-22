@@ -33,6 +33,7 @@ body {
   width: 960px;
 }
 .tiles {
+  cursor: move;
   float:left;
   background: #D5DCE2;
   border-left: 2px solid white;

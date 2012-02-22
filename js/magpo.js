@@ -164,9 +164,16 @@
       style: 'display: none',
     },
     initialize: function() {
-      this.model.view = this;
-      this.model.words.bind('reset', this.addAll, this);
-      this.model.words.bind('all', this.render, this);
+      var self = this;
+      self.model.view = self;
+      self.model.words.bind('reset', self.addAll, self);
+      this.model.words.bind('all', self.render, self);
+
+      $(self.el).droppable({
+        drop: function(event, ui) {
+          $(ui.droppable).appendTo(self.$el).offset(ui.offset);
+        },
+      });
     },
     render: function(){
       $('#drawers').append(this.$el);
@@ -342,17 +349,15 @@
     initialize: function() {
       var self = this;
 
-      var collection = this.collection;
-
-      $(this.el).droppable({
+      $(self.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
           if (!poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
-            // reset it's position with the offset.
+            // reset its position with the offset.
             $(ui.draggable)
               .appendTo(self.$el)
-              .offset({ top: ui.offset.top, left: ui.offset.left })
+              .offset(ui.offset);
             dropped.set('top', ui.position.top);
             dropped.set('left', ui.position.left);
             poem.words.add(dropped);
