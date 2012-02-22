@@ -1,6 +1,6 @@
 (function($) {
 
-  window.MagPo.abstract = {};
+  // Make these variables available in the global scope.
   window.MagPo.app = {};
 
   /**
@@ -65,7 +65,9 @@
           }
           model.words.reset(data.poem.words);
           _(data.poem.words).each(function(serverWord) {
-            var word = words.get(serverWord.id);
+            var drawer = drawers[serverWord.vid].model;
+            var word = drawer.words.get(serverWord.id);
+            $(word.view.el).appendTo('#fridge');
             word.set({ top: serverWord.top, left: serverWord.left });
           });
         }
@@ -76,7 +78,7 @@
   /**
    * Defines the application router.
    */
-  var AppRouter = window.MagPo.abstract.AppRouter = Backbone.Router.extend({
+  var AppRouter = Backbone.Router.extend({
     routes: {
       ':id': 'load',
     },
@@ -91,26 +93,27 @@
    *
    * @see models/word.js
    */
-  var Word = window.MagPo.abstract.Word = Backbone.Model.extend({
+  var Word = Backbone.Model.extend({
     defaults: window.MagPo.models.Word,
   });
 
   /**
    * Defines the words collection.
    */
-  var WordCollection = window.MagPo.abstract.WordCollection = Backbone.Collection.extend({
+  var WordCollection = Backbone.Collection.extend({
     model: Word,
   });
 
   /**
    * Defines a word view.
    */
-  var WordView = window.MagPo.abstract.WordView = Backbone.View.extend({
+  var WordView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
       class: 'draggable tiles',
     },
     initialize: function(){
+      this.model.view = this;
       this.model.bind('change', this.render, this);
     },
     render: function(){
@@ -141,7 +144,7 @@
   /**
    * Defines the drawer model.
    */
-  var Drawer = window.MagPo.abstract.Drawer = Backbone.Model.extend({
+  var Drawer = Backbone.Model.extend({
     attributes: {
       name: 'drawer',
     },
@@ -149,32 +152,78 @@
       this.id = drawer.id;
       this.set('name', drawer.name);
       this.words = new WordCollection();
-      this.words.reset(drawer.words);
-      _(drawer.words).each(function(word) {
-        words.add(word);
-      });
     },
   });
 
   /**
    * Defines a drawer view.
    */
-  var DrawerView = window.MagPo.abstract.DrawerView = Backbone.View.extend({
+  var DrawerView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
-      class: 'draggable tiles',
+      class: 'drawer',
+      style: 'display: none',
     },
-    initialize: function(drawer) {
-      this.words = new WordCollection();
+    initialize: function() {
+      this.model.view = this;
+      this.model.words.bind('reset', this.addAll, this);
+      this.model.words.bind('all', this.render, this);
+    },
+    render: function(){
+      $('#drawers').append(this.$el);
+    },
+    addAll: function() {
+      var self = this;
+      this.model.words.each(function(word) {
+        var wordView = new WordView({
+          model: word
+        });
+        wordView.render();
+        if (word.get('top') == null || word.get('left') == null) {
+          $(self.el).append(wordView.$el);
+        }
+      });
+    }
+  });
+
+  /**
+   * Defines the view for the drawer handle.
+   */
+  var DrawerHandleView = Backbone.View.extend({
+    tagName: 'li',
+    attributes: {
+      class: 'drawer-handle',
+    },
+    initialize: function() {
+      this.render();
     },
     render: function() {
-      return this;
+      var self = this;
+      $(self.el).html(self.model.get('name'));
+      $('#drawer-handles').append(self.$el);
+      $(self.el).click(function() {
+        // Bail if this handle's drawer is already open.
+        if ($(this).hasClass('open-handle')) {
+          $(this).removeClass('open-handle');
+          $(self.model.view.$el).removeClass('open-drawer').slideUp(400);
+          return;
+        }
+        $('.open-handle').removeClass('open-handle');
+        $(this).addClass('open-handle');
+        if ($('.open-drawer').length == 1) {
+          $('.open-drawer').removeClass('open-drawer').slideUp(400, function() {
+            $(self.model.view.$el).addClass('open-drawer').slideDown(400);
+          });
+        }
+        else {
+          $(self.model.view.$el).addClass('open-drawer').slideDown(400);
+        }
+      });
     },
   });
 
   /**
    * Defines the global workspace.
-   */
   var WorkspaceView = window.MagPo.abstract.WorkspaceView = Backbone.View.extend({
     el: $('#workspace'),
 
@@ -185,9 +234,6 @@
       if (typeof poem.id !== 'undefined' && poem.id != null) {
 
       }
-
-      words.bind('reset', this.addAll, this);
-      words.bind('all', this.render, this);
     },
 
     appendItem: function(word){
@@ -203,16 +249,16 @@
       $(this.el).prepend('<div class="drawer"></div>');
     },
     addAll: function() {
-      words.each(this.appendItem);
     }
   });
+   */
 
   /**
    * Defines the poem model.
    *
    * @see models/poem.js
    */
-  var Poem = window.MagPo.abstract.Poem = Backbone.Model.extend({
+  var Poem = Backbone.Model.extend({
     defaults: window.MagPo.models.Poem,
     initialize: function() {
       var poemCollection = WordCollection.extend({
@@ -292,21 +338,24 @@
    *
    * TODO - rename to PoemView and deprecate existing PoemView?
    */
-  var FridgeView = window.MagPo.abstract.FridgeView = Backbone.View.extend({
+  var FridgeView = Backbone.View.extend({
     el: $('#fridge'),
     initialize: function() {
-      _.bindAll(this, 'render', 'wordDropped');
-      this.render();
+      var self = this;
 
       var collection = this.collection;
 
       $(this.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
-          var pos = $(ui.draggable).position();
+          var pos = $(ui.draggable).offset();
           dropped.set('top', pos.top);
           dropped.set('left', pos.left);
           if (!poem.words.get({ id: dropped.id })) {
+            // Move the element to the fridge so we can hide the drawer and
+            // reset it's position with the offset.
+            $(ui.draggable).appendTo(self.$el);
+            $(ui.draggable).offset({ top: pos.top, left: pos.left });
             poem.words.add(dropped);
           }
           else {
@@ -320,16 +369,12 @@
         },
       });
     },
-    render: function() {
-    },
-    wordDropped: function(e, ui) {
-    },
   });
 
   /**
    * Defines the textual representation view of a poem.
    */
-  var PoemView = window.MagPo.abstract.PoemView = Backbone.View.extend({
+  var PoemView = Backbone.View.extend({
     el: $('#poemText'),
     initialize: function() {
       _.bindAll(this, 'render');
@@ -338,14 +383,22 @@
       this.collection.bind('remove', this.render, this);
     },
     render: function() {
-      $(this.el).text(poem.stringify());
+      // Log errors here rather than throwing them since we don't want this
+      // functionality to break the rest of the app.
+      try {
+        var string = poem.stringify();
+        $(this.el).text(string);
+      }
+      catch (exception) {
+        console.error(exception);
+      }
     }
   });
 
   /**
    * Defines the submit view.
    */
-  var SubmitView = window.MagPo.abstract.SubmitView = Backbone.View.extend({
+  var SubmitView = Backbone.View.extend({
     el: $('#publish'),
     events: {
       'click': 'savePoem',
@@ -362,29 +415,38 @@
    * Local variables.
    */
   var poem = window.MagPo.app.poem = new Poem();
-  var words = window.MagPo.app.words = new WordCollection();
 
-  var workspaceView = window.MagPo.app.workspaceView = new WorkspaceView();
-  var fridgeView = window.MagPo.app.fridgeView = new FridgeView({collection:poem});
-  var poemView = window.MagPo.app.poemView = new PoemView({collection:poem});
+  var fridgeView = window.MagPo.app.fridgeView = new FridgeView({ collection: poem });
+  var poemView = window.MagPo.app.poemView = new PoemView({ collection: poem });
   var submitView = window.MagPo.app.submitView = new SubmitView();
 
-//  words.reset(window.MagPo.words);
-  var drawers = window.MagPo.app.drawers = []
+  var shown = false;
+  var drawers = window.MagPo.app.drawers = {};
   _(window.MagPo.drawers).each(function(drawer) {
     var model = new Drawer(drawer);
+    var view = new DrawerView({ model: model });
+    var handle = new DrawerHandleView({ model: model });
+
+    // Open the first drawer.
+    if (!shown) {
+      $(handle.el).addClass('open-handle');
+      $(view.el).addClass('open-drawer').show();
+      shown = true;
+    }
+
+    model.words.reset(drawer.words);
     var drawerObj = {
       model: model,
-      view: new DrawerView(model),
+      view: view,
     };
-    drawers.push(drawerObj);
+    drawers[drawer.id] = drawerObj;
   });
 
   var router = window.MagPo.app.router = null;
 
   var rowHeight = window.MagPo.app.rowHeight = $('.tiles').height();
   var span = $('.tiles span');
-  //var charWidth = window.MagPo.app.charWidth = (span.width() / span.html().length);
+  var charWidth = window.MagPo.app.charWidth = (span.width() / span.html().length);
 
 
   // Positions behave strangely in webkit browsers if the page isn't fully

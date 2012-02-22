@@ -62,10 +62,10 @@
         id: 2,
         name: 'Contrib',
         words: [
-          { vid: 1, id: 6, string: "commerce" },
-          { vid: 1, id: 7, string: "wysiwyg" },
-          { vid: 1, id: 13, string: "dashboard" },
-          { vid: 1, id: 15, string: "blog" },
+          { vid: 2, id: 6, string: "commerce" },
+          { vid: 2, id: 7, string: "wysiwyg" },
+          { vid: 2, id: 13, string: "dashboard" },
+          { vid: 2, id: 15, string: "blog" },
         ],
       },
     ];
@@ -76,13 +76,13 @@
 
   <div id="workspace">
     <header>
-      <textarea id="poemText" rows="2" cols="20"></textarea>
-      <div id="publish">Publish this poem</div>
+      <textarea id="poemText" rows="2" cols="20" style="display:none"></textarea>
     </header>
     <div id="drawers" role="main" class="group"></div>
-    <div id="drawer-tabs"></div>
+    <ul id="drawer-handles"></ul>
     <div id="fridge" class="brushed-metal"> </div>
     <footer>
+      <div id="publish">Publish this poem</div>
     </footer>
   </div> <!--! end of #container -->
 
