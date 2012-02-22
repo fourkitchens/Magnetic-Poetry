@@ -134,9 +134,6 @@
         $(this.el).offset({ top: top, left: left });
       }
 
-      // If in poem, add to poem dom obj.
-      // Else add to appropriate drawer.
-
       return this;
     }
   });
