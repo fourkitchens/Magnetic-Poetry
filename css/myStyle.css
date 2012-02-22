@@ -50,9 +50,11 @@ body {
 .tile span {
   margin: .3em;
 }
+.drawer-handle {
+  cursor: pointer;
+}
 #fridge {
   height: 600px;
-  margin-top: 200px;
 }
 .brushed-metal {
   background: #cedce7; /* Old browsers */

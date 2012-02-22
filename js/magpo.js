@@ -63,11 +63,13 @@
             console.error('Error fetching poem from server.');
             return;
           }
-          model.words.reset(data.poem.words);
+          model.words.reset();
           _(data.poem.words).each(function(serverWord) {
             var drawer = drawers[serverWord.vid].model;
             var word = drawer.words.get(serverWord.id);
+            model.words.add(word);
             $(word.view.el).appendTo('#fridge');
+            $(word.view.el).css({ top: serverWord.top, left: serverWord.left });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
         }
@@ -131,7 +133,7 @@
       var top = this.model.get('top');
       var left = this.model.get('left');
       if (top != null && left != null) {
-        $(this.el).offset({ top: top, left: left });
+        $(this.el).position({ top: top, left: left });
       }
 
       return this;
@@ -345,17 +347,19 @@
       $(this.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
-          var pos = $(ui.draggable).offset();
-          dropped.set('top', pos.top);
-          dropped.set('left', pos.left);
           if (!poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
             // reset it's position with the offset.
-            $(ui.draggable).appendTo(self.$el);
-            $(ui.draggable).offset({ top: pos.top, left: pos.left });
+            $(ui.draggable)
+              .appendTo(self.$el)
+              .offset({ top: ui.offset.top, left: ui.offset.left })
+            dropped.set('top', ui.position.top);
+            dropped.set('left', ui.position.left);
             poem.words.add(dropped);
           }
           else {
+            dropped.set('top', ui.position.top);
+            dropped.set('left', ui.position.left);
             poem.words.sort();
           }
           poemView.render();
