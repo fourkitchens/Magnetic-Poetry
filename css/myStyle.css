@@ -51,13 +51,28 @@ body {
 .tile span {
   margin: .3em;
 }
+#drawers-container {
+  height: 300px;
+  width: 100%;
+}
 .drawer {
   background: pink;
   height: 200px;
   width: 100%;
 }
+#drawer-handles {
+  list-style: none;
+  margin: 5px;
+}
 .drawer-handle {
+  display: inline;
   cursor: pointer;
+  background: red;
+  padding: 5px 9px;
+  border-bottom: 3px solid;
+  border-left: 3px solid;
+  border-right: 2px solid;
+  margin-right: 10px;
 }
 
 #fridge {
