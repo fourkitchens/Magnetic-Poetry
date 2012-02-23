@@ -171,6 +171,8 @@
 
       $(self.el).droppable({
         drop: function(event, ui) {
+          var dropped = $(ui.draggable).data('backbone-view').model;
+          poem.words.remove(dropped);
           $(ui.droppable).appendTo(self.$el).offset(ui.offset);
         },
       });
