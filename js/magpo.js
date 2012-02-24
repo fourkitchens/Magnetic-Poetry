@@ -231,9 +231,8 @@
         $('.open-handle').removeClass('open-handle');
         $(this).addClass('open-handle');
         if ($('.open-drawer').length == 1) {
-          $('.open-drawer').removeClass('open-drawer').slideUp(400, function() {
-            $(self.model.view.$el).addClass('open-drawer').slideDown(400);
-          });
+          $('.open-drawer').removeClass('open-drawer').hide()
+          $(self.model.view.$el).addClass('open-drawer').show();
         }
         else {
           $(self.model.view.$el).addClass('open-drawer').slideDown(400);
