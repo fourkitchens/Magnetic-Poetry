@@ -167,14 +167,25 @@
       var self = this;
       self.model.view = self;
       self.model.words.bind('reset', self.addAll, self);
-      this.model.words.bind('all', self.render, self);
+      self.model.words.bind('all', self.render, self);
 
       $(self.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
           poem.words.remove(dropped);
           poemView.render();
-          $(ui.draggable).appendTo(self.$el).offset(ui.offset);
+
+          if (dropped.get('vid') == self.model.id) {
+            $(ui.draggable).appendTo(self.$el).offset(ui.offset);
+          }
+          else {
+            // Unset the top and left values for this item since its drawer is
+            // currently hidden and off the screen.
+            $(ui.draggable)
+              .appendTo(drawers[dropped.get('vid')].view.$el)
+              .css('top', '')
+              .css('left', '');
+          }
         },
       });
     },
