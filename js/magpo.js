@@ -119,7 +119,7 @@
       this.model.bind('change', this.render, this);
     },
     render: function(){
-      $(this.el).draggable({stack: '.tiles'});
+      $(this.el).draggable({stack: '.tiles', appendTo: '#fridge'});
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
@@ -361,8 +361,11 @@
             $(ui.draggable)
               .appendTo(self.$el)
               .offset(ui.offset);
-            dropped.set('top', ui.position.top);
-            dropped.set('left', ui.position.left);
+            // We don't have access to the top and left values within the fridge
+            // yet but they are set on the style attribute, so grab them from
+            // there :(.
+            dropped.set('top', $(ui.draggable).css('top').replace(/(px)$/, ''));
+            dropped.set('left', $(ui.draggable).css('left').replace(/(px)$/, ''));
             poem.words.add(dropped);
           }
           else {
