@@ -133,7 +133,7 @@
       var top = this.model.get('top');
       var left = this.model.get('left');
       if (top != null && left != null) {
-        $(this.el).offset({ top: top, left: left });
+        $(this.el).position({ top: top, left: left });
       }
 
       return this;
@@ -370,14 +370,14 @@
             // reset its position with the offset.
             $(ui.draggable)
               .appendTo(self.$el)
-              .offset(ui.offset);
-            dropped.set('top', ui.offset.top);
-            dropped.set('left', ui.offset.left);
+              .position( { of: self.$el, my: 'left top', at: 'left top' } );
+            dropped.set('top', ui.position.top);
+            dropped.set('left', ui.position.left);
             poem.words.add(dropped);
           }
           else {
-            dropped.set('top', ui.offset.top);
-            dropped.set('left', ui.offset.left);
+            dropped.set('top', ui.position.top);
+            dropped.set('left', ui.position.left);
             poem.words.sort();
           }
           poemView.render();
