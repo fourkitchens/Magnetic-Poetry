@@ -119,7 +119,7 @@
       this.model.bind('change', this.render, this);
     },
     render: function(){
-      $(this.el).draggable({stack: '.tiles', appendTo: '#fridge'});
+      $(this.el).draggable({stack: '.tiles'});
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
@@ -133,7 +133,7 @@
       var top = this.model.get('top');
       var left = this.model.get('left');
       if (top != null && left != null) {
-        $(this.el).position({ top: top, left: left });
+        $(this.el).offset({ top: top, left: left });
       }
 
       return this;
@@ -361,16 +361,13 @@
             $(ui.draggable)
               .appendTo(self.$el)
               .offset(ui.offset);
-            // We don't have access to the top and left values within the fridge
-            // yet but they are set on the style attribute, so grab them from
-            // there :(.
-            dropped.set('top', $(ui.draggable).css('top').replace(/(px)$/, ''));
-            dropped.set('left', $(ui.draggable).css('left').replace(/(px)$/, ''));
+            dropped.set('top', ui.offset.top);
+            dropped.set('left', ui.offset.left);
             poem.words.add(dropped);
           }
           else {
-            dropped.set('top', ui.position.top);
-            dropped.set('left', ui.position.left);
+            dropped.set('top', ui.offset.top);
+            dropped.set('left', ui.offset.left);
             poem.words.sort();
           }
           poemView.render();
