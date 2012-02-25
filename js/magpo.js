@@ -367,10 +367,19 @@
           var dropped = $(ui.draggable).data('backbone-view').model;
           if (!poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
-            // reset its position with the offset.
+            // reset its position relative to the fridge.
+            var dropOffset = $(ui.draggable).offset();
+            var fridgeOffset = $(self.$el).offset();
+            resultOffset =  {};
+            resultOffset.top = dropOffset.top - fridgeOffset.top;
+            resultOffset.left = dropOffset.left - fridgeOffset.left;
             $(ui.draggable)
               .appendTo(self.$el)
-              .position( { of: self.$el, my: 'left top', at: 'left top' } );
+              .position( { of: self.$el,
+                           my: 'left top',
+                           at: 'left top',
+                           offset: resultOffset.left + ' ' + resultOffset.top
+              });
             dropped.set('top', ui.position.top);
             dropped.set('left', ui.position.left);
             poem.words.add(dropped);
