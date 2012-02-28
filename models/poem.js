@@ -26,6 +26,9 @@ if (typeof module === 'undefined') {
 else {
   var Word = require('./word');
   Poem.words = [ Word ];
+
+  // Author is only set on the server on purpose since this value lives
+  // in localStorage on the client.
   Poem.author = String;
   module.exports = Poem;
 }
