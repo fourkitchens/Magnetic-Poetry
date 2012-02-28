@@ -12,7 +12,7 @@
    *   The model object that is being synced.
    */
   Backbone.sync = function(method, model) {
-    var baseUrl = window.location.protocol + '//' + window.location.host;
+    var baseUrl = window.location.href;
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
       var redirect = false;
       if (model.id == null) {
@@ -35,7 +35,7 @@
 
       // Send to server.
       $.ajax({
-        url: baseUrl + '/app/save',
+        url: baseUrl + 'app/save',
         contentType: 'application/json',
         data: JSON.stringify(body),
         dataType: 'json',
