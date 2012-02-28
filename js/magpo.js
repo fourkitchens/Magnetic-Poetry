@@ -68,8 +68,14 @@
             var drawer = drawers[serverWord.vid].model;
             var word = drawer.words.get(serverWord.id);
             model.words.add(word);
-            $(word.view.el).appendTo('#fridge');
-            $(word.view.el).css({ top: serverWord.top, left: serverWord.left });
+            $(word.view.el)
+              .appendTo('#fridge')
+              .position({
+                of: '#fridge',
+                my: 'left top',
+                at: 'left top',
+                offset: serverWord.left + ' ' + serverWord.top
+              });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
         }
@@ -133,7 +139,7 @@
       var top = this.model.get('top');
       var left = this.model.get('left');
       if (top != null && left != null) {
-        $(this.el).offset({ top: top, left: left });
+        $(this.el).position({ top: top, left: left });
       }
 
       return this;
@@ -361,23 +367,33 @@
     el: $('#fridge'),
     initialize: function() {
       var self = this;
+      self.fridgeOffset = $(self.el).offset();
 
       $(self.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
+          var dropOffset = ui.offset;
+          resultOffset =  {};
+          resultOffset.top = dropOffset.top - self.fridgeOffset.top;
+          resultOffset.left = dropOffset.left - self.fridgeOffset.left;
           if (!poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
-            // reset its position with the offset.
+            // reset its position relative to the fridge.
             $(ui.draggable)
               .appendTo(self.$el)
-              .offset(ui.offset);
-            dropped.set('top', ui.offset.top);
-            dropped.set('left', ui.offset.left);
+              .position({
+                of: self.$el,
+                my: 'left top',
+                at: 'left top',
+                offset: resultOffset.left + ' ' + resultOffset.top
+              });
+            dropped.set('top', resultOffset.top);
+            dropped.set('left', resultOffset.left);
             poem.words.add(dropped);
           }
           else {
-            dropped.set('top', ui.offset.top);
-            dropped.set('left', ui.offset.left);
+            dropped.set('top', resultOffset.top);
+            dropped.set('left', resultOffset.left);
             poem.words.sort();
           }
           poemView.render();
@@ -423,11 +439,6 @@
       'click': 'savePoem',
     },
     savePoem: function() {
-     poem.words.each(function(word) {
-       console.log($(word.view.el).position())
-       
-       }
-     ); 
       poem.save({
         id: poem.id,
         words: poem.getWords(),

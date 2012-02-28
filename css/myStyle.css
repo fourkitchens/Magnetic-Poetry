@@ -11,6 +11,7 @@ body {
   min-height: 100%;
   width: 960px;
   background: #BABBB5;
+  position: relative;
 }
 /* clearfix group */ 
 .group:before,
