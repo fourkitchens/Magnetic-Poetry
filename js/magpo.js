@@ -68,8 +68,14 @@
             var drawer = drawers[serverWord.vid].model;
             var word = drawer.words.get(serverWord.id);
             model.words.add(word);
-            $(word.view.el).appendTo('#fridge');
-            $(word.view.el).css({ top: serverWord.top, left: serverWord.left });
+            $(word.view.el)
+              .appendTo('#fridge')
+              .position({
+                of: word.view.$el,
+                my: 'left top',
+                at: 'left top',
+                offset: serverWord.left + ' ' + serverWord.top
+              });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
         }
@@ -361,32 +367,33 @@
     el: $('#fridge'),
     initialize: function() {
       var self = this;
+      self.fridgeOffset = $(self.el).offset();
 
       $(self.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
+          var dropOffset = ui.offset;
+          resultOffset =  {};
+          resultOffset.top = dropOffset.top - self.fridgeOffset.top;
+          resultOffset.left = dropOffset.left - self.fridgeOffset.left;
           if (!poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
             // reset its position relative to the fridge.
-            var dropOffset = $(ui.draggable).offset();
-            var fridgeOffset = $(self.$el).offset();
-            resultOffset =  {};
-            resultOffset.top = dropOffset.top - fridgeOffset.top;
-            resultOffset.left = dropOffset.left - fridgeOffset.left;
             $(ui.draggable)
               .appendTo(self.$el)
-              .position( { of: self.$el,
-                           my: 'left top',
-                           at: 'left top',
-                           offset: resultOffset.left + ' ' + resultOffset.top
+              .position({
+                of: self.$el,
+                my: 'left top',
+                at: 'left top',
+                offset: resultOffset.left + ' ' + resultOffset.top
               });
-            dropped.set('top', ui.position.top);
-            dropped.set('left', ui.position.left);
+            dropped.set('top', resultOffset.top);
+            dropped.set('left', resultOffset.left);
             poem.words.add(dropped);
           }
           else {
-            dropped.set('top', ui.position.top);
-            dropped.set('left', ui.position.left);
+            dropped.set('top', resultOffset.top);
+            dropped.set('left', resultOffset.left);
             poem.words.sort();
           }
           poemView.render();
