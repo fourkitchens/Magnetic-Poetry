@@ -1,8 +1,5 @@
 (function($) {
 
-  // Make these variables available in the global scope.
-  window.MagPo.app = {};
-
   /**
    * Defines sync behavior to the backend.
    *
@@ -12,7 +9,8 @@
    *   The model object that is being synced.
    */
   Backbone.sync = function(method, model) {
-    var baseUrl = window.location.href;
+    var baseUrl = window.location.protocol + '//' + window.location.host +
+      window.location.pathname;
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
       var redirect = false;
       if (model.id == null) {
@@ -50,14 +48,14 @@
             localStorage.setItem('MagPo_me', data.poem.author);
           }
           if (redirect) {
-            router.navigate(model.id, { trigger: false });
+            window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
         },
       });
     }
     else if (model instanceof Poem && method == 'read') {
       $.getJSON(
-        baseUrl + '/app/load/' + model.id,
+        baseUrl + 'app/load/' + model.id,
         function(data) {
           if (data.status != 'ok') {
             console.error('Error fetching poem from server.');
@@ -65,7 +63,7 @@
           }
           model.words.reset();
           _(data.poem.words).each(function(serverWord) {
-            var drawer = drawers[serverWord.vid].model;
+            var drawer = window.MagPo.app.drawers[serverWord.vid].model;
             var word = drawer.words.get(serverWord.id);
             model.words.add(word);
             $(word.view.el)
@@ -91,8 +89,8 @@
       ':id': 'load',
     },
     load: function(id) {
-      poem.id = id;
-      poem.fetch({ id: poem.id });
+      window.MagPo.app.poem.id = id;
+      window.MagPo.app.poem.fetch({ id: window.MagPo.app.poem.id });
     },
   });
 
@@ -178,8 +176,8 @@
       $(self.el).droppable({
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
-          poem.words.remove(dropped);
-          poemView.render();
+          window.MagPo.app.poem.words.remove(dropped);
+          window.MagPo.app.poemView.render();
 
           if (dropped.get('vid') == self.model.id) {
             $(ui.draggable).appendTo(self.$el).offset(ui.offset);
@@ -248,37 +246,6 @@
   });
 
   /**
-   * Defines the global workspace.
-  var WorkspaceView = window.MagPo.abstract.WorkspaceView = Backbone.View.extend({
-    el: $('#workspace'),
-
-    initialize: function(){
-      _.bindAll(this, 'render');
-
-      // If this is a new poem we can render everybody.
-      if (typeof poem.id !== 'undefined' && poem.id != null) {
-
-      }
-    },
-
-    appendItem: function(word){
-      var wordView = new WordView({
-        model: word
-      });
-      wordView.render();
-      if (word.get('top') == null || word.get('left') == null) {
-        $('#drawers').append(wordView.$el);
-      }
-    },
-    render: function(){
-      $(this.el).prepend('<div class="drawer"></div>');
-    },
-    addAll: function() {
-    }
-  });
-   */
-
-  /**
    * Defines the poem model.
    *
    * @see models/poem.js
@@ -288,14 +255,14 @@
     initialize: function() {
       var poemCollection = WordCollection.extend({
         comparator: function(a, b) {
-          var third = rowHeight / 3;
+          var third = window.MagPo.app.rowHeight / 3;
           var aTop = a.get('top');
           var bTop = b.get('top');
           // Sort the collection in a "multi-dimensional" array where:
           if (bTop < (aTop - third)) {
             return 1;
           }
-          else if (bTop >= (aTop - third) && bTop <= (aTop + rowHeight + third)) {
+          else if (bTop >= (aTop - third) && bTop <= (aTop + window.MagPo.app.rowHeight + third)) {
             if (b.get('left') < a.get('left')) {
               return 1;
             }
@@ -321,7 +288,7 @@
     },
     stringify: function() {
       var out = '';
-      var third = rowHeight / 3;
+      var third = window.MagPo.app.rowHeight / 3;
       var lowestLeft = false;
       this.words.each(function(word) {
         if (!lowestLeft) {
@@ -335,22 +302,22 @@
       var lastTop = false;
       this.words.each(function(word) {
         if (!lastTop) {
-          out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth) + 1).join(' ');
+          out += Array(Math.floor((word.get('left') - lowestLeft) / window.MagPo.app.charWidth) + 1).join(' ');
         }
-        else if (lastTop && (word.get('top') > (lastTop + rowHeight + third))) {
-          out += Array(Math.floor((word.get('top') - lastTop) / rowHeight) + 1).join("\r");
-          out += Array(Math.floor((word.get('left') - lowestLeft) / charWidth) + 1).join(' ');
+        else if (lastTop && (word.get('top') > (lastTop + window.MagPo.app.rowHeight + third))) {
+          out += Array(Math.floor((word.get('top') - lastTop) / window.MagPo.app.rowHeight) + 1).join("\r");
+          out += Array(Math.floor((word.get('left') - lowestLeft) / window.MagPo.app.charWidth) + 1).join(' ');
           lastRight = false;
         }
         if (lastRight) {
-          var spaces = Math.floor((word.get('left') - lastRight) / charWidth);
+          var spaces = Math.floor((word.get('left') - lastRight) / window.MagPo.app.charWidth);
           if (spaces <= 0 ) {
             spaces = 0;
           }
           out += Array(spaces).join(' ');
         }
         out += word.get('string');
-        lastRight = word.get('left') + (word.get('string').length * charWidth);
+        lastRight = word.get('left') + (word.get('string').length * window.MagPo.app.charWidth);
         lastTop = word.get('top');
       });
 
@@ -376,7 +343,7 @@
           resultOffset =  {};
           resultOffset.top = dropOffset.top - self.fridgeOffset.top;
           resultOffset.left = dropOffset.left - self.fridgeOffset.left;
-          if (!poem.words.get({ id: dropped.id })) {
+          if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
             // reset its position relative to the fridge.
             $(ui.draggable)
@@ -389,18 +356,18 @@
               });
             dropped.set('top', resultOffset.top);
             dropped.set('left', resultOffset.left);
-            poem.words.add(dropped);
+            window.MagPo.app.poem.words.add(dropped);
           }
           else {
             dropped.set('top', resultOffset.top);
             dropped.set('left', resultOffset.left);
-            poem.words.sort();
+            window.MagPo.app.poem.words.sort();
           }
-          poemView.render();
+          window.MagPo.app.poemView.render();
         },
         out: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model
-          poem.words.remove(dropped);
+          window.MagPo.app.poem.words.remove(dropped);
         },
       });
     },
@@ -421,7 +388,7 @@
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
       try {
-        var string = poem.stringify();
+        var string = window.MagPo.app.poem.stringify();
         $(this.el).text(string);
       }
       catch (exception) {
@@ -439,9 +406,9 @@
       'click': 'savePoem',
     },
     savePoem: function() {
-      poem.save({
-        id: poem.id,
-        words: poem.getWords(),
+      window.MagPo.app.poem.save({
+        id: window.MagPo.app.poem.id,
+        words: window.MagPo.app.poem.getWords(),
       });
     },
   });
@@ -449,46 +416,54 @@
   /**
    * Local variables.
    */
-  var poem = window.MagPo.app.poem = new Poem();
+  var MagPo = function(drawers) {
+    var self = this;
+    self.poem = new Poem();
 
-  var fridgeView = window.MagPo.app.fridgeView = new FridgeView({ collection: poem });
-  var poemView = window.MagPo.app.poemView = new PoemView({ collection: poem });
-  var submitView = window.MagPo.app.submitView = new SubmitView();
+    self.fridgeView = new FridgeView({ collection: self.poem });
+    self.poemView = new PoemView({ collection: self.poem });
+    self.submitView = new SubmitView();
 
-  var shown = false;
-  var drawers = window.MagPo.app.drawers = {};
-  _(window.MagPo.drawers).each(function(drawer) {
-    var model = new Drawer(drawer);
-    var view = new DrawerView({ model: model });
-    var handle = new DrawerHandleView({ model: model });
+    var shown = false;
+    self.drawers = {};
+    _(drawers).each(function(drawer) {
+      var model = new Drawer(drawer);
+      var view = new DrawerView({ model: model });
+      var handle = new DrawerHandleView({ model: model });
 
-    // Open the first drawer.
-    if (!shown) {
-      $(handle.el).addClass('open-handle');
-      $(view.el).addClass('open-drawer').show();
-      shown = true;
-    }
+      // Open the first drawer.
+      if (!shown) {
+        $(handle.el).addClass('open-handle');
+        $(view.el).addClass('open-drawer').show();
+        shown = true;
+      }
 
-    model.words.reset(drawer.words);
-    var drawerObj = {
-      model: model,
-      view: view,
-    };
-    drawers[drawer.id] = drawerObj;
-  });
+      model.words.reset(drawer.words);
+      var drawerObj = {
+        model: model,
+        view: view,
+      };
+      self.drawers[drawer.id] = drawerObj;
+    });
 
-  var router = window.MagPo.app.router = null;
+    self.router = null;
 
-  var rowHeight = window.MagPo.app.rowHeight = $('.tiles').height();
-  var span = $('.tiles span');
-  var charWidth = window.MagPo.app.charWidth = (span.width() / span.html().length);
+    self.rowHeight = $('.tiles').height();
+    var span = $('.tiles span');
+    self.charWidth = (span.width() / span.html().length);
 
 
-  // Positions behave strangely in webkit browsers if the page isn't fully
-  // loaded yet.
-  $(window).load(function() {
-    router = new AppRouter();
+    // Positions behave strangely in webkit browsers if the page isn't fully
+    // loaded yet.
+//    $(window).load(function() {
+//    });
+  };
+
+  MagPo.prototype.start = function() {
+    this.router = new AppRouter();
     Backbone.history.start();
-  });
+  };
+
+  window.MagPo.class = MagPo;
 })(jQuery);
 

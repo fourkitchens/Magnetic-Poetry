@@ -29,47 +29,6 @@
   <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
   <script src="js/mylibs/underscore.js"></script>
   <script src="js/mylibs/backbone.js"></script>
-
-  <script>
-    if (typeof window.MagPo === 'undefined') {
-      window.MagPo = { };
-    }
-    window.MagPo.drawers = [
-      {
-        id: 1,
-        name: 'Core',
-        words: [
-          { vid: 1, id: 1, string: "hook_" },
-          { vid: 1, id: 2, string: "term" },
-          { vid: 1, id: 3, string: "node" },
-          { vid: 1, id: 4, string: "user" },
-          { vid: 1, id: 5, string: "relation" },
-          { vid: 1, id: 9, string: "init" },
-          { vid: 1, id: 10, string: "form" },
-          { vid: 1, id: 11, string: "filter" },
-          { vid: 1, id: 12, string: "rdf" },
-          { vid: 1, id: 14, string: "book" },
-          { vid: 1, id: 16, string: "color" },
-          { vid: 1, id: 17, string: "block" },
-          { vid: 1, id: 18, string: "file" },
-          { vid: 1, id: 19, string: "system" },
-          { vid: 1, id: 20, string: "path" },
-          { vid: 1, id: 21, string: "shortcut" },
-          { vid: 1, id: 22, string: "tracker" }
-        ],
-      },
-      {
-        id: 2,
-        name: 'Contrib',
-        words: [
-          { vid: 2, id: 6, string: "commerce" },
-          { vid: 2, id: 7, string: "wysiwyg" },
-          { vid: 2, id: 13, string: "dashboard" },
-          { vid: 2, id: 15, string: "blog" },
-        ],
-      },
-    ];
-  </script>
 </head>
 
 <body>
@@ -94,6 +53,29 @@
   <script defer src="models/word.js"></script>
   <script defer src="models/poem.js"></script>
   <script defer src="js/magpo.js"></script>
+  <script>
+    (function($) {
+      var loaded = false;
+      $(window).load(function() {
+        loaded = true;
+        if (typeof window.MagPo.app !== 'undefined') {
+          window.MagPo.app.start();
+        }
+      });
+      if (typeof window.MagPo === 'undefined') {
+        window.MagPo = { };
+      }
+      $.getJSON(
+        window.location.protocol + '//' + window.location.host + '/magpo/json',
+        function(drawers) {
+          window.MagPo.app = new window.MagPo.class(drawers);
+          if (loaded) {
+            window.MagPo.app.start();
+          }
+        }
+      );
+    })(jQuery);
+  </script>
   <!-- end scripts-->
   <script> // Change UA-XXXXX-X to be your site's ID
     window._gaq = [['_setAccount','UAXXXXXXXX1'],['_trackPageview'],['_trackPageLoadTime']];
