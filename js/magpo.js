@@ -453,7 +453,7 @@
     render: function() {
       var cols = Math.floor($('#fridge').width() / window.MagPo.app.charWidth);
       console.log(Backbone.history.fragment);
-      $(this.el).html( this.template({cols: cols, url: document.URL}));
+      $(this.el).html( this.template({cols: cols, url: 'saving. . .'}));
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
       try {
