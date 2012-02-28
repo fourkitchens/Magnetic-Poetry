@@ -71,7 +71,7 @@
             $(word.view.el)
               .appendTo('#fridge')
               .position({
-                of: word.view.$el,
+                of: '#fridge',
                 my: 'left top',
                 at: 'left top',
                 offset: serverWord.left + ' ' + serverWord.top
