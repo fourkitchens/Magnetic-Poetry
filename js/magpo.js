@@ -432,11 +432,6 @@
       'click': 'savePoem',
     },
     savePoem: function() {
-     poem.words.each(function(word) {
-       console.log($(word.view.el).position())
-       
-       }
-     ); 
       poem.save({
         id: poem.id,
         words: poem.getWords(),
