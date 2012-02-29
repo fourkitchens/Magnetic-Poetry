@@ -50,6 +50,20 @@ MagPo.attach = function() {
     });
     // TODO
     var poemString = 'bar';
+    var post = {
+      title: poemTitle,
+      type: 'poem',
+      body: {
+        und: [
+          { value: poemString }
+        ]
+      },
+      field_poem_unique_id: {
+        und: [
+          { value: poem.id }
+        ]
+      }
+    };
 
     // TODO - figure out what to do if the author is set but is not the author
     // of the poem they're trying to update!
@@ -67,33 +81,26 @@ MagPo.attach = function() {
           callback(err, poem);
 
           // Update the poem in Drupal.
-                    var post = JSON.stringify({
-            title: poemTitle,
-            body: poemString,
-          });
-console.log(post);
-          var options = url.parse(settings.drupal.endpoint + 'n/' + poem.nid);
+          // If the client didn't send us a nid, look it up!
+          if (typeof poem.nid === 'undefined' || poem.nid == null) {
+            self.loadPoem(poem.id, function(err, doc) {
+              var options = url.parse(settings.drupal.endpoint + 'n/' + doc.nid);
+              options.method = 'PUT';
+              options.headers = {
+                'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';',
+              };
+
+              request(options, post);
+            });
+          }
+          else {
+            var options = url.parse(settings.drupal.endpoint + 'n/' + poem.nid);
             options.method = 'PUT';
             options.headers = {
-            'Content-Type': 'application/json',
-            'Content-Length': post.length,
-            'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';',
-          };
-          var req = http.request(options, function saveRequest(res) {
-            var data = '';
-            res.on('data', function onData(chunk) {
-              data += chunk;
-            });
-            res.on('end', function() {
-              if (res.statusCode != 200) {
-                console.error('Error (' + res.statusCode + ')');
-                console.error(data);
-                return;
-              }
-            });
-          });
-          req.write(post);
-          req.end();
+              'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';',
+            };
+            request(options, post);
+          }
         }
       );
     }
@@ -117,52 +124,30 @@ console.log(post);
         callback(err, poem);
 
         // Save the poem to Drupal.
-        var post = JSON.stringify({
-          title: poemTitle,
-          type: 'poem',
-          body: poemString,
-          field_poem_unique_id: {
-            und: [
-              { value: poem.id }
-            ]
-          }
-        });
+        post.field_poem_unique_id.und[0].value = poem.id;
         var options = url.parse(settings.drupal.endpoint + 'n');
         options.method = 'POST';
         options.headers = {
-          'Content-Type': 'application/json',
-          'Content-Length': post.length,
           'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';',
         };
-        var req = http.request(options, function saveRequest(res) {
-          var data = '';
-          res.on('data', function onData(chunk) {
-            data += chunk;
-          });
-          res.on('end', function() {
-            if (res.statusCode != 200) {
-              console.error('Error (' + res.statusCode + ')');
-              console.error(data);
-              return;
-            }
-
-            // Update the nid in the database.
-            data = JSON.parse(data);
-            self.PoemModel.update(
-              { _id: poem.id },
-              { $set: { nid: data.nid }},
-              {},
-              function(err) {
-                if (err) {
-                  console.error(err);
-                  return;
-                }
+        request(options, post, function(data, statusCode) {
+          if (statusCode != 200) {
+            return;
+          }
+          // Update the nid in the database.
+          data = JSON.parse(data);
+          self.PoemModel.update(
+            { _id: poem.id },
+            { $set: { nid: data.nid }},
+            {},
+            function(err) {
+              if (err) {
+                console.error(err);
+                return;
               }
-            );
-          });
+            }
+          );
         });
-        req.write(post);
-        req.end();
       });
     }
   };
@@ -194,37 +179,23 @@ MagPo.init = function(done) {
   self.PoemModel = mongoose.model('Poem', poemSchema);
 
   // Log into Drupal.
-  var post = JSON.stringify({
+  var post = {
     username: settings.drupal.user,
     password: settings.drupal.password,
-  });
+  };
   var options = url.parse(settings.drupal.endpoint + 'u/login');
   options.method = 'POST';
-  options.headers = {
-    'Content-Type': 'application/json',
-    'Content-Length': post.length,
-  };
-  var req = http.request(options, function loginRequest(res) {
-    var data = '';
-    res.on('data', function onData(chunk) {
-      data += chunk;
-    });
-    res.on('end', function onEnd() {
-      if (res.statusCode != 200) {
-        console.error('Error (' + res.statusCode + ')');
-        console.error(data);
-        // TODO - halt the application?
-        return;
-      }
-      data = JSON.parse(data);
-      self.cookie = {
-        session_name: data.session_name,
-        sessid: data.sessid,
-      };
-    });
+  request(options, post, function(data, statusCode) {
+    if (statusCode != 200) {
+      // TODO - halt the application?
+      return;
+    }
+    data = JSON.parse(data);
+    self.cookie = {
+      session_name: data.session_name,
+      sessid: data.sessid,
+    };
   });
-  req.write(post);
-  req.end();
 
   return done();
 };
@@ -232,3 +203,46 @@ MagPo.init = function(done) {
 MagPo.detach = function() {
   mongoose.connection.close();
 };
+
+/**
+ * Helper function to do a request to the server and callback with the results.
+ *
+ * @param {object} options
+ *   The http.request options hash.
+ * @param {object} post
+ *   The post object to send.
+ * @param {function} callback
+ *   The function to callback when the request completes.
+ */
+function request(options, post, callback) {
+  post = JSON.stringify(post);
+  if (typeof options.headers === 'undefined') {
+    options.headers = {};
+  }
+  options.headers['Content-Type'] = 'application/json';
+  options.headers['Content-Length'] = post.length;
+  var req = http.request(options, function saveRequest(res) {
+    var data = '';
+    res.on('data', function onData(chunk) {
+      data += chunk;
+    });
+    res.on('end', function() {
+      if (res.statusCode != 200) {
+        console.error('Error (' + res.statusCode + ')');
+        console.error(data);
+      }
+      if (typeof callback === 'function') {
+        callback(data, res.statusCode);
+      }
+    });
+  });
+  req.write(post);
+  req.end();
+  req.on('error', function(err) {
+    console.error('Request error.');
+    console.error(err);
+    if (typeof callback === 'function') {
+      callback(err, 0);
+    }
+  });
+}
