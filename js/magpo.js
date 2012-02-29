@@ -280,11 +280,11 @@
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
       try {
-        var string = window.MagPo.app.poem.stringify();
+        var string = window.MagPo.app.poem.stringify(false);
         $(this.el).text(string);
       }
       catch (exception) {
-        console.error(exception);
+        console.error(exception.message);
       }
     }
   });
@@ -348,11 +348,11 @@
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
       try {
-        var string = window.MagPo.app.poem.stringify();
+        var string = window.MagPo.app.poem.stringify(false);
         $('#poemDialog', this.el).text(string);
       }
       catch (exception) {
-        console.error(exception);
+        console.error(exception.message);
         $('#poemDialog', this.el).text('we dun fucked up');
       }
       return this;
@@ -364,7 +364,8 @@
    */
   var MagPo = function(drawers) {
     var self = this;
-    self.poem = new Poem();
+    // TODO - detect the correct breakpoint.
+    self.poem = new Poem({ breakpoint: 'desktop' });
 
     self.fridgeView = new FridgeView({ collection: self.poem });
     self.poemView = new PoemView({ collection: self.poem });
@@ -393,10 +394,6 @@
     });
 
     self.router = null;
-
-    self.rowHeight = $('.tiles').height();
-    var span = $('.tiles span');
-    self.charWidth = (span.width() / span.html().length);
   };
 
   MagPo.prototype.start = function() {

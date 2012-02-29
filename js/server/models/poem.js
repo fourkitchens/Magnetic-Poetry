@@ -13,6 +13,7 @@ var Word = require('./word');
 // We'll use mongo's buildin _id so remove this.
 delete Poem.id;
 Poem.nid = Number;
+Poem.breakpoint = String;
 Poem.words = [ Word.WordSchema ];
 
 // Author is only set on the server on purpose since this value lives

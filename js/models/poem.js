@@ -16,6 +16,7 @@ else {
 var Poem = {
   id: null,
   nid: null,
+  breakpoint: '',
   words: Backbone.Collection.extend({
     model: Word
   }),
