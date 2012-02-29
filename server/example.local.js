@@ -5,5 +5,9 @@
 module.exports = {
   db: 'mongodb://localhost/magpo',
   port: 3001,
-  origin_access: 'local.mag.com',
+  drupal: {
+    endpoint: 'http://local.mag.com:8081/poem_rest/',
+    user: 'admin',
+    password: 'admin',
+  },
 };

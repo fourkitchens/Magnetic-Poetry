@@ -7,6 +7,7 @@
  */
 var Poem = {
   id: null,
+  nid: null,
   words: [],
 };
 
@@ -25,6 +26,7 @@ if (typeof module === 'undefined') {
 }
 else {
   var Word = require('./word');
+  Poem.nid = Number;
   Poem.words = [ Word ];
 
   // Author is only set on the server on purpose since this value lives
