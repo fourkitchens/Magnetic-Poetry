@@ -51,6 +51,11 @@
             window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
           $('#shareURL').text(document.URL);
+          $('#twitterLink').attr('data-url', document.URL);
+          var string = window.MagPo.app.poem.stringify();
+          $('#twitterLink', this.el).attr('data-text', string);
+          // This doesn't seam like the right place for this, but it doesn't work in the modal render.
+          twttr.widgets.load();
         },
       });
     }
@@ -428,17 +433,29 @@
       view.render().showModal( { x: fridgeOffset.left, y: fridgeOffset.top });
     },
   });
-  /**
-   * Defines the share dialog view.
-   */
-  var ShareDialogView = window.ModalView.extend({
-    templateHtml:
+  window.JST = {};
+
+  window.JST['twitterLink'] = _.template(
+    '<div><a href="https://twitter.com/share" '+
+    'class="twitter-share-button" '+
+    'id="twitterLink" '+
+    'data-related="<%= twitter.related %>" '+
+    'data-url="<% twitter.url %>"'+
+    'data-lang="en" data-size="large" data-count="none">Tweet</a>' +
+    '</div>'
+  );
+  window.JST['shareModalHtml'] = _.template(
       '<div id="shareModal">'+
       '<p>Poem Saved!</p>'+
       '<textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>' +
       '<p id="shareURL"><%= url %></p>'+
-      '<div><p>Tweet This.</p></div>'+
-      '</div>',
+      '<div id="tweetLinkContainer"><%= JST["twitterLink"]({twitter: twitter}) %></div>' +
+      '</div>'
+  );
+  /**
+   * Defines the share dialog view.
+   */
+  var ShareDialogView = window.ModalView.extend({
     defaultOptions:
     {
       fadeInDuration:150,
@@ -447,16 +464,15 @@
       bodyOverflowHidden:false,
       closeImageUrl: "img/close-modal.png",
       closeImageHoverUrl: "img/close-modal-hover.png",
-    }, 
+    },
     initialize: function() {
       _.bindAll(this, 'render');
 
-      this.template = _.template( this.templateHtml);
     },
     render: function() {
       var cols = Math.floor($('#fridge').width() / window.MagPo.app.charWidth);
-      console.log(Backbone.history.fragment);
-      $(this.el).html( this.template({cols: cols, url: 'saving. . .'}));
+      $(this.el).html( JST['shareModalHtml']({cols: cols, url: 'saving. . .', twitter:{related: 'fourkitchens', url: document.URL }}));
+      twttr.widgets.load();
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
       try {
