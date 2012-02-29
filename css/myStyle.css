@@ -77,7 +77,9 @@ body {
 }
 
 #fridge {
-  height: 600px;
+  width: 560px;
+  margin: 20px 200px;
+  height: 300px;
   position: relative;
 }
 .brushed-metal {
@@ -90,7 +92,15 @@ body {
   background: linear-gradient(top,  #cedce7 0%,#596a72 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 ); /* IE6-9 */
 }
-
-#publish {
+#shareModal {
+}
+#poemDialog {
+  margin: 10px 20px;
+  height: 200px;
+}
+#shareLink {
   cursor: pointer;
+}
+footer {
+  text-align: center;
 }
