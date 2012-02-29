@@ -50,6 +50,7 @@
           if (redirect) {
             window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
+          $('#shareURL').text(document.URL);
         },
       });
     }
@@ -400,20 +401,74 @@
   });
 
   /**
-   * Defines the submit view.
+   * Defines the share link view.
+   *
    */
-  var SubmitView = Backbone.View.extend({
-    el: $('#publish'),
-    events: {
-      'click': 'savePoem',
+  var ShareLinkView = Backbone.View.extend({
+    el: $('#shareLink'),
+    initialize: function() {
+      _.bindAll(this, 'render'); 
+      $(this.$el).stop
     },
-    savePoem: function() {
+    events: {
+      'click': 'openShareDialog',
+    },
+    openShareDialog: function(event) {
+      event.stopPropagation();
+
+      //Save the poem
       window.MagPo.app.poem.save({
         id: window.MagPo.app.poem.id,
         nid: window.MagPo.app.poem.get('nid'),
         words: window.MagPo.app.poem.getWords(),
       });
+      // Create the modal view over the fridge.
+      var view = new ShareDialogView();
+      var fridgeOffset = $('#fridge').offset();
+      view.render().showModal( { x: fridgeOffset.left, y: fridgeOffset.top });
     },
+  });
+  /**
+   * Defines the share dialog view.
+   */
+  var ShareDialogView = window.ModalView.extend({
+    templateHtml:
+      '<div id="shareModal">'+
+      '<p>Poem Saved!</p>'+
+      '<textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>' +
+      '<p id="shareURL"><%= url %></p>'+
+      '<div><p>Tweet This.</p></div>'+
+      '</div>',
+    defaultOptions:
+    {
+      fadeInDuration:150,
+      fadeOutDuration:150,
+      showCloseButton:true,
+      bodyOverflowHidden:false,
+      closeImageUrl: "img/close-modal.png",
+      closeImageHoverUrl: "img/close-modal-hover.png",
+    }, 
+    initialize: function() {
+      _.bindAll(this, 'render');
+
+      this.template = _.template( this.templateHtml);
+    },
+    render: function() {
+      var cols = Math.floor($('#fridge').width() / window.MagPo.app.charWidth);
+      console.log(Backbone.history.fragment);
+      $(this.el).html( this.template({cols: cols, url: 'saving. . .'}));
+      // Log errors here rather than throwing them since we don't want this
+      // functionality to break the rest of the app.
+      try {
+        var string = window.MagPo.app.poem.stringify();
+        $('#poemDialog', this.el).text(string);
+      }
+      catch (exception) {
+        console.error(exception);
+        $('#poemDialog', this.el).text('we dun fucked up');
+      }
+      return this;
+    }
   });
 
   /**
@@ -425,7 +480,7 @@
 
     self.fridgeView = new FridgeView({ collection: self.poem });
     self.poemView = new PoemView({ collection: self.poem });
-    self.submitView = new SubmitView();
+    self.shareLinkView = new ShareLinkView();
 
     var shown = false;
     self.drawers = {};
