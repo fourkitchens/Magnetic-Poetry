@@ -62,6 +62,7 @@
             console.error('Error fetching poem from server.');
             return;
           }
+          model.set('nid', data.poem.nid);
           model.words.reset();
           _(data.poem.words).each(function(serverWord) {
             var drawer = window.MagPo.app.drawers[serverWord.vid].model;
@@ -284,6 +285,7 @@
       // matches the externally defined model.
       return {
         id: this.id,
+        nid: this.get('nid'),
         words: this.words.toJSON(),
       };
     },
@@ -417,6 +419,7 @@
       //Save the poem
       window.MagPo.app.poem.save({
         id: window.MagPo.app.poem.id,
+        nid: window.MagPo.app.poem.get('nid'),
         words: window.MagPo.app.poem.getWords(),
       });
       // Create the modal view over the fridge.
@@ -506,12 +509,6 @@
     self.rowHeight = $('.tiles').height();
     var span = $('.tiles span');
     self.charWidth = (span.width() / span.html().length);
-
-
-    // Positions behave strangely in webkit browsers if the page isn't fully
-    // loaded yet.
-//    $(window).load(function() {
-//    });
   };
 
   MagPo.prototype.start = function() {
