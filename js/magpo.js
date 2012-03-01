@@ -260,11 +260,27 @@
             dropped.set('left', resultOffset.left);
             window.MagPo.app.poem.words.sort();
           }
+
+          // If the poem has already been saved once, autosave on drop.
+          if (window.MagPo.app.poem.id) {
+            window.MagPo.app.poem.save({
+              words: window.MagPo.app.poem.getWords(),
+              breakpoint: window.MagPo.app.poem.get('breakpoint'),
+            });
+          }
           window.MagPo.app.poemView.render();
         },
         out: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model
           window.MagPo.app.poem.words.remove(dropped);
+
+          // If the poem has already been saved once, autosave on out.
+          if (window.MagPo.app.poem.id) {
+            window.MagPo.app.poem.save({
+              words: window.MagPo.app.poem.getWords(),
+              breakpoint: window.MagPo.app.poem.get('breakpoint'),
+            });
+          }
         },
       });
     },
@@ -330,8 +346,6 @@
 
       // Save the poem.
       window.MagPo.app.poem.save({
-        id: window.MagPo.app.poem.id,
-        nid: window.MagPo.app.poem.get('nid'),
         words: window.MagPo.app.poem.getWords(),
         breakpoint: window.MagPo.app.poem.get('breakpoint'),
       });
