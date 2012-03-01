@@ -81,6 +81,7 @@ var Poem = Backbone.Model.extend({
     return {
       id: this.id,
       nid: this.get('nid'),
+      breakpoint: this.get('breakpoint'),
       words: this.words.toJSON(),
     };
   },
