@@ -4,10 +4,8 @@
 
 var http = require('http');
 var mongoose = require('mongoose');
-var Word = require('../../models/word');
-var Poem = require('../../models/poem');
 var settings = require('../local');
-var underscore = require('../../js/mylibs/underscore');
+var underscore = require('underscore');
 var url = require('url');
 
 var MagPo = exports;
@@ -169,14 +167,9 @@ MagPo.init = function(done) {
   mongoose.connect(settings.db);
 
   // Make database specific changes here.
-  var wordSchema = new mongoose.Schema(Word);
-  self.WordModel = mongoose.model('Word', wordSchema);
+  self.WordModel = require('../models/word').WordModel;
 
-  // We'll use mongo's built in hash ID, so remove it from our internal model.
-  delete Poem.id;
-  Poem.words = [ wordSchema ];
-  var poemSchema = new mongoose.Schema(Poem);
-  self.PoemModel = mongoose.model('Poem', poemSchema);
+  self.PoemModel = require('../models/poem').PoemModel;
 
   // Log into Drupal.
   var post = {

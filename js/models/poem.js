@@ -2,19 +2,26 @@
  * @fileoverview defines the poem model.
  */
 
+if (typeof module !== 'undefined') {
+  var Backbone = require('../libs/backbone');
+  var Word = require('./word');
+}
+else {
+  var Word = window.MagPo.Word;
+}
+
 /**
  * Type definition for Poem model.
  */
 var Poem = {
   id: null,
   nid: null,
-  words: [],
+  words: Backbone.Collection.extend({
+    model: Word
+  }),
 };
 
 if (typeof module === 'undefined') {
-  Poem.words = Backbone.Collection.extend({
-    model: Word
-  });
   // Set usable defaults.
   if (typeof window.MagPo === 'undefined') {
     window.MagPo = { models: {} };
@@ -25,13 +32,6 @@ if (typeof module === 'undefined') {
   window.MagPo.models.Poem = Poem;
 }
 else {
-  var Word = require('./word');
-  Poem.nid = Number;
-  Poem.words = [ Word ];
-
-  // Author is only set on the server on purpose since this value lives
-  // in localStorage on the client.
-  Poem.author = String;
   module.exports = Poem;
 }
 
