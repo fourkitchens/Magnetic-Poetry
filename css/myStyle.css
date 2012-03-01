@@ -6,6 +6,7 @@ body {
   padding: 0;
   height: 100%; 
 }
+/*
 #workspace {
   margin: auto;
   min-height: 100%;
@@ -13,6 +14,7 @@ body {
   background: #BABBB5;
   position: relative;
 }
+*/
 /* clearfix group */ 
 .group:before,
 .group:after {
@@ -25,14 +27,18 @@ body {
 .group {
     zoom:1; /* For IE 6/7 (trigger hasLayout) */
 }
+/*
 body {
   font-family: 'DejaVuSansMonoBook';
   font-size: 1.5em;
 }
+*/
+/*
 #main {
   min-height: 100%;
   width: 960px;
 }
+*/
 .tiles {
   cursor: move;
   float:left;
@@ -52,10 +58,12 @@ body {
 .tile span {
   margin: .3em;
 }
+/*
 #drawers-container {
   height: 300px;
   width: 100%;
 }
+*/
 .drawer {
   background: pink;
   height: 200px;
@@ -76,12 +84,14 @@ body {
   margin-right: 10px;
 }
 
+/*
 #fridge {
   width: 560px;
   margin: 20px 200px;
   height: 300px;
   position: relative;
 }
+*/
 .brushed-metal {
   background: #cedce7; /* Old browsers */
   background: -moz-linear-gradient(top,  #cedce7 0%, #596a72 100%); /* FF3.6+ */

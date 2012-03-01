@@ -1,0 +1,116 @@
+/* iPhone 4 screen resolution is: 640x960 */
+/* Thunderbolt screen resolution is: 480x800 */
+
+@media only screen and (min-width: 320px) {
+  #main {
+    min-height: 100%;
+    width: 300px;
+  }
+
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 300px;
+    background: #BABBB5;
+    position: relative;
+  }
+
+  #fridge {
+    width: 100px;
+    margin: 20px 200px;
+    height: 300px;
+    position: relative;
+  }
+  
+  #drawers-container {
+    height: 100px;
+    width: 100%;
+  }
+ 
+  body {
+    font-family: 'DejaVuSansMonoBook';
+    font-size: 0.8em;
+  }
+  
+  .drawer {
+    background: pink;
+    height: 100px;
+    width: 100%;
+  }  
+}
+
+@media only screen and (min-width: 640px) { 
+  #main {
+    min-height: 100%;
+    width: 600px;
+  }
+  
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 600px;
+    background: #BABBB5;
+    position: relative;
+  }  
+
+  #fridge {
+    width: 300px;
+    margin: 20px 200px;
+    height: 300px;
+    position: relative;
+  }
+
+  #drawers-container {
+    height: 200px;
+    width: 100%;
+  }
+
+  body {
+    font-family: 'DejaVuSansMonoBook';
+    font-size: 1.0em;
+  }
+
+  .drawer {
+    background: pink;
+    height: 180px;
+    width: 100%;
+  }        
+}
+
+@media only screen and (min-width: 960px) {
+  #main {
+    min-height: 100%;
+    width: 960px;
+  }
+  
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 960px;
+    background: #BABBB5;
+    position: relative;
+  }  
+
+  #fridge {
+    width: 560px;
+    margin: 20px 200px;
+    height: 300px;
+    position: relative;
+  }
+
+  #drawers-container {
+    height: 300px;
+    width: 100%;
+  }
+
+  body {
+    font-family: 'DejaVuSansMonoBook';
+    font-size: 1.5em;
+  }
+  
+  .drawer {
+    background: pink;
+    height: 200px;
+    width: 100%;
+  }       
+}
