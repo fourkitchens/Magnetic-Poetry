@@ -122,6 +122,12 @@
         stop: function(event, ui) {
           removeEventListener('touchmove');
         }
+      })
+      .mousedown( function() {
+        addEventListener('touchmove', function(e) { e.preventDefault(); }, true)
+      })
+      .mouseup( function() { 
+        removeEventListener('touchmove') 
       });
 
       $(this.el).data('backbone-view', this);
