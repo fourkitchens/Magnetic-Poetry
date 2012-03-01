@@ -53,7 +53,7 @@ MagPo.attach = function() {
       type: 'poem',
       body: {
         und: [
-          { value: poemModel.stringify(false) }
+          { value: poemModel.stringify(false).replace(' ', '&nbsp;', 'g') }
         ]
       },
       field_poem_unique_id: {
