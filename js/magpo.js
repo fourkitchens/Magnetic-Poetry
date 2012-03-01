@@ -39,9 +39,9 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
-          window.MagPo.app.poem.trigger('saved', data.status);
           if (data.status != 'ok') {
             console.error('Error saving poem to server.');
+            // TODO - failed dialog.
             return;
           }
           model.id = data.poem.id;
@@ -51,12 +51,11 @@
           if (redirect) {
             window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
-          $('#shareURL').text(document.URL);
-          $('#twitterLink').attr('data-url', document.URL);
-          var string = window.MagPo.app.poem.stringify();
-          $('#twitterLink', this.el).attr('data-text', string);
-          // This doesn't seam like the right place for this, but it doesn't work in the modal render.
-          twttr.widgets.load();
+          window.MagPo.app.poem.trigger('saved', data.status);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          // TODO - failed dialog.
+          console.error(errorThrown);
         },
       });
     }
@@ -318,6 +317,13 @@
         var fridgeOffset = $('#fridge').offset();
         view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
 
+        $('#shareURL').text(document.URL);
+        $('#twitterLink').attr('data-url', document.URL);
+        var string = window.MagPo.app.poem.stringify(false);
+        $('#twitterLink').attr('data-text', string);
+
+        twttr.widgets.load();
+
         // Remove the listener.
         window.MagPo.app.poem.off('saved');
       });
@@ -378,7 +384,7 @@
           url: document.URL
         }
       }));
-      twttr.widgets.load();
+
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
       try {
