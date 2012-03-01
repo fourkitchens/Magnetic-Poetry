@@ -39,6 +39,7 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
+          window.MagPo.app.poem.trigger('saved', data.status);
           if (data.status != 'ok') {
             console.error('Error saving poem to server.');
             return;
@@ -310,16 +311,24 @@
     openShareDialog: function(event) {
       event.stopPropagation();
 
-      //Save the poem
+      // Add a listener to show the dialog after saving is complete.
+      window.MagPo.app.poem.on('saved', function(msg) {
+        // Create the modal view over the fridge.
+        var view = new ShareDialogView();
+        var fridgeOffset = $('#fridge').offset();
+        view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
+
+        // Remove the listener.
+        window.MagPo.app.poem.off('saved');
+      });
+
+      // Save the poem.
       window.MagPo.app.poem.save({
         id: window.MagPo.app.poem.id,
         nid: window.MagPo.app.poem.get('nid'),
         words: window.MagPo.app.poem.getWords(),
+        breakpoint: window.MagPo.app.poem.get('breakpoint'),
       });
-      // Create the modal view over the fridge.
-      var view = new ShareDialogView();
-      var fridgeOffset = $('#fridge').offset();
-      view.render().showModal( { x: fridgeOffset.left, y: fridgeOffset.top });
     },
   });
 
@@ -357,11 +366,18 @@
     },
     initialize: function() {
       _.bindAll(this, 'render');
-
     },
     render: function() {
-      var cols = Math.floor($('#fridge').width() / window.MagPo.app.charWidth);
-      $(this.el).html( JST['shareModalHtml']({cols: cols, url: 'saving. . .', twitter:{related: 'fourkitchens', url: document.URL }}));
+      var bp = window.MagPo.breakpoints[window.MagPo.app.poem.get('breakpoint')];
+      var cols = Math.floor($('#fridge').width() / bp.charWidth);
+      $(this.el).html(JST['shareModalHtml']({
+        cols: cols,
+        url: document.URL,
+        twitter: {
+          related: 'fourkitchens',
+          url: document.URL
+        }
+      }));
       twttr.widgets.load();
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
