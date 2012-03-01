@@ -114,7 +114,16 @@
       this.model.bind('change', this.render, this);
     },
     render: function(){
-      $(this.el).draggable({stack: '.tiles'});
+      $(this.el).draggable({
+        stack: '.tiles',
+        start: function(event, ui) {
+          addEventListener('touchmove', function(e) { e.preventDefault(); }, true);
+        },
+        stop: function(event, ui) {
+          removeEventListener('touchmove');
+        }
+      });
+
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
