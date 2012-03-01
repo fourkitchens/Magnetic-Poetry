@@ -260,11 +260,37 @@
             dropped.set('left', resultOffset.left);
             window.MagPo.app.poem.words.sort();
           }
+
+          // If the poem has already been saved once, autosave on drop.
+          if (window.MagPo.app.poem.id) {
+            if (window.MagPo.app.timeout) {
+              clearTimeout(window.MagPo.app.timeout);
+            }
+            window.MagPo.app.timeout = setTimeout(function() {
+              window.MagPo.app.poem.save({
+                words: window.MagPo.app.poem.getWords(),
+                breakpoint: window.MagPo.app.poem.get('breakpoint'),
+              });
+            }, window.MagPo.app.delay);
+          }
           window.MagPo.app.poemView.render();
         },
         out: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model
           window.MagPo.app.poem.words.remove(dropped);
+
+          // If the poem has already been saved once, autosave on out.
+          if (window.MagPo.app.poem.id) {
+            if (window.MagPo.app.timeout) {
+              clearTimeout(window.MagPo.app.timeout);
+            }
+            window.MagPo.app.timeout = setTimeout(function() {
+              window.MagPo.app.poem.save({
+                words: window.MagPo.app.poem.getWords(),
+                breakpoint: window.MagPo.app.poem.get('breakpoint'),
+              });
+            }, window.MagPo.app.delay);
+          }
         },
       });
     },
@@ -310,6 +336,11 @@
     openShareDialog: function(event) {
       event.stopPropagation();
 
+      // Stop any autosaves.
+      if (window.MagPo.app.timeout) {
+        clearTimeout(window.MagPo.app.timeout);
+      }
+
       // Add a listener to show the dialog after saving is complete.
       window.MagPo.app.poem.on('saved', function(msg) {
         // Create the modal view over the fridge.
@@ -330,8 +361,6 @@
 
       // Save the poem.
       window.MagPo.app.poem.save({
-        id: window.MagPo.app.poem.id,
-        nid: window.MagPo.app.poem.get('nid'),
         words: window.MagPo.app.poem.getWords(),
         breakpoint: window.MagPo.app.poem.get('breakpoint'),
       });
@@ -404,6 +433,10 @@
    */
   var MagPo = function(drawers) {
     var self = this;
+
+    self.timeout = false;
+    self.delay = 1000;
+
     // TODO - detect the correct breakpoint.
     self.poem = new Poem({ breakpoint: 'desktop' });
 
