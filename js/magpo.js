@@ -163,7 +163,7 @@
             // Unset the top and left values for this item since its drawer is
             // currently hidden and off the screen.
             $(ui.draggable)
-              .appendTo(drawers[dropped.get('vid')].view.$el)
+              .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
               .css('top', '')
               .css('left', '');
           }
