@@ -4,6 +4,7 @@
 
 var http = require('http');
 var mongoose = require('mongoose');
+var models = require('../../mylibs/models')
 var settings = require('../local');
 var underscore = require('underscore');
 var url = require('url');
@@ -34,26 +35,25 @@ MagPo.attach = function() {
   this.savePoem = function(poem, callback) {
     var self = this;
     var poemObj = new self.PoemModel();
+    poemObj.breakpoint = poem.breakpoint;
+    var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
     underscore(poem.words).each(function(wordObj) {
       var word = new self.WordModel();
       for (var y in wordObj) {
         word[y] = wordObj[y];
       }
       poemObj.words.push(word);
+      var wordModel = new models.Word(word);
+      poemModel.words.add(wordModel);
     });
 
-    var poemTitle = '';
-    underscore(poem.words).each(function(word) {
-      poemTitle += word.string + ' ';
-    });
-    // TODO
     var poemString = 'bar';
     var post = {
-      title: poemTitle,
+      title: poemModel.stringify(),
       type: 'poem',
       body: {
         und: [
-          { value: poemString }
+          { value: poemModel.stringify(false) }
         ]
       },
       field_poem_unique_id: {
@@ -70,7 +70,7 @@ MagPo.attach = function() {
       // TODO - this is fragile and assumes words is all we need to save.
       self.PoemModel.update(
         { _id: poem.id, author: poem.author },
-        { $set: { words: poemObj.words } },
+        { $set: { words: poemObj.words, breakpoint: poem.breakpoint } },
         function(err) {
           if (err) {
             callback(err, null);

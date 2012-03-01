@@ -7,12 +7,14 @@ if (typeof require !== 'undefined') {
   var Backbone = require('backbone');
   var wordModel = require('../models/word');
   var poemModel = require('../models/poem');
-  var WordCollection = requrie('./collections').WordCollection;
+  var WordCollection = require('./collections').WordCollection;
+  var breakpoints = require('../mylibs/breakpoints.js');
 }
 else {
   var wordModel = window.MagPo.models.Word;
   var poemModel = window.MagPo.models.Poem;
   var WordCollection = window.MagPo.WordCollection;
+  var breakpoints = window.MagPo.breakpoints;
 }
 
 /**
@@ -46,16 +48,18 @@ var Drawer = Backbone.Model.extend({
 var Poem = Backbone.Model.extend({
   defaults: poemModel,
   initialize: function() {
+    var self = this;
     var poemCollection = WordCollection.extend({
       comparator: function(a, b) {
-        var third = window.MagPo.app.rowHeight / 3;
+        var bp = breakpoints[self.get('breakpoint')];
+        var third = bp.rowHeight / 3;
         var aTop = a.get('top');
         var bTop = b.get('top');
         // Sort the collection in a "multi-dimensional" array where:
         if (bTop < (aTop - third)) {
           return 1;
         }
-        else if (bTop >= (aTop - third) && bTop <= (aTop + window.MagPo.app.rowHeight + third)) {
+        else if (bTop >= (aTop - third) && bTop <= (aTop + bp.rowHeight + third)) {
           if (b.get('left') < a.get('left')) {
             return 1;
           }
@@ -77,13 +81,42 @@ var Poem = Backbone.Model.extend({
     return {
       id: this.id,
       nid: this.get('nid'),
+      breakpoint: this.get('breakpoint'),
       words: this.words.toJSON(),
     };
   },
-  stringify: function() {
-    var out = '';
-    var third = window.MagPo.app.rowHeight / 3;
+  stringify: function(simple) {
+    var self = this;
+    if (typeof simple === 'undefined') {
+      simple = true;
+    }
+
+    var bp = breakpoints[self.get('breakpoint')];
+    var lastRight = false;
+    var lastTop = false;
     var lowestLeft = false;
+    var out = '';
+    var third = bp.rowHeight / 3;
+
+    // Simple stringification uses only single spaces.
+    if (simple) {
+      this.words.each(function(word) {
+        if (
+          (lastRight && lastTop) &&
+          ((word.get('left') - lastRight) >= bp.charWidth ||
+          (word.get('top') > (lastTop + bp.rowHeight + third)))
+        ) {
+          out += ' ';
+        }
+        out += word.get('string');
+        lastRight = word.get('left') + (word.get('string').length * bp.charWidth);
+        lastTop = word.get('top');
+      });
+
+      return out;
+    }
+
+    // Normal stringification uses spaces and newlines.
     this.words.each(function(word) {
       if (!lowestLeft) {
         lowestLeft = word.get('left');
@@ -92,26 +125,25 @@ var Poem = Backbone.Model.extend({
         lowestLeft = word.get('left');
       }
     });
-    var lastRight = false;
-    var lastTop = false;
     this.words.each(function(word) {
       if (!lastTop) {
-        out += Array(Math.floor((word.get('left') - lowestLeft) / window.MagPo.app.charWidth) + 1).join(' ');
+        out += Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1)
+          .join(' ');
       }
-      else if (lastTop && (word.get('top') > (lastTop + window.MagPo.app.rowHeight + third))) {
-        out += Array(Math.floor((word.get('top') - lastTop) / window.MagPo.app.rowHeight) + 1).join("\r");
-        out += Array(Math.floor((word.get('left') - lowestLeft) / window.MagPo.app.charWidth) + 1).join(' ');
+      else if (lastTop && (word.get('top') > (lastTop + bp.rowHeight + third))) {
+        out += Array(Math.floor((word.get('top') - lastTop) / bp.rowHeight) + 1).join("\r");
+        out += Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1).join(' ');
         lastRight = false;
       }
       if (lastRight) {
-        var spaces = Math.floor((word.get('left') - lastRight) / window.MagPo.app.charWidth);
+        var spaces = Math.floor((word.get('left') - lastRight) / bp.charWidth);
         if (spaces <= 0 ) {
           spaces = 0;
         }
         out += Array(spaces).join(' ');
       }
       out += word.get('string');
-      lastRight = word.get('left') + (word.get('string').length * window.MagPo.app.charWidth);
+      lastRight = word.get('left') + (word.get('string').length * bp.charWidth);
       lastTop = word.get('top');
     });
 
