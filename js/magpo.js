@@ -301,7 +301,7 @@
   var ShareLinkView = Backbone.View.extend({
     el: $('#shareLink'),
     initialize: function() {
-      _.bindAll(this, 'render'); 
+      _.bindAll(this, 'render');
       $(this.$el).stop
     },
     events: {
