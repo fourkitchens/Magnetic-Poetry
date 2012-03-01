@@ -281,10 +281,15 @@
 
           // If the poem has already been saved once, autosave on out.
           if (window.MagPo.app.poem.id) {
-            window.MagPo.app.poem.save({
-              words: window.MagPo.app.poem.getWords(),
-              breakpoint: window.MagPo.app.poem.get('breakpoint'),
-            });
+            if (window.MagPo.app.timeout) {
+              clearTimeout(window.MagPo.app.timeout);
+            }
+            window.MagPo.app.timeout = setTimeout(function() {
+              window.MagPo.app.poem.save({
+                words: window.MagPo.app.poem.getWords(),
+                breakpoint: window.MagPo.app.poem.get('breakpoint'),
+              });
+            }, window.MagPo.app.delay);
           }
         },
       });
