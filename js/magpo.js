@@ -41,6 +41,7 @@
         success: function(data) {
           if (data.status != 'ok') {
             console.error('Error saving poem to server.');
+            // TODO - failed dialog.
             return;
           }
           model.id = data.poem.id;
@@ -50,7 +51,11 @@
           if (redirect) {
             window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
-          $('#shareURL').text(document.URL);
+          window.MagPo.app.poem.trigger('saved', data.status);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          // TODO - failed dialog.
+          console.error(errorThrown);
         },
       });
     }
@@ -296,7 +301,7 @@
   var ShareLinkView = Backbone.View.extend({
     el: $('#shareLink'),
     initialize: function() {
-      _.bindAll(this, 'render'); 
+      _.bindAll(this, 'render');
       $(this.$el).stop
     },
     events: {
@@ -305,30 +310,58 @@
     openShareDialog: function(event) {
       event.stopPropagation();
 
-      //Save the poem
+      // Add a listener to show the dialog after saving is complete.
+      window.MagPo.app.poem.on('saved', function(msg) {
+        // Create the modal view over the fridge.
+        var view = new ShareDialogView();
+        var fridgeOffset = $('#fridge').offset();
+        view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
+
+        $('#shareURL').text(document.URL);
+        $('#twitterLink').attr('data-url', document.URL);
+        var string = window.MagPo.app.poem.stringify(false);
+        $('#twitterLink').attr('data-text', string);
+
+        twttr.widgets.load();
+
+        // Remove the listener.
+        window.MagPo.app.poem.off('saved');
+      });
+
+      // Save the poem.
       window.MagPo.app.poem.save({
         id: window.MagPo.app.poem.id,
         nid: window.MagPo.app.poem.get('nid'),
         words: window.MagPo.app.poem.getWords(),
+        breakpoint: window.MagPo.app.poem.get('breakpoint'),
       });
-      // Create the modal view over the fridge.
-      var view = new ShareDialogView();
-      var fridgeOffset = $('#fridge').offset();
-      view.render().showModal( { x: fridgeOffset.left, y: fridgeOffset.top });
     },
   });
+
+  window.JST = {};
+
+  window.JST['twitterLink'] = _.template(
+    '<div><a href="https://twitter.com/share" '+
+    'class="twitter-share-button" '+
+    'id="twitterLink" '+
+    'data-related="<%= twitter.related %>" '+
+    'data-url="<% twitter.url %>"'+
+    'data-lang="en" data-size="large" data-count="none">Tweet</a>' +
+    '</div>'
+  );
+  window.JST['shareModalHtml'] = _.template(
+    '<div id="shareModal">'+
+    '<p>Poem Saved!</p>'+
+    '<textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>' +
+    '<p id="shareURL"><%= url %></p>'+
+    '<div id="tweetLinkContainer"><%= JST["twitterLink"]({twitter: twitter}) %></div>' +
+    '</div>'
+  );
 
   /**
    * Defines the share dialog view.
    */
   var ShareDialogView = window.ModalView.extend({
-    templateHtml:
-      '<div id="shareModal">'+
-      '<p>Poem Saved!</p>'+
-      '<textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>' +
-      '<p id="shareURL"><%= url %></p>'+
-      '<div><p>Tweet This.</p></div>'+
-      '</div>',
     defaultOptions: {
       fadeInDuration:150,
       fadeOutDuration:150,
@@ -339,12 +372,19 @@
     },
     initialize: function() {
       _.bindAll(this, 'render');
-
-      this.template = _.template( this.templateHtml);
     },
     render: function() {
-      var cols = Math.floor($('#fridge').width() / window.MagPo.app.charWidth);
-      $(this.el).html( this.template({cols: cols, url: 'saving. . .'}));
+      var bp = window.MagPo.breakpoints[window.MagPo.app.poem.get('breakpoint')];
+      var cols = Math.floor($('#fridge').width() / bp.charWidth);
+      $(this.el).html(JST['shareModalHtml']({
+        cols: cols,
+        url: document.URL,
+        twitter: {
+          related: 'fourkitchens',
+          url: document.URL
+        }
+      }));
+
       // Log errors here rather than throwing them since we don't want this
       // functionality to break the rest of the app.
       try {
