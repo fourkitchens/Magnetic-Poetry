@@ -1,0 +1,3 @@
+[submodule "js/libs/touch"]
+	path = js/libs/touch
+	url = https://github.com/manifestinteractive/touch.git

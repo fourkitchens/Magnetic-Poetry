@@ -114,10 +114,20 @@
       this.model.bind('change', this.render, this);
     },
     render: function(){
-      $(this.el).draggable({
-        stack: '.tiles',
-      }).touch({ animate: false, sticky: false, dragx: true, dragy: true, rotate: false, resort: true, scale: false });
-      
+      $(this.el)
+        .draggable({
+          stack: '.tiles',
+        })
+        .touch({
+          animate: false,
+          sticky: false,
+          dragx: true,
+          dragy: true,
+          rotate: false,
+          resort: true,
+          scale: false
+        });
+
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
