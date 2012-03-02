@@ -41,6 +41,11 @@ app.router.get('/load/:id', function(id) {
       self.res.end(JSON.stringify({ status: 'error', error: 'Poem not found.' }));
       return;
     }
+
+    // HACK - it seems we can't tell mongoose to select all but a given field,
+    // so we'll forcefully remove the author field here.
+    delete doc._doc.author;
+
     self.res.writeHead(200, headers);
     self.res.end(JSON.stringify({ status: 'ok', poem: doc }));
   });
