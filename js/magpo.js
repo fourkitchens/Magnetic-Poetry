@@ -489,7 +489,7 @@
   });
 
   /**
-   * Helpter function to reset positions of siblings after we move dom
+   * Helper function to reset positions of siblings after we move dom
    * elements around.
    *
    * @param {array} siblings
