@@ -176,6 +176,11 @@
           window.MagPo.app.poem.words.remove(dropped);
           window.MagPo.app.poemView.render();
 
+          // Bail if we're dropping back into the same drawer.
+          if ($(ui.draggable).parent().attr('id') === $(self.el).attr('id')) {
+            return;
+          }
+
           var siblings = $(ui.draggable).nextAll();
           if (dropped.get('vid') == self.model.id) {
             $(ui.draggable).appendTo(self.$el).offset(ui.offset);
@@ -194,6 +199,7 @@
       });
     },
     render: function(){
+      $(this.el).attr('id', 'drawer-' + this.model.id);
       $('#drawers').append(this.$el);
     },
     addAll: function() {
