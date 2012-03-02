@@ -1,5 +1,4 @@
 (function($) {
-
   /**
    * Defines sync behavior to the backend.
    *
@@ -118,15 +117,6 @@
         .draggable({
           stack: '.tiles',
         })
-        .touch({
-          animate: false,
-          sticky: false,
-          dragx: true,
-          dragy: true,
-          rotate: false,
-          resort: true,
-          scale: false
-        });
 
       $(this.el).data('backbone-view', this);
 
@@ -137,7 +127,6 @@
       if ( rand == 1 ) {
         $(this.el).css("-webkit-transform", "rotate(-2deg)");
       }
-
       var top = this.model.get('top');
       var left = this.model.get('left');
       if (top != null && left != null) {
@@ -452,6 +441,7 @@
   MagPo.prototype.start = function() {
     this.router = new AppRouter();
     Backbone.history.start();
+    $(document).on('touchmove', '.tiles', function(e) {});
   };
 
   window.MagPo.class = MagPo;
