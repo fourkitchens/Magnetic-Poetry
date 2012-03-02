@@ -83,6 +83,10 @@
               });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
+
+          // Seems the words come back unsorted sometimes so we'll
+          // force a sort on load.
+          model.words.sort();
         }
       );
     }
@@ -347,6 +351,11 @@
       'click': 'openShareDialog',
     },
     openShareDialog: function(event) {
+      if (!window.MagPo.app.poem.id && !window.MagPo.app.poem.words.length) {
+        // TODO - make this a pretty dialog?
+        alert('Add some words to your poem before sharing!');
+        return;
+      }
       event.stopPropagation();
 
       // Stop any autosaves.
