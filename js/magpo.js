@@ -338,6 +338,11 @@
       'click': 'openShareDialog',
     },
     openShareDialog: function(event) {
+      if (!window.MagPo.app.poem.id && !window.MagPo.app.poem.words.length) {
+        // TODO - make this a pretty dialog?
+        alert('Add some words to your poem before sharing!');
+        return;
+      }
       event.stopPropagation();
 
       // Stop any autosaves.
