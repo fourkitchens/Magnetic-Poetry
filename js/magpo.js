@@ -354,6 +354,7 @@
       'click': 'openShareDialog',
     },
     openShareDialog: function(event) {
+      autosave = false;
       event.stopPropagation();
 
       if (!window.MagPo.app.poem.id && !window.MagPo.app.poem.words.length) {
@@ -365,7 +366,6 @@
       // Stop any autosaves.
       if (window.MagPo.app.timeout) {
         clearTimeout(window.MagPo.app.timeout);
-        autosave = false;
       }
 
       // Add a listener to show the dialog after saving is complete.
