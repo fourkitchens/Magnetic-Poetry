@@ -1,5 +1,8 @@
 (function($) {
 
+  var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
+  var autosave = true;
+
   /**
    * Defines sync behavior to the backend.
    *
@@ -41,7 +44,12 @@
         success: function(data) {
           if (data.status != 'ok') {
             console.error('Error saving poem to server.');
-            // TODO - failed dialog.
+            // Prevent dialogs during autosaves.
+            if (!autosave) {
+              var dialog = new MessageDialogView({ message: failedToSaveTxt });
+              dialog.render().showModal({});
+              window.MagPo.app.poem.trigger('saved', data.status);
+            }
             return;
           }
           model.id = data.poem.id;
@@ -54,8 +62,13 @@
           window.MagPo.app.poem.trigger('saved', data.status);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          // TODO - failed dialog.
           console.error(errorThrown);
+          // Prevent dialogs during autosaves.
+          if (!autosave) {
+            var dialog = new MessageDialogView({ message: failedToSaveTxt });
+            dialog.render().showModal({});
+            window.MagPo.app.poem.trigger('saved', errorThrown);
+          }
         },
       });
     }
@@ -83,6 +96,10 @@
               });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
+
+          // Seems the words come back unsorted sometimes so we'll
+          // force a sort on load.
+          model.words.sort();
         }
       );
     }
@@ -114,7 +131,11 @@
       this.model.bind('change', this.render, this);
     },
     render: function(){
-      $(this.el).draggable({stack: '.tiles'});
+      $(this.el)
+        .draggable({
+          stack: '.tiles',
+        })
+
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
@@ -124,7 +145,6 @@
       if ( rand == 1 ) {
         $(this.el).css("-webkit-transform", "rotate(-2deg)");
       }
-
       var top = this.model.get('top');
       var left = this.model.get('left');
       if (top != null && left != null) {
@@ -334,7 +354,14 @@
       'click': 'openShareDialog',
     },
     openShareDialog: function(event) {
+      autosave = false;
       event.stopPropagation();
+
+      if (!window.MagPo.app.poem.id && !window.MagPo.app.poem.words.length) {
+        var dialog = new MessageDialogView({ message:'Add some words to your poem before sharing!' });
+        dialog.render().showModal({});
+        return;
+      }
 
       // Stop any autosaves.
       if (window.MagPo.app.timeout) {
@@ -343,20 +370,23 @@
 
       // Add a listener to show the dialog after saving is complete.
       window.MagPo.app.poem.on('saved', function(msg) {
-        // Create the modal view over the fridge.
-        var view = new ShareDialogView();
-        var fridgeOffset = $('#fridge').offset();
-        view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
+        if (msg == 'ok') {
+          // Create the modal view over the fridge.
+          var view = new ShareDialogView();
+          var fridgeOffset = $('#fridge').offset();
+          view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
 
-        $('#shareURL').text(document.URL);
-        $('#twitterLink').attr('data-url', document.URL);
-        var string = window.MagPo.app.poem.stringify(false);
-        $('#twitterLink').attr('data-text', string);
+          $('#shareURL').text(document.URL);
+          $('#twitterLink').attr('data-url', document.URL);
+          var string = window.MagPo.app.poem.stringify(false);
+          $('#twitterLink').attr('data-text', string);
 
-        twttr.widgets.load();
+          twttr.widgets.load();
+        }
 
         // Remove the listener.
         window.MagPo.app.poem.off('saved');
+        autosave = true;
       });
 
       // Save the poem.
@@ -386,6 +416,9 @@
     '<div id="tweetLinkContainer"><%= JST["twitterLink"]({twitter: twitter}) %></div>' +
     '</div>'
   );
+  window.JST['messageModalHtml'] = _.template(
+    '<div id="messageModal"><%= message %></div>'
+  );
 
   /**
    * Defines the share dialog view.
@@ -398,9 +431,6 @@
       bodyOverflowHidden:false,
       closeImageUrl: "img/close-modal.png",
       closeImageHoverUrl: "img/close-modal-hover.png",
-    },
-    initialize: function() {
-      _.bindAll(this, 'render');
     },
     render: function() {
       var bp = window.MagPo.breakpoints[window.MagPo.app.poem.get('breakpoint')];
@@ -426,6 +456,30 @@
       }
       return this;
     }
+  });
+
+  /**
+   * Defines the message dialog view.
+   */
+  var MessageDialogView = window.ModalView.extend({
+    defaultOptions: {
+      fadeInDuration: 150,
+      fadeOutDuration: 150,
+      showCloseButton: true,
+      bodyOverflowHidden: true,
+      closeImageUrl: 'img/close-modal.png',
+      closeImageHoverUrl: 'img/close-modal-hover.png',
+    },
+    render: function() {
+      var self = this;
+      $(self.el).html(
+        JST['messageModalHtml']({
+          message: self.options.message,
+        })
+      );
+
+      return self;
+    },
   });
 
   /**
@@ -472,6 +526,7 @@
   MagPo.prototype.start = function() {
     this.router = new AppRouter();
     Backbone.history.start();
+    $(document).on('touchmove', '.tiles', function(e) {});
   };
 
   window.MagPo.class = MagPo;

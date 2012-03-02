@@ -21,9 +21,7 @@ MagPo.attach = function() {
    *  The unique identifier for the poem.
    */
   this.loadPoem = function(id, callback) {
-    // TODO - this is fragile, need to think about selecting all EXCEPT
-    // the author.
-    this.PoemModel.findOne({ _id: id }, ['_id', 'nid', 'words'], callback);
+    this.PoemModel.findOne({ _id: id }, callback);
   };
 
   /**
@@ -48,12 +46,17 @@ MagPo.attach = function() {
     });
 
     var poemString = 'bar';
+    var title = poemModel.stringify();
     var post = {
-      title: poemModel.stringify(),
+      title: title.length ? title : 'all words have been removed from this poem',
       type: 'poem',
       body: {
         und: [
-          { value: poemModel.stringify(false).replace(' ', '&nbsp;', 'g') }
+          {
+            value: title.length ?
+              poemModel.stringify(false).replace(' ', '&nbsp;', 'g') :
+              '<a href="/magpo/#' + poem.id + '">fork it and make it better!</a>'
+          }
         ]
       },
       field_poem_unique_id: {
