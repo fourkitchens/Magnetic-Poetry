@@ -83,6 +83,10 @@
               });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
+
+          // Seems the words come back unsorted sometimes so we'll
+          // force a sort on load.
+          model.words.sort();
         }
       );
     }

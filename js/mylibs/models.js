@@ -131,7 +131,7 @@ var Poem = Backbone.Model.extend({
           .join(' ');
       }
       else if (lastTop && (word.get('top') > (lastTop + bp.rowHeight + third))) {
-        out += Array(Math.floor((word.get('top') - lastTop) / bp.rowHeight) + 1).join("\r");
+        out += Array(Math.floor((word.get('top') - lastTop) / bp.rowHeight) + 1).join("\n");
         out += Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1).join(' ');
         lastRight = false;
       }
