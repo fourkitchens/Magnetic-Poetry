@@ -82,6 +82,10 @@
               });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
+
+          // Seems the words come back unsorted sometimes so we'll
+          // force a sort on load.
+          model.words.sort();
         }
       );
     }
@@ -165,7 +169,7 @@
             // Unset the top and left values for this item since its drawer is
             // currently hidden and off the screen.
             $(ui.draggable)
-              .appendTo(drawers[dropped.get('vid')].view.$el)
+              .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
               .css('top', '')
               .css('left', '');
           }
@@ -262,11 +266,37 @@
             dropped.set('left', resultOffset.left);
             window.MagPo.app.poem.words.sort();
           }
+
+          // If the poem has already been saved once, autosave on drop.
+          if (window.MagPo.app.poem.id) {
+            if (window.MagPo.app.timeout) {
+              clearTimeout(window.MagPo.app.timeout);
+            }
+            window.MagPo.app.timeout = setTimeout(function() {
+              window.MagPo.app.poem.save({
+                words: window.MagPo.app.poem.getWords(),
+                breakpoint: window.MagPo.app.poem.get('breakpoint'),
+              });
+            }, window.MagPo.app.delay);
+          }
           window.MagPo.app.poemView.render();
         },
         out: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model
           window.MagPo.app.poem.words.remove(dropped);
+
+          // If the poem has already been saved once, autosave on out.
+          if (window.MagPo.app.poem.id) {
+            if (window.MagPo.app.timeout) {
+              clearTimeout(window.MagPo.app.timeout);
+            }
+            window.MagPo.app.timeout = setTimeout(function() {
+              window.MagPo.app.poem.save({
+                words: window.MagPo.app.poem.getWords(),
+                breakpoint: window.MagPo.app.poem.get('breakpoint'),
+              });
+            }, window.MagPo.app.delay);
+          }
         },
       });
     },
@@ -310,7 +340,17 @@
       'click': 'openShareDialog',
     },
     openShareDialog: function(event) {
+      if (!window.MagPo.app.poem.id && !window.MagPo.app.poem.words.length) {
+        // TODO - make this a pretty dialog?
+        alert('Add some words to your poem before sharing!');
+        return;
+      }
       event.stopPropagation();
+
+      // Stop any autosaves.
+      if (window.MagPo.app.timeout) {
+        clearTimeout(window.MagPo.app.timeout);
+      }
 
       // Add a listener to show the dialog after saving is complete.
       window.MagPo.app.poem.on('saved', function(msg) {
@@ -332,8 +372,6 @@
 
       // Save the poem.
       window.MagPo.app.poem.save({
-        id: window.MagPo.app.poem.id,
-        nid: window.MagPo.app.poem.get('nid'),
         words: window.MagPo.app.poem.getWords(),
         breakpoint: window.MagPo.app.poem.get('breakpoint'),
       });
@@ -406,6 +444,10 @@
    */
   var MagPo = function(drawers) {
     var self = this;
+
+    self.timeout = false;
+    self.delay = 1000;
+
     // TODO - detect the correct breakpoint.
     self.poem = new Poem({ breakpoint: 'desktop' });
 

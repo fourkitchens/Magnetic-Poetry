@@ -4,16 +4,21 @@ html {
 body {
   margin: 0;
   padding: 0;
-  height: 100%; 
+  height: 100%;
+}
+::selection,
+::-moz-selection {
+  background: #66B360;
+  color: #ffffff;
 }
 #workspace {
   margin: auto;
   min-height: 100%;
   width: 960px;
-  background: #BABBB5;
+  background: #cccccc;
   position: relative;
 }
-/* clearfix group */ 
+/* clearfix group */
 .group:before,
 .group:after {
     content:"";
@@ -28,6 +33,7 @@ body {
 body {
   font-family: 'DejaVuSansMonoBook';
   font-size: 1.5em;
+  color: #4d4d4d;
 }
 #main {
   min-height: 100%;
@@ -58,22 +64,23 @@ body {
   width: 100%;
 }
 .drawer {
-  background: pink;
+  background: #e6e6e6;
   height: 200px;
   width: 100%;
 }
 #drawer-handles {
   list-style: none;
   margin: 5px;
+  color: #ffffff;
 }
 .drawer-handle {
   display: inline;
   cursor: pointer;
-  background: red;
+  background: #65b561;
   padding: 5px 9px;
-  border-bottom: 3px solid;
-  border-left: 3px solid;
-  border-right: 2px solid;
+  border-bottom: 3px solid #4d4d4d;
+  border-left: 3px solid #4d4d4d;
+  border-right: 2px solid #4d4d4d;
   margin-right: 10px;
 }
 
