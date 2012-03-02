@@ -48,6 +48,7 @@
             if (!autosave) {
               // TODO - make this pretty?
               alert(failedToSaveTxt);
+              window.MagPo.app.poem.trigger('saved', data.status);
             }
             return;
           }
@@ -66,6 +67,7 @@
           if (!autosave) {
             // TODO - make this pretty?
             alert(failedToSaveTxt);
+            window.MagPo.app.poem.trigger('saved', errorThrown);
           }
         },
       });
@@ -364,17 +366,19 @@
 
       // Add a listener to show the dialog after saving is complete.
       window.MagPo.app.poem.on('saved', function(msg) {
-        // Create the modal view over the fridge.
-        var view = new ShareDialogView();
-        var fridgeOffset = $('#fridge').offset();
-        view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
+        if (msg == 'ok') {
+          // Create the modal view over the fridge.
+          var view = new ShareDialogView();
+          var fridgeOffset = $('#fridge').offset();
+          view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
 
-        $('#shareURL').text(document.URL);
-        $('#twitterLink').attr('data-url', document.URL);
-        var string = window.MagPo.app.poem.stringify(false);
-        $('#twitterLink').attr('data-text', string);
+          $('#shareURL').text(document.URL);
+          $('#twitterLink').attr('data-url', document.URL);
+          var string = window.MagPo.app.poem.stringify(false);
+          $('#twitterLink').attr('data-text', string);
 
-        twttr.widgets.load();
+          twttr.widgets.load();
+        }
 
         // Remove the listener.
         window.MagPo.app.poem.off('saved');
