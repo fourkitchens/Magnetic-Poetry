@@ -176,8 +176,10 @@
           window.MagPo.app.poem.words.remove(dropped);
           window.MagPo.app.poemView.render();
 
+          var siblings = $(ui.draggable).nextAll();
           if (dropped.get('vid') == self.model.id) {
             $(ui.draggable).appendTo(self.$el).offset(ui.offset);
+            repositionSiblings(siblings);
           }
           else {
             // Unset the top and left values for this item since its drawer is
@@ -186,6 +188,7 @@
               .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
               .css('top', '')
               .css('left', '');
+            repositionSiblings(siblings);
           }
         },
       });
@@ -263,14 +266,17 @@
           if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
             // reset its position relative to the fridge.
-            $(ui.draggable)
+            var siblings = $(ui.draggable)
               .appendTo(self.$el)
               .position({
                 of: self.$el,
                 my: 'left top',
                 at: 'left top',
                 offset: resultOffset.left + ' ' + resultOffset.top
-              });
+              }).prevAll();
+
+            repositionSiblings(siblings);
+
             dropped.set('top', resultOffset.top);
             dropped.set('left', resultOffset.left);
             window.MagPo.app.poem.words.add(dropped);
@@ -481,6 +487,25 @@
       return self;
     },
   });
+
+  /**
+   * Helper function to reset positions of siblings after we move dom
+   * elements around.
+   *
+   * @param {array} siblings
+   *   The list of sibling elements to reposition.
+   */
+  function repositionSiblings(siblings) {
+    _(siblings).each(function(sibling) {
+      var sModel = $(sibling).data('backbone-view').model;
+      $(sibling).position({
+        of: '#fridge',
+        my: 'left top',
+        at: 'left top',
+        offset: sModel.get('left') + ' ' + sModel.get('top'),
+      });
+    });
+  }
 
   /**
    * Local variables.
