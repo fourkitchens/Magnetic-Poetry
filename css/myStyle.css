@@ -102,6 +102,10 @@ body {
 }
 #shareModal {
 }
+#messageModal {
+  width: 350px;
+  padding: 20px;
+}
 #poemDialog {
   margin: 10px 20px;
   height: 200px;
