@@ -52,6 +52,7 @@ body {
   -webkit-transform:rotate(2deg);
 }
 .ui-draggable-dragging {
+  background: #5E7179;
   -webkit-box-shadow: 8px 8px 6px #888;
   box-shadow: 8px 8px 6px #888;
 }

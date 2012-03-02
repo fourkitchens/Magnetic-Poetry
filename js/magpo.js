@@ -131,7 +131,11 @@
       this.model.bind('change', this.render, this);
     },
     render: function(){
-      $(this.el).draggable({stack: '.tiles'});
+      $(this.el)
+        .draggable({
+          stack: '.tiles',
+        })
+
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
@@ -141,7 +145,6 @@
       if ( rand == 1 ) {
         $(this.el).css("-webkit-transform", "rotate(-2deg)");
       }
-
       var top = this.model.get('top');
       var left = this.model.get('left');
       if (top != null && left != null) {
@@ -523,6 +526,7 @@
   MagPo.prototype.start = function() {
     this.router = new AppRouter();
     Backbone.history.start();
+    $(document).on('touchmove', '.tiles', function(e) {});
   };
 
   window.MagPo.class = MagPo;
