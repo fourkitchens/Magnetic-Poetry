@@ -116,20 +116,8 @@
     render: function(){
       $(this.el).draggable({
         stack: '.tiles',
-        start: function(event, ui) {
-          addEventListener('touchmove', function(e) { e.preventDefault(); }, true);
-        },
-        stop: function(event, ui) {
-          removeEventListener('touchmove');
-        }
-      })
-      .mousedown( function() {
-        addEventListener('touchmove', function(e) { e.preventDefault(); }, true)
-      })
-      .mouseup( function() { 
-        removeEventListener('touchmove') 
-      });
-
+      }).touch({ animate: false, sticky: false, dragx: true, dragy: true, rotate: false, resort: true, scale: false });
+      
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
