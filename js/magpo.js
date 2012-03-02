@@ -1,5 +1,8 @@
 (function($) {
 
+  var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
+  var autosave = true;
+
   /**
    * Defines sync behavior to the backend.
    *
@@ -41,7 +44,11 @@
         success: function(data) {
           if (data.status != 'ok') {
             console.error('Error saving poem to server.');
-            // TODO - failed dialog.
+            // Prevent dialogs during autosaves.
+            if (!autosave) {
+              // TODO - make this pretty?
+              alert(failedToSaveTxt);
+            }
             return;
           }
           model.id = data.poem.id;
@@ -54,8 +61,12 @@
           window.MagPo.app.poem.trigger('saved', data.status);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          // TODO - failed dialog.
           console.error(errorThrown);
+          // Prevent dialogs during autosaves.
+          if (!autosave) {
+            // TODO - make this pretty?
+            alert(failedToSaveTxt);
+          }
         },
       });
     }
@@ -348,6 +359,7 @@
       // Stop any autosaves.
       if (window.MagPo.app.timeout) {
         clearTimeout(window.MagPo.app.timeout);
+        autosave = false;
       }
 
       // Add a listener to show the dialog after saving is complete.
@@ -366,6 +378,7 @@
 
         // Remove the listener.
         window.MagPo.app.poem.off('saved');
+        autosave = true;
       });
 
       // Save the poem.
