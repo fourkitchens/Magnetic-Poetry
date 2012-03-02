@@ -10,15 +10,15 @@
   #workspace {
     margin: auto;
     min-height: 100%;
-    width: 300px;
+    width: 320px;
     background: #BABBB5;
     position: relative;
   }
 
   #fridge {
-    width: 100px;
-    margin: 20px 200px;
-    height: 300px;
+    width: 300px;
+    margin: 20px 10px;
+    height: 150px;
     position: relative;
   }
   
@@ -48,14 +48,14 @@
   #workspace {
     margin: auto;
     min-height: 100%;
-    width: 600px;
+    width: 640px;
     background: #BABBB5;
     position: relative;
   }  
 
   #fridge {
-    width: 300px;
-    margin: 20px 200px;
+    width: 560px;
+    margin: 20px 20px;
     height: 300px;
     position: relative;
   }
@@ -95,7 +95,7 @@
     width: 560px;
     margin: 20px 200px;
     height: 300px;
-    position: relative;
+    position: inherit;
   }
 
   #drawers-container {
