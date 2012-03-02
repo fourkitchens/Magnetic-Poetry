@@ -1,10 +1,12 @@
 /* iPhone 4 screen resolution is: 640x960 */
 /* Thunderbolt screen resolution is: 480x800 */
+/* iPad screen resolution is: 768x1024 */
 
+/* Mobile */
 @media only screen and (min-width: 320px) {
   #main {
     min-height: 100%;
-    width: 300px;
+    width: 320px;
   }
 
   #workspace {
@@ -16,7 +18,7 @@
   }
 
   #fridge {
-    width: 300px;
+    width: 280px;
     margin: 20px 10px;
     height: 150px;
     position: relative;
@@ -29,7 +31,7 @@
  
   body {
     font-family: 'DejaVuSansMonoBook';
-    font-size: 0.8em;
+    font-size: 0.75em;
   }
   
   .drawer {
@@ -39,10 +41,50 @@
   }  
 }
 
+/* Mobile */
+@media only screen and (min-width: 480px) {
+  #main {
+    min-height: 100%;
+    width: 480px;
+  }
+
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 480px;
+    background: #BABBB5;
+    position: relative;
+  }
+
+  #fridge {
+    width: 280px;
+    margin: 20px 10px;
+    height: 150px;
+    position: relative;
+  }
+  
+  #drawers-container {
+    height: 100px;
+    width: 100%;
+  }
+ 
+  body {
+    font-family: 'DejaVuSansMonoBook';
+    font-size: 0.75em;
+  }
+  
+  .drawer {
+    background: pink;
+    height: 100px;
+    width: 100%;
+  }  
+}
+
+/* Tablet */
 @media only screen and (min-width: 640px) { 
   #main {
     min-height: 100%;
-    width: 600px;
+    width: 640px;
   }
   
   #workspace {
@@ -54,9 +96,9 @@
   }  
 
   #fridge {
-    width: 560px;
+    width: 420px;
     margin: 20px 20px;
-    height: 300px;
+    height: 225px;
     position: relative;
   }
 
@@ -67,7 +109,7 @@
 
   body {
     font-family: 'DejaVuSansMonoBook';
-    font-size: 1.0em;
+    font-size: 1.125em;
   }
 
   .drawer {
@@ -77,6 +119,46 @@
   }        
 }
 
+/* Tablet */
+@media only screen and (min-width: 720px) { 
+  #main {
+    min-height: 100%;
+    width: 720px;
+  }
+  
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 720px;
+    background: #BABBB5;
+    position: relative;
+  }  
+
+  #fridge {
+    width: 420px;
+    margin: 20px 20px;
+    height: 225px;
+    position: relative;
+  }
+
+  #drawers-container {
+    height: 200px;
+    width: 100%;
+  }
+
+  body {
+    font-family: 'DejaVuSansMonoBook';
+    font-size: 1.125em;
+  }
+
+  .drawer {
+    background: pink;
+    height: 180px;
+    width: 100%;
+  }        
+}
+
+/* Desktop/Laptop */
 @media only screen and (min-width: 960px) {
   #main {
     min-height: 100%;
