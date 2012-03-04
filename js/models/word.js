@@ -10,7 +10,7 @@ var Word = {
   vid: 0,
   string: '',
   top: null,
-  left: null,
+  left: null
 };
 
 // If this is browser-side.

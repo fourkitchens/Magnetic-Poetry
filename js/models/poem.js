@@ -19,7 +19,7 @@ var Poem = {
   breakpoint: '',
   words: Backbone.Collection.extend({
     model: Word
-  }),
+  })
 };
 
 if (typeof module === 'undefined') {
