@@ -27,7 +27,7 @@ app.router.get('/', function() {
   this.res.writeHead(200, headers);
   this.res.end(JSON.stringify({ status: 'ok' }));
 });
-app.router.get('/load/:id', function(id) {
+app.router.post('/load/:id', function(id) {
   var self = this;
   app.loadPoem(id, function onLoad(err, doc) {
     if (err) {
@@ -42,12 +42,18 @@ app.router.get('/load/:id', function(id) {
       return;
     }
 
+    // Set a flag about whether or not the author matches.
+    var author = false;
+    if (typeof self.req.body.author === doc.author) {
+      author = true;
+    }
+
     // HACK - it seems we can't tell mongoose to select all but a given field,
     // so we'll forcefully remove the author field here.
     delete doc._doc.author;
 
     self.res.writeHead(200, headers);
-    self.res.end(JSON.stringify({ status: 'ok', poem: doc }));
+    self.res.end(JSON.stringify({ status: 'ok', poem: doc, author: author }));
   });
 });
 app.router.get('/save', function() {
