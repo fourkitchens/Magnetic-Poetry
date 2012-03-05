@@ -72,7 +72,7 @@ app.router.post('/save', function() {
     return;
   }
 
-  app.savePoem(self.req.body.poem, function onSaved(err, poem) {
+  app.savePoem(self.req.body.poem, function onSaved(err, poem, redirect) {
     if (err) {
       console.error(err);
       self.res.writeHead(500, headers);
@@ -82,10 +82,15 @@ app.router.post('/save', function() {
       }));
       return;
     }
+
+    if (typeof redirect === 'undefined') {
+      redirect = false;
+    }
     self.res.writeHead(200, headers);
     self.res.end(JSON.stringify({
       status: 'ok',
-      poem: poem
+      poem: poem,
+      redirect: redirect
     }));
   });
 });
