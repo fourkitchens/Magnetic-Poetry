@@ -20,6 +20,6 @@ exp.desktop = {
   minWidth: null,
   maxWidth: null,
   rowHeight: 29,
-  charWidth: 8,
+  charWidth: 8
 };
 

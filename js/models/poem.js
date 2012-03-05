@@ -3,7 +3,7 @@
  */
 
 if (typeof module !== 'undefined') {
-  var Backbone = require('../libs/backbone');
+  var Backbone = require('backbone');
   var Word = require('./word');
 }
 else {
@@ -19,7 +19,7 @@ var Poem = {
   breakpoint: '',
   words: Backbone.Collection.extend({
     model: Word
-  }),
+  })
 };
 
 if (typeof module === 'undefined') {
