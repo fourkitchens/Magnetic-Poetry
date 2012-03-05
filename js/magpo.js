@@ -12,8 +12,6 @@
    *   The model object that is being synced.
    */
   Backbone.sync = function(method, model) {
-    var baseUrl = window.location.protocol + '//' + window.location.host +
-      window.location.pathname;
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
       var body = {
         poem: model.toJSON()
@@ -32,7 +30,7 @@
 
       // Send to server.
       $.ajax({
-        url: baseUrl + 'app/save',
+        url: 'app/save',
         contentType: 'application/json',
         data: JSON.stringify(body),
         dataType: 'json',
@@ -69,12 +67,20 @@
       });
     }
     else if (model instanceof Poem && method == 'read') {
-      $.getJSON(
-        baseUrl + 'app/load/' + model.id,
-        function(data) {
+      var author = localStorage.getItem('MagPo_me');
+      $.ajax({
+        url: 'app/load/' + model.id,
+        contentType: 'application/json',
+        data: JSON.stringify({ author: author }),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
           if (data.status != 'ok') {
             console.error('Error fetching poem from server.');
             return;
+          }
+          if (data.author === false) {
+            model.id = null;
           }
           model.set('nid', data.poem.nid);
           model.words.reset();
@@ -97,7 +103,7 @@
           // force a sort on load.
           model.words.sort();
         }
-      );
+      });
     }
   };
 
