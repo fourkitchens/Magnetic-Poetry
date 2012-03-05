@@ -3,7 +3,7 @@
  */
 
 if (typeof module !== 'undefined') {
-  var Backbone = require('../libs/backbone');
+  var Backbone = require('backbone');
   var Word = require('./word');
 }
 else {
