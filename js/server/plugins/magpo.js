@@ -58,6 +58,7 @@ MagPo.attach = function() {
    */
   this._savePoem = function(poem, callback) {
     var self = this;
+    var redirect = false;
     var poemObj = new self.PoemModel();
     poemObj.breakpoint = poem.breakpoint;
     var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
@@ -100,10 +101,11 @@ MagPo.attach = function() {
         { $set: { words: poemObj.words, breakpoint: poem.breakpoint } },
         function(err) {
           if (err) {
-            callback(err, null);
+            callback(err, null, redirect);
             return;
           }
-          callback(err, poem, true);
+          redirect = true;
+          callback(err, poem, redirect);
 
           // Update the poem in Drupal.
           // If the client didn't send us a nid, look it up!
@@ -142,11 +144,12 @@ MagPo.attach = function() {
       }
       poemObj.save(function(err) {
         if (err) {
-          callback(err, null);
+          callback(err, null, redirect);
         }
         poem.id = poemObj._id.__id;
         poem.author = poemObj.author;
-        callback(err, poem, true);
+        redirect = true;
+        callback(err, poem, redirect);
 
         // Save the poem to Drupal.
         post.field_poem_unique_id.und[0].value = poem.id;
