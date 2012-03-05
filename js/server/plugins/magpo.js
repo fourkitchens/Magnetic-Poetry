@@ -32,6 +32,32 @@ MagPo.attach = function() {
    */
   this.savePoem = function(poem, callback) {
     var self = this;
+    // Detect forks.
+    if (poem.author != null) {
+      self.PoemModel.findOne({ _id: poem.id, author: poem.author }, function(err, doc) {
+        // If no poem was found, or the authors don't match, unset the poem
+        // id so a new poem will be saved.
+        if (doc == null || typeof doc.author === 'undefined' || doc.author !== poem.author) {
+          poem.id = null;
+        }
+        self._savePoem(poem, callback);
+      });
+    }
+    else {
+      self._savePoem(poem, callback);
+    }
+  };
+
+  /**
+   * Performs database operations on a save request.
+   *
+   * @param {object} poem
+   *   The poem object to save.
+   * @param {function} callback
+   *   The function to execute after the poem is saved.
+   */
+  this._savePoem = function(poem, callback) {
+    var self = this;
     var poemObj = new self.PoemModel();
     poemObj.breakpoint = poem.breakpoint;
     var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
@@ -66,8 +92,6 @@ MagPo.attach = function() {
       }
     };
 
-    // TODO - figure out what to do if the author is set but is not the author
-    // of the poem they're trying to update!
     // If the id exists and the author is set, try to update.
     if (typeof poem.id !== 'undefined' && poem.id != null && poem.author != null) {
       // TODO - this is fragile and assumes words is all we need to save.
@@ -79,7 +103,7 @@ MagPo.attach = function() {
             callback(err, null);
             return;
           }
-          callback(err, poem);
+          callback(err, poem, true);
 
           // Update the poem in Drupal.
           // If the client didn't send us a nid, look it up!
@@ -122,7 +146,7 @@ MagPo.attach = function() {
         }
         poem.id = poemObj._id.__id;
         poem.author = poemObj.author;
-        callback(err, poem);
+        callback(err, poem, true);
 
         // Save the poem to Drupal.
         post.field_poem_unique_id.und[0].value = poem.id;

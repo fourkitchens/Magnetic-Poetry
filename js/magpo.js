@@ -15,23 +15,19 @@
     var baseUrl = window.location.protocol + '//' + window.location.host +
       window.location.pathname;
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
-      var redirect = false;
-      if (model.id == null) {
-        redirect = true;
-      }
       var body = {
         poem: model.toJSON()
       };
 
       // If this is an update we should always be sending along our uuid.
       // TODO - store a cookie if local storage isn't supported?
-      if (typeof localStorage.getItem('MagPo_me') !== 'undefined') {
-        body.poem.author = localStorage.MagPo_me;
+      var author = localStorage.getItem('MagPo_me');
+      if (typeof author !== 'undefined' && author !== null) {
+        body.poem.author = author;
       }
       else {
         // Fork it, baby!
         model.id = null;
-        redirect = true;
       }
 
       // Send to server.
@@ -56,7 +52,7 @@
           if (typeof data.poem.author !== 'undefined') {
             localStorage.setItem('MagPo_me', data.poem.author);
           }
-          if (redirect) {
+          if (data.redirect) {
             window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
           window.MagPo.app.poem.trigger('saved', data.status);
