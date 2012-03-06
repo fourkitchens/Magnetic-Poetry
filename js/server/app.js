@@ -27,7 +27,19 @@ app.router.get('/', function() {
   this.res.writeHead(200, headers);
   this.res.end(JSON.stringify({ status: 'ok' }));
 });
-app.router.get('/load/:id', function(id) {
+
+app.router.get('/save', function() {
+  this.res.writeHead(400, headers);
+  this.res.end(JSON.stringify({
+    status: 'error',
+    error: 'Only POST requests are accepted.'
+  }));
+});
+
+/**
+ * POST routes.
+ */
+app.router.post('/load/:id', function(id) {
   var self = this;
   app.loadPoem(id, function onLoad(err, doc) {
     if (err) {
@@ -42,25 +54,21 @@ app.router.get('/load/:id', function(id) {
       return;
     }
 
+    // Set a flag about whether or not the author matches.
+    var author = false;
+    if (self.req.body.author === doc.author) {
+      author = true;
+    }
+
     // HACK - it seems we can't tell mongoose to select all but a given field,
     // so we'll forcefully remove the author field here.
     delete doc._doc.author;
 
     self.res.writeHead(200, headers);
-    self.res.end(JSON.stringify({ status: 'ok', poem: doc }));
+    self.res.end(JSON.stringify({ status: 'ok', poem: doc, author: author }));
   });
 });
-app.router.get('/save', function() {
-  this.res.writeHead(400, headers);
-  this.res.end(JSON.stringify({
-    status: 'error',
-    error: 'Only POST requests are accepted.'
-  }));
-});
 
-/**
- * POST routes.
- */
 app.router.post('/save', function() {
   var self = this;
   if (typeof self.req.body.poem === 'undefined') {
@@ -72,20 +80,24 @@ app.router.post('/save', function() {
     return;
   }
 
-  app.savePoem(self.req.body.poem, function onSaved(err, poem) {
+  app.savePoem(self.req.body.poem, function onSaved(err, poem, redirect) {
     if (err) {
-      console.error(err);
-      self.res.writeHead(500, headers);
+      self.res.writeHead(err, headers);
       self.res.end(JSON.stringify({
         status: 'error',
         error: 'Error saving poem.'
       }));
       return;
     }
+
+    if (typeof redirect === 'undefined') {
+      redirect = false;
+    }
     self.res.writeHead(200, headers);
     self.res.end(JSON.stringify({
       status: 'ok',
-      poem: poem
+      poem: poem,
+      redirect: redirect
     }));
   });
 });

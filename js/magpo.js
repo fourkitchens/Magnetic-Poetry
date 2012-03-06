@@ -1,5 +1,6 @@
 (function($) {
 
+  var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
 
@@ -12,31 +13,25 @@
    *   The model object that is being synced.
    */
   Backbone.sync = function(method, model) {
-    var baseUrl = window.location.protocol + '//' + window.location.host +
-      window.location.pathname;
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
-      var redirect = false;
-      if (model.id == null) {
-        redirect = true;
-      }
       var body = {
-        poem: model.toJSON(),
+        poem: model.toJSON()
       };
 
       // If this is an update we should always be sending along our uuid.
       // TODO - store a cookie if local storage isn't supported?
-      if (typeof localStorage.getItem('MagPo_me') !== 'undefined') {
-        body.poem.author = localStorage.MagPo_me;
+      var author = localStorage.getItem('MagPo_me');
+      if (typeof author !== 'undefined' && author !== null) {
+        body.poem.author = author;
       }
       else {
         // Fork it, baby!
         model.id = null;
-        redirect = true;
       }
 
       // Send to server.
       $.ajax({
-        url: baseUrl + 'app/save',
+        url: 'app/save',
         contentType: 'application/json',
         data: JSON.stringify(body),
         dataType: 'json',
@@ -56,7 +51,7 @@
           if (typeof data.poem.author !== 'undefined') {
             localStorage.setItem('MagPo_me', data.poem.author);
           }
-          if (redirect) {
+          if (data.redirect) {
             window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
           window.MagPo.app.poem.trigger('saved', data.status);
@@ -65,20 +60,29 @@
           console.error(errorThrown);
           // Prevent dialogs during autosaves.
           if (!autosave) {
-            var dialog = new MessageDialogView({ message: failedToSaveTxt });
+            var txt = (jqXHR.status == 406) ? failedToValidateTxt : failedToSaveTxt;
+            var dialog = new MessageDialogView({ message: txt });
             dialog.render().showModal({});
             window.MagPo.app.poem.trigger('saved', errorThrown);
           }
-        },
+        }
       });
     }
     else if (model instanceof Poem && method == 'read') {
-      $.getJSON(
-        baseUrl + 'app/load/' + model.id,
-        function(data) {
+      var author = localStorage.getItem('MagPo_me');
+      $.ajax({
+        url: 'app/load/' + model.id,
+        contentType: 'application/json',
+        data: JSON.stringify({ author: author }),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
           if (data.status != 'ok') {
             console.error('Error fetching poem from server.');
             return;
+          }
+          if (data.author === false) {
+            model.id = null;
           }
           model.set('nid', data.poem.nid);
           model.words.reset();
@@ -101,7 +105,7 @@
           // force a sort on load.
           model.words.sort();
         }
-      );
+      });
     }
   };
 
@@ -110,12 +114,12 @@
    */
   var AppRouter = Backbone.Router.extend({
     routes: {
-      ':id': 'load',
+      ':id': 'load'
     },
     load: function(id) {
       window.MagPo.app.poem.id = id;
       window.MagPo.app.poem.fetch({ id: window.MagPo.app.poem.id });
-    },
+    }
   });
 
   /**
@@ -124,26 +128,26 @@
   var WordView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
-      class: 'draggable tiles',
+      class: 'draggable tiles'
     },
-    initialize: function(){
+    initialize: function() {
       this.model.view = this;
       this.model.bind('change', this.render, this);
     },
-    render: function(){
+    render: function() {
       $(this.el)
         .draggable({
-          stack: '.tiles',
-        })
+          stack: '.tiles'
+        });
 
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
 
       // add the random tilt.
-      rand = Math.floor(Math.random()*2);
-      if ( rand == 1 ) {
-        $(this.el).css("-webkit-transform", "rotate(-2deg)");
+      rand = Math.floor(Math.random() * 2);
+      if (rand == 1) {
+        $(this.el).css('-webkit-transform', 'rotate(-2deg)');
       }
       var top = this.model.get('top');
       var left = this.model.get('left');
@@ -162,7 +166,7 @@
     tagName: 'div',
     attributes: {
       class: 'drawer',
-      style: 'display: none',
+      style: 'display: none'
     },
     initialize: function() {
       var self = this;
@@ -195,10 +199,10 @@
               .css('left', '');
             repositionSiblings(siblings);
           }
-        },
+        }
       });
     },
-    render: function(){
+    render: function() {
       $(this.el).attr('id', 'drawer-' + this.model.id);
       $('#drawers').append(this.$el);
     },
@@ -222,7 +226,7 @@
   var DrawerHandleView = Backbone.View.extend({
     tagName: 'li',
     attributes: {
-      class: 'drawer-handle',
+      class: 'drawer-handle'
     },
     initialize: function() {
       this.render();
@@ -241,14 +245,14 @@
         $('.open-handle').removeClass('open-handle');
         $(this).addClass('open-handle');
         if ($('.open-drawer').length == 1) {
-          $('.open-drawer').removeClass('open-drawer').hide()
+          $('.open-drawer').removeClass('open-drawer').hide();
           $(self.model.view.$el).addClass('open-drawer').show();
         }
         else {
           $(self.model.view.$el).addClass('open-drawer').slideDown(400);
         }
       });
-    },
+    }
   });
 
   /**
@@ -266,7 +270,7 @@
         drop: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
           var dropOffset = ui.offset;
-          resultOffset =  {};
+          resultOffset = {};
           resultOffset.top = dropOffset.top - self.fridgeOffset.top;
           resultOffset.left = dropOffset.left - self.fridgeOffset.left;
           if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
@@ -301,14 +305,14 @@
             window.MagPo.app.timeout = setTimeout(function() {
               window.MagPo.app.poem.save({
                 words: window.MagPo.app.poem.getWords(),
-                breakpoint: window.MagPo.app.poem.get('breakpoint'),
+                breakpoint: window.MagPo.app.poem.get('breakpoint')
               });
             }, window.MagPo.app.delay);
           }
           window.MagPo.app.poemView.render();
         },
         out: function(event, ui) {
-          var dropped = $(ui.draggable).data('backbone-view').model
+          var dropped = $(ui.draggable).data('backbone-view').model;
           window.MagPo.app.poem.words.remove(dropped);
 
           // If the poem has already been saved once, autosave on out.
@@ -319,13 +323,13 @@
             window.MagPo.app.timeout = setTimeout(function() {
               window.MagPo.app.poem.save({
                 words: window.MagPo.app.poem.getWords(),
-                breakpoint: window.MagPo.app.poem.get('breakpoint'),
+                breakpoint: window.MagPo.app.poem.get('breakpoint')
               });
             }, window.MagPo.app.delay);
           }
-        },
+        }
       });
-    },
+    }
   });
 
   /**
@@ -360,17 +364,17 @@
     el: $('#shareLink'),
     initialize: function() {
       _.bindAll(this, 'render');
-      $(this.$el).stop
+      $(this.$el).stop;
     },
     events: {
-      'click': 'openShareDialog',
+      'click': 'openShareDialog'
     },
     openShareDialog: function(event) {
       autosave = false;
       event.stopPropagation();
 
       if (!window.MagPo.app.poem.id && !window.MagPo.app.poem.words.length) {
-        var dialog = new MessageDialogView({ message:'Add some words to your poem before sharing!' });
+        var dialog = new MessageDialogView({ message: 'Add some words to your poem before sharing!' });
         dialog.render().showModal({});
         return;
       }
@@ -404,27 +408,27 @@
       // Save the poem.
       window.MagPo.app.poem.save({
         words: window.MagPo.app.poem.getWords(),
-        breakpoint: window.MagPo.app.poem.get('breakpoint'),
+        breakpoint: window.MagPo.app.poem.get('breakpoint')
       });
-    },
+    }
   });
 
   window.JST = {};
 
   window.JST['twitterLink'] = _.template(
-    '<div><a href="https://twitter.com/share" '+
-    'class="twitter-share-button" '+
-    'id="twitterLink" '+
-    'data-related="<%= twitter.related %>" '+
-    'data-url="<% twitter.url %>"'+
+    '<div><a href="https://twitter.com/share" ' +
+    'class="twitter-share-button" ' +
+    'id="twitterLink" ' +
+    'data-related="<%= twitter.related %>" ' +
+    'data-url="<% twitter.url %>"' +
     'data-lang="en" data-size="large" data-count="none">Tweet</a>' +
     '</div>'
   );
   window.JST['shareModalHtml'] = _.template(
-    '<div id="shareModal">'+
-    '<p>Poem Saved!</p>'+
+    '<div id="shareModal">' +
+    '<p>Poem Saved!</p>' +
     '<textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>' +
-    '<p id="shareURL"><%= url %></p>'+
+    '<p id="shareURL"><%= url %></p>' +
     '<div id="tweetLinkContainer"><%= JST["twitterLink"]({twitter: twitter}) %></div>' +
     '</div>'
   );
@@ -437,12 +441,12 @@
    */
   var ShareDialogView = window.ModalView.extend({
     defaultOptions: {
-      fadeInDuration:150,
-      fadeOutDuration:150,
-      showCloseButton:true,
-      bodyOverflowHidden:false,
-      closeImageUrl: "img/close-modal.png",
-      closeImageHoverUrl: "img/close-modal-hover.png",
+      fadeInDuration: 150,
+      fadeOutDuration: 150,
+      showCloseButton: true,
+      bodyOverflowHidden: false,
+      closeImageUrl: 'img/close-modal.png',
+      closeImageHoverUrl: 'img/close-modal-hover.png'
     },
     render: function() {
       var bp = window.MagPo.breakpoints[window.MagPo.app.poem.get('breakpoint')];
@@ -473,25 +477,25 @@
   /**
    * Defines the message dialog view.
    */
-  var MessageDialogView = window.ModalView.extend({
+  var MessageDialogView = window.MessageDialogView = window.ModalView.extend({
     defaultOptions: {
       fadeInDuration: 150,
       fadeOutDuration: 150,
       showCloseButton: true,
       bodyOverflowHidden: true,
       closeImageUrl: 'img/close-modal.png',
-      closeImageHoverUrl: 'img/close-modal-hover.png',
+      closeImageHoverUrl: 'img/close-modal-hover.png'
     },
     render: function() {
       var self = this;
       $(self.el).html(
         JST['messageModalHtml']({
-          message: self.options.message,
+          message: self.options.message
         })
       );
 
       return self;
-    },
+    }
   });
 
   /**
@@ -508,7 +512,7 @@
         of: '#fridge',
         my: 'left top',
         at: 'left top',
-        offset: sModel.get('left') + ' ' + sModel.get('top'),
+        offset: sModel.get('left') + ' ' + sModel.get('top')
       });
     });
   }
@@ -546,7 +550,7 @@
       model.words.reset(drawer.words);
       var drawerObj = {
         model: model,
-        view: view,
+        view: view
       };
       self.drawers[drawer.id] = drawerObj;
     });

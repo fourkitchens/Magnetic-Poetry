@@ -23,7 +23,7 @@ else {
  * @see models/word.js
  */
 var Word = Backbone.Model.extend({
-  defaults: wordModel,
+  defaults: wordModel
 });
 
 /**
@@ -31,13 +31,13 @@ var Word = Backbone.Model.extend({
  */
 var Drawer = Backbone.Model.extend({
   attributes: {
-    name: 'drawer',
+    name: 'drawer'
   },
   initialize: function(drawer) {
     this.id = drawer.id;
     this.set('name', drawer.name);
     this.words = new WordCollection();
-  },
+  }
 });
 
 /**
@@ -68,7 +68,7 @@ var Poem = Backbone.Model.extend({
         else {
           return -1;
         }
-      },
+      }
     });
     this.words = new poemCollection();
   },
@@ -82,7 +82,7 @@ var Poem = Backbone.Model.extend({
       id: this.id,
       nid: this.get('nid'),
       breakpoint: this.get('breakpoint'),
-      words: this.words.toJSON(),
+      words: this.words.toJSON()
     };
   },
   stringify: function(simple) {
@@ -131,13 +131,13 @@ var Poem = Backbone.Model.extend({
           .join(' ');
       }
       else if (lastTop && (word.get('top') > (lastTop + bp.rowHeight + third))) {
-        out += Array(Math.floor((word.get('top') - lastTop) / bp.rowHeight) + 1).join("\n");
+        out += Array(Math.floor((word.get('top') - lastTop) / bp.rowHeight) + 1).join('\n');
         out += Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1).join(' ');
         lastRight = false;
       }
       if (lastRight) {
         var spaces = Math.floor((word.get('left') - lastRight) / bp.charWidth);
-        if (spaces <= 0 ) {
+        if (spaces <= 0) {
           spaces = 0;
         }
         out += Array(spaces).join(' ');
@@ -148,7 +148,7 @@ var Poem = Backbone.Model.extend({
     });
 
     return out;
-  },
+  }
 });
 
 // Export the definitions.

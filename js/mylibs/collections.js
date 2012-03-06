@@ -15,7 +15,7 @@ else {
  * Defines the words collection.
  */
 var WordCollection = Backbone.Collection.extend({
-  model: Word,
+  model: Word
 });
 
 // Export the definitions.
