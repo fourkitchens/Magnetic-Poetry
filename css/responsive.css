@@ -3,7 +3,6 @@
   min-height: 100%;
   width: 600px;
 }
-
 #workspace {
   margin: auto;
   min-height: 100%;
@@ -26,19 +25,21 @@
   height: 300px;
   width: 100%;
 }
-/*
-body {
-  font-family: 'DejaVuSansMonoBook';
-  font-size: 1.5em;
-}
-*/
 .drawer {
   background: #DFD091;
   height: 200px;
   width: 586px;
   padding: 7px;
 }
-
+/* For phones in portrate we want display a message.*/
+@media only screen and (min-width: 321px) and (orientation:portrait);
+#turn-phone {
+  height: 100%;
+  zindex: 10000;
+  position: absolute;
+  display: block;
+  background: red;
+}
 /* Tablets with a 600px width (in portrait mode) */
 @media only screen and (min-width: 600px) { 
   #main {
@@ -68,12 +69,6 @@ body {
     height: 300px;
     width: 100%;
   }
-/*
-  body {
-    font-family: 'DejaVuSansMonoBook';
-    font-size: 1.5em;
-  }
-*/
   .drawer {
     background: #DFD091;
     height: 200px;
