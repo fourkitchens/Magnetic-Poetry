@@ -81,8 +81,9 @@ MagPo.attach = function() {
     var self = this;
 
     self.validatePoem(poem, function onValidated(valid) {
-      if (!valid) {
-        callback('Invalid poem', null);
+      if (valid != true) {
+        // Bail out with a 406 header to be sent to the client.
+        callback(406, null);
         return;
       }
       // Detect forks.
@@ -155,7 +156,7 @@ MagPo.attach = function() {
         { $set: { words: poemObj.words, breakpoint: poem.breakpoint } },
         function(err) {
           if (err) {
-            callback(err, null, redirect);
+            callback(500, null, redirect);
             return;
           }
           callback(err, poem, redirect);
@@ -197,7 +198,7 @@ MagPo.attach = function() {
       }
       poemObj.save(function(err) {
         if (err) {
-          callback(err, null, redirect);
+          callback(500, null, redirect);
         }
         poem.id = poemObj._id.__id;
         poem.author = poemObj.author;

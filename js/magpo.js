@@ -1,6 +1,6 @@
 (function($) {
 
-  var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Ether something's wrong on our end our you're being a jerk, stop it!";
+  var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
 

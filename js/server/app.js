@@ -56,7 +56,7 @@ app.router.post('/load/:id', function(id) {
 
     // Set a flag about whether or not the author matches.
     var author = false;
-    if (typeof self.req.body.author === doc.author) {
+    if (self.req.body.author === doc.author) {
       author = true;
     }
 
@@ -82,8 +82,7 @@ app.router.post('/save', function() {
 
   app.savePoem(self.req.body.poem, function onSaved(err, poem, redirect) {
     if (err) {
-      console.error(err);
-      self.res.writeHead(406, headers);
+      self.res.writeHead(err, headers);
       self.res.end(JSON.stringify({
         status: 'error',
         error: 'Error saving poem.'
