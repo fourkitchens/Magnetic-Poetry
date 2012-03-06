@@ -70,15 +70,22 @@
       if (typeof window.MagPo === 'undefined') {
         window.MagPo = { };
       }
-      $.getJSON(
-        window.location.protocol + '//' + window.location.host + '/magpo/json',
-        function(drawers) {
+      $.ajax({
+        url: 'json',
+        success: function(drawers) {
           window.MagPo.app = new window.MagPo.class(drawers);
           if (loaded) {
             window.MagPo.app.start();
           }
-        }
-      );
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.error(errorThrown);
+          var dialog = new window.MessageDialogView({
+            message: 'Uh oh! There was a problem loading! Try again later.'
+          });
+          dialog.render().showModal({});
+        },
+      });
     })(jQuery);
   </script>
   <!-- end scripts-->
