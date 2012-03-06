@@ -27,6 +27,18 @@ app.router.get('/', function() {
   this.res.writeHead(200, headers);
   this.res.end(JSON.stringify({ status: 'ok' }));
 });
+
+app.router.get('/save', function() {
+  this.res.writeHead(400, headers);
+  this.res.end(JSON.stringify({
+    status: 'error',
+    error: 'Only POST requests are accepted.'
+  }));
+});
+
+/**
+ * POST routes.
+ */
 app.router.post('/load/:id', function(id) {
   var self = this;
   app.loadPoem(id, function onLoad(err, doc) {
@@ -44,7 +56,7 @@ app.router.post('/load/:id', function(id) {
 
     // Set a flag about whether or not the author matches.
     var author = false;
-    if (typeof self.req.body.author === doc.author) {
+    if (self.req.body.author === doc.author) {
       author = true;
     }
 
@@ -56,17 +68,7 @@ app.router.post('/load/:id', function(id) {
     self.res.end(JSON.stringify({ status: 'ok', poem: doc, author: author }));
   });
 });
-app.router.get('/save', function() {
-  this.res.writeHead(400, headers);
-  this.res.end(JSON.stringify({
-    status: 'error',
-    error: 'Only POST requests are accepted.'
-  }));
-});
 
-/**
- * POST routes.
- */
 app.router.post('/save', function() {
   var self = this;
   if (typeof self.req.body.poem === 'undefined') {
@@ -80,8 +82,7 @@ app.router.post('/save', function() {
 
   app.savePoem(self.req.body.poem, function onSaved(err, poem, redirect) {
     if (err) {
-      console.error(err);
-      self.res.writeHead(500, headers);
+      self.res.writeHead(err, headers);
       self.res.end(JSON.stringify({
         status: 'error',
         error: 'Error saving poem.'
