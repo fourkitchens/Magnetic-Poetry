@@ -477,7 +477,7 @@
   /**
    * Defines the message dialog view.
    */
-  var MessageDialogView = window.ModalView.extend({
+  var MessageDialogView = window.MessageDialogView = window.ModalView.extend({
     defaultOptions: {
       fadeInDuration: 150,
       fadeOutDuration: 150,
