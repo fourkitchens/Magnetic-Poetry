@@ -25,6 +25,53 @@ MagPo.attach = function() {
   };
 
   /**
+   * Validates a poem against the current available word sets.
+   *
+   * @param {object} poem
+   *   The poem object to validate.
+   * @param {function} callback
+   *   The function to call back when validation is complete.
+   */
+  this.validatePoem = function(poem, callback) {
+    var self = this;
+    var valid = true;
+    var options = url.parse(settings.words);
+    http.get(options, function onGet(res) {
+      var data = '';
+      res.on('data', function onData(chunk) {
+        data += chunk;
+      });
+
+      res.on('end', function onEnd() {
+        var drawers = JSON.parse(data);
+        // Walk through our poem and confirm the words are valid.
+        underscore(poem.words).each(function(poemWord) {
+          // If we found one invalid word the poem is invalid.
+          if (valid == false) {
+            return;
+          }
+          valid = false;
+          underscore(drawers).each(function(drawer) {
+            if (drawer.id == poemWord.vid) {
+              underscore(drawer.words).each(function(word) {
+                if (word.id == poemWord.id && word.string == poemWord.string) {
+                  valid = true;
+                }
+              });
+            }
+          });
+        });
+        callback(valid);
+      });
+    })
+      .on('error', function(e) {
+        console.error(e);
+        valid = false;
+        callback(valid);
+      });
+  };
+
+  /**
    * Saves a poem to persistant storage.
    *
    * @param {object} poem
@@ -32,20 +79,27 @@ MagPo.attach = function() {
    */
   this.savePoem = function(poem, callback) {
     var self = this;
-    // Detect forks.
-    if (poem.author != null) {
-      self.PoemModel.findOne({ _id: poem.id, author: poem.author }, function(err, doc) {
-        // If no poem was found, or the authors don't match, unset the poem
-        // id so a new poem will be saved.
-        if (doc == null || typeof doc.author === 'undefined' || doc.author !== poem.author) {
-          poem.id = null;
-        }
+
+    self.validatePoem(poem, function onValidated(valid) {
+      if (!valid) {
+        callback('Invalid poem', null);
+        return;
+      }
+      // Detect forks.
+      if (poem.author != null) {
+        self.PoemModel.findOne({ _id: poem.id, author: poem.author }, function(err, doc) {
+          // If no poem was found, or the authors don't match, unset the poem
+          // id so a new poem will be saved.
+          if (doc == null || typeof doc.author === 'undefined' || doc.author !== poem.author) {
+            poem.id = null;
+          }
+          self._savePoem(poem, callback);
+        });
+      }
+      else {
         self._savePoem(poem, callback);
-      });
-    }
-    else {
-      self._savePoem(poem, callback);
-    }
+      }
+    });
   };
 
   /**
@@ -104,7 +158,6 @@ MagPo.attach = function() {
             callback(err, null, redirect);
             return;
           }
-          redirect = true;
           callback(err, poem, redirect);
 
           // Update the poem in Drupal.

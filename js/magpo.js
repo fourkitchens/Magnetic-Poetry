@@ -1,5 +1,6 @@
 (function($) {
 
+  var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Ether something's wrong on our end our you're being a jerk, stop it!";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
 
@@ -59,7 +60,8 @@
           console.error(errorThrown);
           // Prevent dialogs during autosaves.
           if (!autosave) {
-            var dialog = new MessageDialogView({ message: failedToSaveTxt });
+            var txt = (jqXHR.status == 406) ? failedToValidateTxt : failedToSaveTxt;
+            var dialog = new MessageDialogView({ message: txt });
             dialog.render().showModal({});
             window.MagPo.app.poem.trigger('saved', errorThrown);
           }
