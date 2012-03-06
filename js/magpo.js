@@ -413,6 +413,51 @@
     }
   });
 
+  /**
+   * Defines the login view.
+   */
+  var LoginView = Backbone.View.extend({
+    el: $('#login'),
+    events: {
+      'click': 'login',
+    },
+    login: function(e) {
+      var self = this;
+      // Save the poem if it hasn't been saved yet so we have a valid
+      // return URL.
+      if (
+        (typeof window.MagPo.app.poem.id === 'undefined' ||
+          window.MagPo.app.poem.id === null
+        ) &&
+        window.MagPo.app.poem.words.length
+      ) {
+        window.MagPo.app.poem.save();
+        window.MagPo.app.poem.on('saved', function() {
+          self._login();
+          window.MagPo.app.poem.off('saved');
+        });
+      }
+      else {
+        self._login();
+      }
+    },
+    _login: function() {
+      // First, get a request token.
+      $.ajax({
+        url: 'app/login',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          success: window.location.toString(),
+        }),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
+          
+        }
+      });
+    }
+  });
+
   window.JST = {};
 
   window.JST['twitterLink'] = _.template(
@@ -554,6 +599,9 @@
       };
       self.drawers[drawer.id] = drawerObj;
     });
+
+    self.login = new LoginView();
+    self.login.render();
 
     self.router = null;
   };

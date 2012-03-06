@@ -122,3 +122,6 @@ body {
 footer {
   text-align: center;
 }
+#login {
+  cursor: pointer;
+}
