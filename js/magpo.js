@@ -452,7 +452,9 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
-          // TODO - redirect to data.Location
+          // TODO - use cookies for people with ancient browsers?
+          localStorage.setItem('MagPo_user', data.user);
+          window.location = data.location;
         }
       });
     }
@@ -563,6 +565,23 @@
   }
 
   /**
+   * Helper function to get URL query arguments.
+   */
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(window.location.search);
+
+    if (results == null) {
+      return "";
+    }
+    else {
+      return decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+  }
+
+  /**
    * Local variables.
    */
   var MagPo = function(drawers) {
@@ -607,6 +626,37 @@
   };
 
   MagPo.prototype.start = function() {
+    var self = this;
+    var oauth_token = getParameterByName('oauth_token');
+    var oauth_verifier = getParameterByName('oauth_verifier');
+    var user = localStorage.getItem('MagPo_user');
+    if (oauth_token.length && oauth_verifier.length && user) {
+      body = {
+        oauth_token: oauth_token,
+        oauth_verifier: oauth_verifier,
+        user: user
+      };
+      $.ajax({
+        url: 'app/login-verify',
+        contentType: 'application/json',
+        data: JSON.stringify(body),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
+          $('header').append('@' + data.screen_name);
+          self.startRouter();
+        },
+        error: function() {
+          // TODO - unset local user.
+        }
+      });
+    }
+    else {
+      self.startRouter();
+    }
+  };
+
+  MagPo.prototype.startRouter = function() {
     this.router = new AppRouter();
     Backbone.history.start();
     $(document).on('touchmove', '.tiles', function(e) {});

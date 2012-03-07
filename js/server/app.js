@@ -49,6 +49,10 @@ app.router.post('/login', function() {
   app.login(self.req, self.res, self.req.body.success);
 });
 
+app.router.post('/login-verify', function() {
+  app.loginVerify(this.req, this.res);
+});
+
 app.router.post('/load/:id', function(id) {
   var self = this;
   app.loadPoem(id, function onLoad(err, doc) {
