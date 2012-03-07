@@ -12,6 +12,9 @@ module.exports = {
     password: 'admin',
   },
   twitter: {
+    access_url: 'https://api.twitter.com/oauth/access_token',
+    authorize_url: 'https://api.twitter.com/oauth/authorize',
+    request_token_url: 'https://api.twitter.com/oauth/request_token',
     consumer_key: 'xxx',
     consumer_secret: 'xxx',
     access_token_key: 'xxx',
