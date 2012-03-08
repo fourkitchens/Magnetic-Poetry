@@ -37,13 +37,13 @@ body {
 .group {
     zoom:1; /* For IE 6/7 (trigger hasLayout) */
 }
-/*
+
 body {
   font-family: 'DejaVuSansMonoBook';
   font-size: 1.5em;
   color: #4d4d4d;
 }
-*/
+
 /*
 #main {
   min-height: 100%;
@@ -81,13 +81,14 @@ body {
   -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
 }
-
+/*
 .drawer {
   background: #DFD091;
   height: 200px;
   width: 946px;
   padding: 7px;
 }
+*/
 #drawer-handles {
   list-style: none;
   margin: 5px;
@@ -114,25 +115,13 @@ body {
   margin: 20px 200px;
   height: 300px;
   position: relative;
-<<<<<<< HEAD
-}
-*/
-.brushed-metal {
-  background: #cedce7; /* Old browsers */
-  background: -moz-linear-gradient(top,  #cedce7 0%, #596a72 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cedce7), color-stop(100%,#596a72)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #cedce7 0%,#596a72 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #cedce7 0%,#596a72 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #cedce7 0%,#596a72 100%); /* IE10+ */
-  background: linear-gradient(top,  #cedce7 0%,#596a72 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 ); /* IE6-9 */
-=======
   background: #8FBEDE;
   box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
   -moz-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
->>>>>>> origin/master
+  -webkit-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);  
 }
+*/
+
 #shareModal {
 }
 #messageModal {
