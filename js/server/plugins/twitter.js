@@ -9,6 +9,7 @@ var settings = require('../local');
 var url = require('url');
 var util = require('util');
 var mongoose = require('mongoose');
+var TUser = require('../models/user').TUserModel;
 var User = require('../models/user').UserModel;
 
 var Twitter = exports;
@@ -38,10 +39,10 @@ Twitter.attach = function(options) {
         return;
       }
 
-      var user = new User();
-      user.oauth_token = oauth_token;
-      user.oauth_token_secret = oauth_token_secret;
-      user.save(function(err) {
+      var tUser = new TUser();
+      tUser.oauth_token = oauth_token;
+      tUser.oauth_token_secret = oauth_token_secret;
+      tUser.save(function(err) {
         if (err) {
           res.writeHead(500);
           res.end();
@@ -49,9 +50,8 @@ Twitter.attach = function(options) {
         }
         res.json({
           'location': 'https://api.twitter.com/oauth/authenticate?oauth_token=' + oauth_token,
-          'user': user._id
+          'tUser': tUser._id
         });
-        res.end();
       });
     });
   };
@@ -66,8 +66,8 @@ Twitter.attach = function(options) {
       res.end();
       return;
     }
-    User.findOne({ _id: req.body.user }, function(err, doc) {
-      if (err || doc.oauth_token != req.body.oauth_token) {
+    TUser.findOne({ _id: req.body.user }, function(err, doc) {
+      if (err || doc == null || doc.oauth_token != req.body.oauth_token) {
         console.error(err);
         res.writeHead(401);
         res.end();
@@ -88,6 +88,14 @@ Twitter.attach = function(options) {
         doc.oauth_token_secret,
         req.body.oauth_verifier,
         function(err, oauth_access_token, oauth_access_token_secret, results) {
+          // Delete the temporary user record.
+          TUser.remove({ _id: doc._id }, function(err) {
+            if (err) {
+              console.error(err);
+              // TODO - figure out how to clean up?
+            }
+          });
+
           if (err) {
             res.writeHead(401);
             res.end();
@@ -95,12 +103,19 @@ Twitter.attach = function(options) {
           }
 
           User.update(
-            { _id: doc._id },
+            {
+              access_token: oauth_access_token,
+              access_token_secret: oauth_access_token_secret
+            },
             { $set: {
               user_id: results.user_id,
-              screen_name: results.screen_name
+              screen_name: results.screen_name,
+              access_token: oauth_access_token,
+              access_token_secret: oauth_access_token_secret
             }},
-            {},
+            {
+              upsert: true
+            },
             function(err, count) {
               if (err) {
                 console.error(err);

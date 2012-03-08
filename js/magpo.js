@@ -453,7 +453,7 @@
         type: 'POST',
         success: function(data) {
           // TODO - use cookies for people with ancient browsers?
-          localStorage.setItem('MagPo_user', data.user);
+          localStorage.setItem('MagPo_tUser', data.tUser);
           window.location = data.location;
         }
       });
@@ -629,12 +629,15 @@
     var self = this;
     var oauth_token = getParameterByName('oauth_token');
     var oauth_verifier = getParameterByName('oauth_verifier');
+    var tUser = localStorage.getItem('MagPo_tUser');
     var user = localStorage.getItem('MagPo_user');
-    if (oauth_token.length && oauth_verifier.length && user) {
+    if (oauth_token.length && oauth_verifier.length && tUser) {
+      // TODO - remove the OAuth query arguments.
+      // @see history.pushState().
       body = {
         oauth_token: oauth_token,
         oauth_verifier: oauth_verifier,
-        user: user
+        user: tUser
       };
       $.ajax({
         url: 'app/login-verify',
@@ -643,19 +646,43 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
-          $('header').append('@' + data.screen_name);
+          localStorage.removeItem('MagPo_tUser');
+          localStorage.setItem('MagPo_user', data.screen_name);
+          self.user = data.screen_name;
+
+          self.loggedIn();
           self.startRouter();
         },
         error: function() {
-          // TODO - unset local user.
+          localStorage.removeItem('MagPo_tUser');
         }
       });
     }
     else {
+      if (user) {
+        self.user = user;
+        self.loggedIn();
+      }
       self.startRouter();
     }
   };
 
+  /**
+   * Updates DOM elements based on the user being logged in.
+   *
+   * @param {string} user
+   *   The twitter user name.
+   */
+  MagPo.prototype.loggedIn = function(user) {
+    $('#login').remove();
+    $('footer').append('Howdy @' + this.user + '!');
+  };
+
+  /**
+   * Starts the router.
+   * NOTE: This can only happen after the window is loaded to avoid
+   *  issues with positioning tiles in webkit browsers. 
+   */
   MagPo.prototype.startRouter = function() {
     this.router = new AppRouter();
     Backbone.history.start();
