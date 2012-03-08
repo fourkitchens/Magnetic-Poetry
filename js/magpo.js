@@ -632,8 +632,11 @@
     var tUser = localStorage.getItem('MagPo_tUser');
     var user = localStorage.getItem('MagPo_user');
     if (oauth_token.length && oauth_verifier.length && tUser) {
-      // TODO - remove the OAuth query arguments.
-      // @see history.pushState().
+      // Remove the query arguments.
+      // TODO - detect a hash.
+      history.pushState({}, '', '/magpo/');
+
+      // Send the login information to the back end.
       body = {
         oauth_token: oauth_token,
         oauth_verifier: oauth_verifier,
