@@ -123,7 +123,11 @@ Twitter.attach = function(options) {
                 res.end();
                 return;
               }
-              res.json({ status: 'ok', screen_name: results.screen_name });
+              res.json({
+                status: 'ok',
+                id: results.user_id,
+                screen_name: results.screen_name
+              });
             }
           );
         }

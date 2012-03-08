@@ -588,6 +588,7 @@
     var self = this;
 
     self.timeout = false;
+    self.user = false;
     self.delay = 1000;
 
     // TODO - detect the correct breakpoint.
@@ -630,11 +631,15 @@
     var oauth_token = getParameterByName('oauth_token');
     var oauth_verifier = getParameterByName('oauth_verifier');
     var tUser = localStorage.getItem('MagPo_tUser');
-    var user = localStorage.getItem('MagPo_user');
+    var user = JSON.parse(localStorage.getItem('MagPo_user'));
     if (oauth_token.length && oauth_verifier.length && tUser) {
       // Remove the query arguments.
       // TODO - detect a hash.
-      history.pushState({}, '', '/magpo/');
+      var path = window.location.pathname;
+      if (window.location.hash) {
+        path += window.location.hash;
+      }
+      history.pushState({}, '', path);
 
       // Send the login information to the back end.
       body = {
@@ -650,7 +655,14 @@
         type: 'POST',
         success: function(data) {
           localStorage.removeItem('MagPo_tUser');
-          localStorage.setItem('MagPo_user', data.screen_name);
+          localStorage.setItem('MagPo_user', JSON.stringify({
+            id: data.id,
+            screen_name: data.screen_name
+          }));
+          localStorage.setItem('MagPo_me', data.id);
+
+          // TODO - update existing poems?
+
           self.user = data.screen_name;
 
           self.loggedIn();
@@ -663,7 +675,8 @@
     }
     else {
       if (user) {
-        self.user = user;
+        self.user = user.screen_name;
+        localStorage.setItem('MagPo_me', user.id);
         self.loggedIn();
       }
       self.startRouter();
@@ -672,11 +685,8 @@
 
   /**
    * Updates DOM elements based on the user being logged in.
-   *
-   * @param {string} user
-   *   The twitter user name.
    */
-  MagPo.prototype.loggedIn = function(user) {
+  MagPo.prototype.loggedIn = function() {
     $('#login').remove();
     $('footer').append('Howdy @' + this.user + '!');
   };
@@ -684,7 +694,7 @@
   /**
    * Starts the router.
    * NOTE: This can only happen after the window is loaded to avoid
-   *  issues with positioning tiles in webkit browsers. 
+   *  issues with positioning tiles in webkit browsers.
    */
   MagPo.prototype.startRouter = function() {
     this.router = new AppRouter();
