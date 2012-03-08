@@ -5,21 +5,20 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  background: #272c26;
 }
 ::selection,
 ::-moz-selection {
   background: #66B360;
-  color: #ffffff;
+  color: #fff;
 }
 #workspace {
   margin: auto;
   min-height: 100%;
   width: 960px;
-  background: #65B561;
+  background: url(../img/fridge.jpg) no-repeat left top;
   position: relative;
-  box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  /* -webkit-mask-box-image: url(../img/fridge-mask.jpg) 0 stretch; */
 }
 /* clearfix group */
 .group:before,
@@ -51,8 +50,12 @@ body {
   border-bottom: 3px solid grey;
   border-right: 2px solid grey;
   -webkit-box-shadow: 4px 4px 3px #888;
-  box-shadow: 4px 4px 3px #888;
+          box-shadow: 4px 4px 3px #888;
   -webkit-transform:rotate(2deg);
+     -moz-transform:rotate(2deg);
+      -ms-transform:rotate(2deg);
+       -o-transform:rotate(2deg);
+          transform:rotate(2deg);
 }
 .ui-draggable-dragging {
   -webkit-box-shadow: 8px 8px 6px #888;
@@ -66,9 +69,9 @@ body {
   width: 100%;
 }
 #drawers {
-  box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  -webkit-box-shadow: 0px 4px 1px 0 rgba(0, 0, 0, 0.40);
+     -moz-box-shadow: 0px 4px 1px 0 rgba(0, 0, 0, 0.40);
+          box-shadow: 0px 4px 1px 0 rgba(0, 0, 0, 0.40);
 }
 .drawer {
   background: #DFD091;
@@ -90,10 +93,9 @@ body {
   border-left: 3px solid #DFD091;
   border-right: 2px solid #DFD091;
   margin-right: 10px;
-  box-shadow: 0px 17px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 0px 17px 24px rgba(0, 0, 0, 0.80);
   -webkit-box-shadow: 0px 17px 24px rgba(0, 0, 0, 0.80);
-
+     -moz-box-shadow: 0px 17px 24px rgba(0, 0, 0, 0.80);
+          box-shadow: 0px 17px 24px rgba(0, 0, 0, 0.80);
 }
 
 #fridge {
@@ -102,9 +104,12 @@ body {
   height: 300px;
   position: relative;
   background: #8FBEDE;
-  box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
+}
+#modalCloseButton {
+  width: 20px;
+  height: 20px;
+  content: 'x';
+  background: #900;
 }
 #shareModal {
 }
