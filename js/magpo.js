@@ -654,22 +654,40 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
+          // Go ahead and start the router so the poem is loaded.
+          self.startRouter();
+
           localStorage.removeItem('MagPo_tUser');
           localStorage.setItem('MagPo_user', JSON.stringify({
             id: data.id,
             screen_name: data.screen_name
           }));
-          localStorage.setItem('MagPo_me', data.id);
 
-          // TODO - update existing poems?
+          // Update any existing poems with the new id.
+          var oldId = localStorage.getItem('MagPo_me');
+          if (oldId && window.MagPo.app.poem.id) {
+            var worker = new Worker('/magpo/js/update.js');
+            worker.postMessage({
+              callback: window.location.origin + '/magpo/app/update/' + window.MagPo.app.poem.id,
+              id: window.MagPo.app.poem.id,
+              oldAuthor: oldId,
+              newAuthor: data.id
+            });
+            worker.onmessage = function(event) {
+              if (event.data !== 200) {
+                console.error(util.format('Error (%d): Error updating poem.'));
+              }
+            }
+          }
+          localStorage.setItem('MagPo_me', data.id);
 
           self.user = data.screen_name;
 
           self.loggedIn();
-          self.startRouter();
         },
         error: function() {
           localStorage.removeItem('MagPo_tUser');
+          // TODO - show an error and start the router?
         }
       });
     }

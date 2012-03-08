@@ -120,13 +120,30 @@ app.router.post('/remove/:id', function(id) {
   var self = this;
   app.removePoem(id, function onRemoved(err) {
     if (err) {
-      console.error(err);
       self.res.writeHead(500, headers);
       self.res.json({ status: 'error', error: 'Error removing poem.' });
       return;
     }
     self.res.writeHead(200, headers);
     self.res.json({ status: 'ok' });
+  });
+});
+
+app.router.post('/update/:id', function(id) {
+  var self = this;
+  if (typeof self.req.body.oldAuthor === 'undefined' || typeof self.req.body.newAuthor === 'undefined') {
+    self.res.writeHead(400);
+    self.res.end();
+    return;
+  }
+  app.updatePoemAuthor(id, self.req.body.oldAuthor, self.req.body.newAuthor, function(err) {
+    if (err) {
+      self.res.writeHead(500);
+      self.res.end();
+      return;
+    }
+    self.res.writeHead(200);
+    self.res.end();
   });
 });
 
