@@ -125,7 +125,7 @@ Twitter.attach = function(options) {
               }
               res.json({
                 status: 'ok',
-                id: results.user_id,
+                id: oauth_access_token,
                 screen_name: results.screen_name
               });
             }
