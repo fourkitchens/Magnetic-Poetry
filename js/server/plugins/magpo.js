@@ -8,6 +8,7 @@ var models = require('../../mylibs/models')
 var settings = require('../local');
 var underscore = require('underscore');
 var url = require('url');
+var UserModel = require('../models/user').UserModel;
 
 var MagPo = exports;
 
@@ -35,40 +36,65 @@ MagPo.attach = function() {
   this.validatePoem = function(poem, callback) {
     var self = this;
     var valid = true;
-    var options = url.parse(settings.words);
-    http.get(options, function onGet(res) {
-      var data = '';
-      res.on('data', function onData(chunk) {
-        data += chunk;
-      });
 
-      res.on('end', function onEnd() {
-        var drawers = JSON.parse(data);
-        // Walk through our poem and confirm the words are valid.
-        underscore(poem.words).each(function(poemWord) {
-          // If we found one invalid word the poem is invalid.
-          if (valid == false) {
+    var validateWords = function() {
+      // TODO - cache money, baby!
+      var options = url.parse(settings.words);
+      http.get(options, function onGet(res) {
+        var data = '';
+        res.on('data', function onData(chunk) {
+          data += chunk;
+        });
+
+        res.on('end', function onEnd() {
+          var drawers = JSON.parse(data);
+          // Walk through our poem and confirm the words are valid.
+          underscore(poem.words).each(function(poemWord) {
+            // If we found one invalid word the poem is invalid.
+            if (valid == false) {
+              return;
+            }
+            valid = false;
+            underscore(drawers).each(function(drawer) {
+              if (drawer.id == poemWord.vid) {
+                underscore(drawer.words).each(function(word) {
+                  if (word.id == poemWord.id && word.string == poemWord.string) {
+                    valid = true;
+                  }
+                });
+              }
+            });
+          });
+          callback(valid);
+        });
+      })
+        .on('error', function(e) {
+          console.error(e);
+          valid = false;
+          callback(valid);
+        });
+    };
+
+    // First, if the author is set, verify that it's valid.
+    if (typeof poem.author !== 'undefined' && poem.author != null) {
+      UserModel.findOne(
+        {
+          access_token: poem.author.id,
+          screen_name: poem.author.screen_name
+        },
+        function(err, doc) {
+          if (err || !doc) {
+            valid = false;
+            callback(valid);
             return;
           }
-          valid = false;
-          underscore(drawers).each(function(drawer) {
-            if (drawer.id == poemWord.vid) {
-              underscore(drawer.words).each(function(word) {
-                if (word.id == poemWord.id && word.string == poemWord.string) {
-                  valid = true;
-                }
-              });
-            }
-          });
-        });
-        callback(valid);
-      });
-    })
-      .on('error', function(e) {
-        console.error(e);
-        valid = false;
-        callback(valid);
-      });
+          validateWords();
+        }
+      );
+    }
+    else {
+      validateWords();
+    }
   };
 
   /**
@@ -86,6 +112,12 @@ MagPo.attach = function() {
         callback(406, null);
         return;
       }
+
+      // Reset the author to a string if it's an object.
+      if (typeof poem.author.screen_name != 'undefined') {
+        poem.author = poem.author.screen_name;
+      }
+
       // Detect forks.
       if (poem.author != null) {
         self.PoemModel.findOne({ _id: poem.id, author: poem.author }, function(err, doc) {
@@ -127,7 +159,6 @@ MagPo.attach = function() {
       poemModel.words.add(wordModel);
     });
 
-    var poemString = 'bar';
     var title = poemModel.stringify();
     var post = {
       title: title.length ? title : 'all words have been removed from this poem',
