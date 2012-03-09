@@ -243,6 +243,32 @@ MagPo.attach = function() {
   this.removePoem = function(id, callback) {
     this.PoemModel.remove({ _id: id }, callback);
   };
+
+  /**
+   * Updates a poem's author.
+   *
+   * @param {string} id
+   *   The poem ID to update.
+   * @param {string} oldAuthor
+   *   The old author.
+   * @param {string} newAuthor
+   *   The new author.
+   * @param {function} callback
+   *   The callback function to execute on completion.
+   */
+  this.updatePoemAuthor = function(id, oldAuthor, newAuthor, callback) {
+    this.PoemModel.update(
+      { _id: id, author: oldAuthor },
+      { $set: { author: newAuthor } },
+      function(err, numChanged) {
+        if (err) {
+          console.error(err);
+        }
+        callback(err);
+      }
+    );
+  };
+
 };
 
 MagPo.init = function(done) {
