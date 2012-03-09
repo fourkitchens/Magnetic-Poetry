@@ -1,0 +1,170 @@
+/* Anything less than 600px wide will default to these settings */
+#main {
+  min-height: 100%;
+  width: 600px;
+}
+#workspace {
+  margin: auto;
+  min-height: 100%;
+  width: 600px;
+  background: #65B561;
+  position: relative;
+  box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+}
+
+#fridge {
+  width: 600px;
+  margin: 20px 0px;
+  height: 300px;
+  position: relative;
+}
+
+#drawers-container {
+  height: 300px;
+  width: 100%;
+}
+.drawer {
+  background: #DFD091;
+  height: 200px;
+  width: 586px;
+  padding: 7px;
+}
+/* For phones in portrate we want display a message.*/
+@media only screen and (max-width: 599px) and (orientation:portrait) {
+  #turn-phone {
+    height: 100%;
+    z-index: 10000;
+    position: absolute;
+    display: block;
+    background: red;
+  }
+  #workspace {
+    display: none;
+  }
+}
+/* Tablets with a 600px width (in portrait mode) */
+@media only screen and (min-width: 600px) {
+  #main {
+    min-height: 100%;
+    width: 600px;
+  }
+
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 600px;
+    background: #65B561;
+    position: relative;
+    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  }
+
+  #fridge {
+    width: 600px;
+    margin: 20px 0px;
+    height: 300px;
+    position: relative;
+  }
+
+  #drawers-container {
+    height: 300px;
+    width: 100%;
+  }
+  .drawer {
+    background: #DFD091;
+    height: 200px;
+    width: 586px;
+    padding: 7px;
+  }          
+}
+
+/* Tablets with a 768 with (in portrait mode) */
+@media only screen and (min-width: 768px) { 
+  #main {
+    min-height: 100%;
+    width: 768px;
+  }
+  
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 768px;
+    background: #65B561;
+    position: relative;
+    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  }
+
+  #fridge {
+    width: 600px;
+    margin: 20px 84px;
+    height: 300px;
+    position: relative;
+  }
+
+  #drawers-container {
+    height: 300px;
+    width: 100%;
+  }
+/*
+  body {
+    font-family: 'DejaVuSansMonoBook';
+    font-size: 1.5em;
+    color: #4d4d4d;
+  }
+*/  
+  .drawer {
+    background: #DFD091;
+    height: 200px;
+    width: 754px;
+    padding: 7px;
+  }        
+}
+
+/* 960px+ for Desktop, Laptop, or Tablet (in landscape mode) */
+@media only screen and (min-width: 960px) {
+  #main {
+    min-height: 100%;
+    width: 960px;
+  }
+
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 960px;
+    background: #65B561;
+    position: relative;
+    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  }
+
+  #fridge {
+    width: 600px;
+    margin: 20px 180px;
+    height: 300px;
+    position: relative;
+  }
+
+  #drawers-container {
+    height: 300px;
+    width: 100%;
+  }
+/*
+  body {
+    font-family: 'DejaVuSansMonoBook';
+    font-size: 1.5em;
+    color: #4d4d4d;
+  }
+*/  
+  .drawer {
+    background: #DFD091;
+    height: 200px;
+    width: 946px;
+    padding: 7px;
+  }       
+}
