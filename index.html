@@ -11,8 +11,8 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <meta name="viewport" content="width=device-width">
-
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; user-scalable=no;">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <!-- humans.txt -->
   <link type="text/plain" rel="author" href="humans.txt" />
 
@@ -20,9 +20,9 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fontkit/fontsheet.css">
   <link rel="stylesheet" href="css/myStyle.css">
-  <link rel="stylesheet" href="css/responsive.css">  
+  <link rel="stylesheet" href="css/responsive.css">
   <!-- end CSS-->
-  
+
   <script src="js/libs/modernizr-2.5.3.min.js"></script>
 </head>
 
@@ -61,6 +61,7 @@
   <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
   <script>
     (function($) {
+      //document.body.addEventListener('touchmove', function(e){ e.preventDefault(); });
       var loaded = false;
       $(window).load(function() {
         loaded = true;

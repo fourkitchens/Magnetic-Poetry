@@ -12,7 +12,7 @@
   box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-} 
+}
 
 #fridge {
   width: 600px;
@@ -32,16 +32,20 @@
   padding: 7px;
 }
 /* For phones in portrate we want display a message.*/
-@media only screen and (min-width: 321px) and (orientation:portrait);
-#turn-phone {
-  height: 100%;
-  zindex: 10000;
-  position: absolute;
-  display: block;
-  background: red;
+@media only screen and (max-width: 599px) and (orientation:portrait) {
+  #turn-phone {
+    height: 100%;
+    z-index: 10000;
+    position: absolute;
+    display: block;
+    background: red;
+  }
+  #workspace {
+    display: none;
+  }
 }
 /* Tablets with a 600px width (in portrait mode) */
-@media only screen and (min-width: 600px) { 
+@media only screen and (min-width: 600px) {
   #main {
     min-height: 100%;
     width: 600px;
