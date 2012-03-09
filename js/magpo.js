@@ -413,6 +413,53 @@
     }
   });
 
+  /**
+   * Defines the login view.
+   */
+  var LoginView = Backbone.View.extend({
+    el: $('#login'),
+    events: {
+      'click': 'login',
+    },
+    login: function(e) {
+      var self = this;
+      // Save the poem if it hasn't been saved yet so we have a valid
+      // return URL.
+      if (
+        (typeof window.MagPo.app.poem.id === 'undefined' ||
+          window.MagPo.app.poem.id === null
+        ) &&
+        window.MagPo.app.poem.words.length
+      ) {
+        window.MagPo.app.poem.save();
+        window.MagPo.app.poem.on('saved', function() {
+          self._login();
+          window.MagPo.app.poem.off('saved');
+        });
+      }
+      else {
+        self._login();
+      }
+    },
+    _login: function() {
+      // First, get a request token.
+      $.ajax({
+        url: 'app/login',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          success: window.location.toString(),
+        }),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
+          // TODO - use cookies for people with ancient browsers?
+          localStorage.setItem('MagPo_tUser', data.tUser);
+          window.location = data.location;
+        }
+      });
+    }
+  });
+
   window.JST = {};
 
   window.JST['twitterLink'] = _.template(
@@ -518,12 +565,30 @@
   }
 
   /**
+   * Helper function to get URL query arguments.
+   */
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(window.location.search);
+
+    if (results == null) {
+      return "";
+    }
+    else {
+      return decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+  }
+
+  /**
    * Local variables.
    */
   var MagPo = function(drawers) {
     var self = this;
 
     self.timeout = false;
+    self.user = false;
     self.delay = 1000;
 
     // TODO - detect the correct breakpoint.
@@ -555,10 +620,101 @@
       self.drawers[drawer.id] = drawerObj;
     });
 
+    self.login = new LoginView();
+    self.login.render();
+
     self.router = null;
   };
 
   MagPo.prototype.start = function() {
+    var self = this;
+    var oauth_token = getParameterByName('oauth_token');
+    var oauth_verifier = getParameterByName('oauth_verifier');
+    var tUser = localStorage.getItem('MagPo_tUser');
+    var user = JSON.parse(localStorage.getItem('MagPo_user'));
+    if (oauth_token.length && oauth_verifier.length && tUser) {
+      // Remove the query arguments.
+      // TODO - detect a hash.
+      var path = window.location.pathname;
+      if (window.location.hash) {
+        path += window.location.hash;
+      }
+      history.pushState({}, '', path);
+
+      // Send the login information to the back end.
+      body = {
+        oauth_token: oauth_token,
+        oauth_verifier: oauth_verifier,
+        user: tUser
+      };
+      $.ajax({
+        url: 'app/login-verify',
+        contentType: 'application/json',
+        data: JSON.stringify(body),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
+          // Go ahead and start the router so the poem is loaded.
+          self.startRouter();
+
+          localStorage.removeItem('MagPo_tUser');
+          localStorage.setItem('MagPo_user', JSON.stringify({
+            id: data.id,
+            screen_name: data.screen_name
+          }));
+
+          // Update any existing poems with the new id.
+          var oldId = localStorage.getItem('MagPo_me');
+          if (oldId && window.MagPo.app.poem.id) {
+            var worker = new Worker('/magpo/js/update.js');
+            worker.postMessage({
+              callback: window.location.origin + '/magpo/app/update/' + window.MagPo.app.poem.id,
+              id: window.MagPo.app.poem.id,
+              oldAuthor: oldId,
+              newAuthor: data.id
+            });
+            worker.onmessage = function(event) {
+              if (event.data !== 200) {
+                console.error(util.format('Error (%d): Error updating poem.'));
+              }
+            }
+          }
+          localStorage.setItem('MagPo_me', data.id);
+
+          self.user = data.screen_name;
+
+          self.loggedIn();
+        },
+        error: function() {
+          localStorage.removeItem('MagPo_tUser');
+          // TODO - show an error and start the router?
+        }
+      });
+    }
+    else {
+      if (user) {
+        self.user = user.screen_name;
+        localStorage.setItem('MagPo_me', user.id);
+        self.loggedIn();
+      }
+      self.startRouter();
+    }
+  };
+
+  /**
+   * Updates DOM elements based on the user being logged in.
+   */
+  MagPo.prototype.loggedIn = function() {
+    $('#login').remove();
+    $('footer').append('Howdy @' + this.user + '!');
+  };
+
+  /**
+   * Starts the router.
+   * NOTE: This can only happen after the window is loaded to avoid
+   *  issues with positioning tiles in webkit browsers.
+   */
+  MagPo.prototype.startRouter = function() {
     this.router = new AppRouter();
     Backbone.history.start();
     $(document).on('touchmove', '.tiles', function(e) {});

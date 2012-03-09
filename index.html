@@ -38,7 +38,7 @@
     <div id="fridge" class="brushed-metal"> </div>
     <footer>
       <div id="shareLink">Share</div>
-
+      <img id="login" src="//si0.twimg.com/images/dev/buttons/sign-in-with-twitter-d.png" alt="Sign in with Twitter" />
     </footer>
   </div> <!--! end of #container -->
 
@@ -80,6 +80,20 @@
           }
         },
         error: function(jqXHR, textStatus, errorThrown) {
+          var drawers = [
+            {id: 2, name:'Drupal', words:
+              [
+                { id: 15, string: '.install', vid: 2},
+                { id: 6, string: 'devel', vid: 2}
+              ]
+            },
+            {id: 3, name:'verbs', words:
+              [
+                { id: 15, string: '.install', vid: 2}
+              ]
+            }
+          ];
+          window.MagPo.app = new window.MagPo.class(drawers);
           console.error(errorThrown);
           var dialog = new window.MessageDialogView({
             message: 'Uh oh! There was a problem loading! Try again later.'
