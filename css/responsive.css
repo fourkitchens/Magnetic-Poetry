@@ -131,7 +131,9 @@
     min-height: 100%;
     width: 960px;
   }
-
+  #move-up {
+    display: none;
+  }
   #workspace {
     margin: auto;
     min-height: 100%;
