@@ -31,6 +31,11 @@ menu {
   background: #EEBD54;
   margin: 0;
 }
+menu h1 {
+  font-size: 1em;
+  float: left;
+  margin: 0;
+}
 menu ul {
   margin: 0 10px 0 0;
   padding: 0;
@@ -101,7 +106,7 @@ menu ul li.logged-in {
   padding: 0px;
   list-style: none;
   padding-left:10%;
-  padding: 10px 0 10px 10%;
+  padding: 10px 0 10px 10px;
 }
 .drawer-handle {
   padding: 0px 10px 0px 10px;
@@ -206,6 +211,9 @@ transition: all 1s ease-in-out;
   position: relative;
   margin: 0px;
 }
+menu h1 {
+  display: none;
+}
 #word-bar {
   background: #EEBD54;
   width: 100%;
@@ -244,8 +252,12 @@ footer {
     z-index: 10000;
     position: absolute;
     display: block;
-    background: pink;
+    background: #9AC3A5;
     width: 100%;
+  }
+  #turn-phone span {
+    margin: 1em;
+    display: block;
   }
   #workspace {
     display: none;
@@ -256,6 +268,9 @@ footer {
   #main {
     min-height: 100%;
     width: 600px;
+  }
+  menu h1 {
+    display: block;
   }
   #word-bar {
     display:none;
@@ -345,6 +360,9 @@ footer {
   #main {
     min-height: 100%;
     width: 960px;
+  }
+  menu h1 {
+   display: block;
   }
   #word-bar {
     display: none;
