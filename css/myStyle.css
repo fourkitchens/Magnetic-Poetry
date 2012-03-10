@@ -36,6 +36,10 @@ menu h1 {
   font-size: 1em;
   float: left;
   margin: 0;
+  background: url('../img/logo-4k.png') no-repeat left center;
+  padding-left: 47px;
+  height: 40px;
+  line-height: 1.7em;
 }
 menu ul {
   margin: 0 10px 0 0;
@@ -133,16 +137,10 @@ menu ul li.logged-in {
 #fourk-logo {
   display: none;
   position: absolute;
-  top: 663px;
-  left: 725px;
-  -webkit-border-radius: 10px;
+  top: 247px;
+  left: 681px;
   overflow: hidden;
-  -webkit-box-shadow: 3px 3px 2px 1px #666;
-  -webkit-transform: rotate(-5deg);
   display: block;
-}
-#fourk-logo img {
-  -webkit-border-radius: 10px;
 }
 #shareModal,
 #messageModal {
