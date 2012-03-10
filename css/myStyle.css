@@ -31,6 +31,7 @@ body {
 menu {
   background: #EEBD54;
   margin: 0;
+  padding: 0 0 0 .5em;
 }
 menu h1 {
   font-size: 1em;
@@ -302,6 +303,9 @@ footer {
     position: relative;
   }
 
+  #fourk-logo {
+    left: 495px;
+  }
   #drawers-container {
     position: relative;
     top:0px;
@@ -352,6 +356,9 @@ footer {
     height: 100%;
   }
 
+  #fourk-logo {
+    display:none;
+  }
   #word-bar {
     text-align: center;
     width: 100%;
