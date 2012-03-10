@@ -6,13 +6,11 @@
     url('webfonts/BryantWebMedium.woff') format('woff'), /* Modern Browsers */
     url('webfonts/BryantWebMedium.ttf')  format('truetype'); /* Safari, Android, iOS */
 }
-
 body {
   font-family: 'Bryant', 'Helvetica Neue', Helvetica, sans-serif;
   font-size: 1.5em;
   color: #4d4d4d;
 }
-
 html {
   height: 100%;
 }
@@ -27,7 +25,6 @@ body {
   background: #66B360;
   color: #ffffff;
 }
-
 menu {
   background: #EEBD54;
   margin: 0;
@@ -74,7 +71,6 @@ menu ul li.logged-in {
   background: linear-gradient(left,  #b8e7c7 0%,#abcaae 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b8e7c7', endColorstr='#abcaae',GradientType=1 ); /* IE6-9 */
 }
-
 /* clearfix group */
 .group:before,
 .group:after {
@@ -315,8 +311,7 @@ footer {
   }
 
   #fourk-logo {
-    display: block;
-    left: 495px;
+    display: none;
   }
   #drawers-container {
     position: relative;
@@ -347,11 +342,17 @@ footer {
     height: 100%;
   }
 
+  #fourk-logo {
+    display: block;
+    left: 557px;
+    top: 220px;
+  }
   #fridge {
     width: 600px;
     height: 387px;
     position: relative;
     margin: 20px auto;
+    top: 60px;
   }
   .drawer {
     height: 200px;
@@ -368,6 +369,9 @@ footer {
     height: 100%;
   }
 
+  #fridge {
+    margin-top: 60px;
+  }
   #fourk-logo {
     display:none;
   }
