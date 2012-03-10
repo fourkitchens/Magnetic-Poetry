@@ -409,6 +409,18 @@ footer {
     background: url(../img/handle.png) no-repeat right top;
     padding-bottom: 20px;
   }
+  #fourk-logo {
+    position: absolute;
+    top: 663px;
+    left: 725px;
+    -webkit-border-radius: 10px;
+    overflow: hidden;
+    -webkit-box-shadow: 3px 3px 2px 1px #666;
+    -webkit-transform: rotate(-5deg);
+  }
+  #fourk-logo img {
+    -webkit-border-radius: 10px;
+  }
   #auth {
     padding-bottom: 100px; 
   }
