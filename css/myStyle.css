@@ -107,6 +107,7 @@ menu ul li.logged-in {
   list-style: none;
   padding-left:10%;
   padding: 10px 0 10px 10px;
+  overflow: auto;
 }
 .drawer-handle {
   padding: 0px 10px 0px 10px;
@@ -120,6 +121,7 @@ menu ul li.logged-in {
   -moz-border-radius: 15px;
   border-radius: 15px;
   background-color: #e5bb53;
+  overflow: auto;
 }
 #fridge {
   margin: 20px 200px;
