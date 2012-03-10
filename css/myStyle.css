@@ -151,7 +151,7 @@ footer {
   cursor: pointer;
 }
 #responses {
-  max-height: 100px;
+  max-height: 200px;
   overflow-y: scroll;
 }
 #shareLink,
