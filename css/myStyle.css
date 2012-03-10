@@ -130,7 +130,20 @@ menu ul li.logged-in {
   -moz-border-radius: 15px;
   border-radius: 15px;
 }
-
+#fourk-logo {
+  display: none;
+  position: absolute;
+  top: 663px;
+  left: 725px;
+  -webkit-border-radius: 10px;
+  overflow: hidden;
+  -webkit-box-shadow: 3px 3px 2px 1px #666;
+  -webkit-transform: rotate(-5deg);
+  display: block;
+}
+#fourk-logo img {
+  -webkit-border-radius: 10px;
+}
 #shareModal,
 #messageModal {
   font-size: .75em;
@@ -397,6 +410,9 @@ footer {
     position: relative;
     margin: 0px auto;
   }
+  #fourk-logo {
+    display: block;
+  }
   .drawer {
     height: 200px;
     width: 100%;
@@ -408,18 +424,6 @@ footer {
     height: 659px;
     background: url(../img/handle.png) no-repeat right top;
     padding-bottom: 20px;
-  }
-  #fourk-logo {
-    position: absolute;
-    top: 663px;
-    left: 725px;
-    -webkit-border-radius: 10px;
-    overflow: hidden;
-    -webkit-box-shadow: 3px 3px 2px 1px #666;
-    -webkit-transform: rotate(-5deg);
-  }
-  #fourk-logo img {
-    -webkit-border-radius: 10px;
   }
   #auth {
     padding-bottom: 100px; 
