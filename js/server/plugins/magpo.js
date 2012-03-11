@@ -76,7 +76,7 @@ MagPo.attach = function() {
     };
 
     // First, if the author is set, verify that it's valid.
-    if (typeof poem.author !== 'undefined' && poem.author != null) {
+    if (typeof poem.author !== 'undefined' && poem.author) {
       UserModel.findOne(
         {
           access_token: poem.author.id,
@@ -119,7 +119,7 @@ MagPo.attach = function() {
       }
 
       // Detect forks.
-      if (poem.author != null) {
+      if (poem.author) {
         self.PoemModel.findOne({ _id: poem.id, author: poem.author }, function(err, doc) {
           // If no poem was found, or the authors don't match, unset the poem
           // id so a new poem will be saved.
