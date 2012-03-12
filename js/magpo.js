@@ -20,7 +20,7 @@
 
       // If this is an update we should always be sending along our uuid.
       // TODO - store a cookie if local storage isn't supported?
-      var author = localStorage.getItem('MagPo_me');
+      var author = window.MagPo.app.user;
       if (typeof author !== 'undefined' && author !== null) {
         body.poem.author = author;
       }
@@ -658,6 +658,12 @@
           self.startRouter();
 
           localStorage.removeItem('MagPo_tUser');
+
+          user = {
+            id: data.id,
+            screen_name: data.screen_name
+          };
+
           localStorage.setItem('MagPo_user', JSON.stringify({
             id: data.id,
             screen_name: data.screen_name
@@ -681,7 +687,7 @@
           }
           localStorage.setItem('MagPo_me', data.id);
 
-          self.user = data.screen_name;
+          self.user = user;
 
           self.loggedIn();
         },
@@ -693,7 +699,7 @@
     }
     else {
       if (user) {
-        self.user = user.screen_name;
+        self.user = user;
         localStorage.setItem('MagPo_me', user.id);
         self.loggedIn();
       }
@@ -706,7 +712,7 @@
    */
   MagPo.prototype.loggedIn = function() {
     $('#login').remove();
-    $('footer').append('Howdy @' + this.user + '!');
+    $('footer').append('Howdy @' + this.user.screen_name + '!');
   };
 
   /**
