@@ -11,7 +11,8 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <meta name="viewport" content="width=device-width; initial-scale=1.0; user-scalable=no;">
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; user-scalable=0;
+  minimum-scale=1.0; maximum-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <!-- humans.txt -->
   <link type="text/plain" rel="author" href="humans.txt" />
@@ -34,9 +35,9 @@
     <div id="drawers-container">
       <div id="drawers" role="main" class="group"></div>
       <ul id="drawer-handles"></ul>
-      <div id="move-up">^ more words ^</div>
     </div>
-    <div id="fridge" class="brushed-metal"> </div>
+    <div id="move-up">^ more words ^</div>
+    <div id="fridge" class="brushed-metal"></div>
     <footer>
       <div id="shareLink">Share</div>
       <img id="login" src="//si0.twimg.com/images/dev/buttons/sign-in-with-twitter-d.png" alt="Sign in with Twitter" />
@@ -62,7 +63,29 @@
   <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
   <script>
     (function($) {
-      document.body.addEventListener('touchmove', function(e){ e.preventDefault(); });
+      $('#move-up').on('click', function(){
+        if ($('#move-up').hasClass('bounce')){
+          $(this).animate({top:0});
+          $('#drawers-container').animate({top:'-300px'})
+          $(this).text('^ words ^');
+          $(this).toggleClass('bounce');
+        } else {
+          $(this).animate({top:'300px'});
+          $('#drawers-container').animate({top:0});
+          $(this).text('^ poem  ^');
+          $(this).toggleClass('bounce');
+        }
+      });
+      $('#move-up').droppable({
+        over: function (event, ui) {
+          $('#move-up').animate({top:0});
+          $('#drawers-container').animate({top:'-300px'});
+          $('#move-up').text('^ words ^');
+          $('#move-up').toggleClass('bounce');
+        }
+      });
+      // commented out to experiment.
+      //document.body.addEventListener('touchmove', function(e){ e.preventDefault(); });
       var loaded = false;
       $(window).load(function() {
         loaded = true;

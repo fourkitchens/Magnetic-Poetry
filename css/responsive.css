@@ -1,65 +1,81 @@
 /* Anything less than 600px wide will default to these settings */
 #main {
   min-height: 100%;
-  width: 600px;
+  width: 100%;
 }
 #workspace {
-  margin: auto;
   min-height: 100%;
-  width: 600px;
+  width: 100%;
   background: #65B561;
   position: relative;
-  box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
 }
 
 #fridge {
-  width: 600px;
-  margin: 20px 0px;
-  height: 300px;
+  width: 480px;
+  height: 310px;
   position: relative;
+  margin: 0px;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
 }
-
-#drawers-container {
-  height: 300px;
+#move-up {
+  text-align: center;
+  background: grey;
   width: 100%;
+  display: block;
+  position: absolute;
+  top:0;
+  left:0;
+  z-index: 100;
+}
+#drawers-container {
+  width: 100%;
+  position: absolute;
+  top: -320px;
+}
+#drawers {
 }
 .drawer {
   background: #DFD091;
   height: 200px;
-  width: 586px;
+  width: 100%;
   padding: 7px;
 }
-/* For phones in portrate we want display a message.*/
+#drawer-handles {
+
+}
+footer {
+  display: none;
+}
+/* For phones in portrait we want display a message.*/
 @media only screen and (max-width: 599px) and (orientation:portrait) {
   #turn-phone {
     height: 100%;
     z-index: 10000;
     position: absolute;
     display: block;
-    background: red;
+    background: pink;
+    width: 100%;
   }
   #workspace {
     display: none;
   }
 }
 /* Tablets with a 600px width (in portrait mode) */
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 600px) and (orientation:portrait) {
   #main {
     min-height: 100%;
     width: 600px;
   }
-
+  #move-up {
+    display:none;
+  }
   #workspace {
-    margin: auto;
     min-height: 100%;
     width: 600px;
     background: #65B561;
     position: relative;
-    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   }
 
   #fridge {
@@ -70,8 +86,8 @@
   }
 
   #drawers-container {
-    height: 300px;
-    width: 100%;
+    position: relative;
+    top:0px;
   }
   .drawer {
     background: #DFD091;
@@ -82,21 +98,17 @@
 }
 
 /* Tablets with a 768 with (in portrait mode) */
-@media only screen and (min-width: 768px) { 
+@media only screen and (min-width: 768px) {
   #main {
     min-height: 100%;
     width: 768px;
   }
-  
+
   #workspace {
-    margin: auto;
     min-height: 100%;
     width: 768px;
     background: #65B561;
     position: relative;
-    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   }
 
   #fridge {
@@ -105,18 +117,8 @@
     height: 300px;
     position: relative;
   }
-
-  #drawers-container {
-    height: 300px;
-    width: 100%;
+  #drawers {
   }
-/*
-  body {
-    font-family: 'DejaVuSansMonoBook';
-    font-size: 1.5em;
-    color: #4d4d4d;
-  }
-*/  
   .drawer {
     background: #DFD091;
     height: 200px;
@@ -124,9 +126,33 @@
     padding: 7px;
   }        
 }
+/* for devices  in landscape and smaller than 1024 wide */
+@media only screen and (min-width:481px) and (max-width:1023px) and (orientation:landscape) {
+  #workspace {
+    background:blue;
+    width: 100%;
+  }
 
-/* 960px+ for Desktop, Laptop, or Tablet (in landscape mode) */
-@media only screen and (min-width: 960px) {
+  #move-up {
+    text-align: center;
+    background: grey;
+    width: 100%;
+    display: block;
+    position: absolute;
+    top:0;
+    left:0;
+    z-index: 100;
+  }
+}
+/* for devices in portrait with a screen size wider than 600 */
+@media only screen and (min-width:600px) and (orientation:portrait) {
+}
+/* 1024px+ for Desktop, Laptop, or Tablet (in landscape mode) */
+@media only screen and (min-width: 1024px) {
+  #drawers-container {
+    position: relative;
+    top: 0px;
+  }
   #main {
     min-height: 100%;
     width: 960px;
@@ -156,13 +182,6 @@
     height: 300px;
     width: 100%;
   }
-/*
-  body {
-    font-family: 'DejaVuSansMonoBook';
-    font-size: 1.5em;
-    color: #4d4d4d;
-  }
-*/  
   .drawer {
     background: #DFD091;
     height: 200px;
