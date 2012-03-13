@@ -75,16 +75,6 @@ var Poem = Backbone.Model.extend({
   getWords: function() {
     return this.words.toJSON();
   },
-  toJSON: function() {
-    // TODO - need to do this in a more general way so it always
-    // matches the externally defined model.
-    return {
-      id: this.id,
-      nid: this.get('nid'),
-      breakpoint: this.get('breakpoint'),
-      words: this.words.toJSON()
-    };
-  },
   stringify: function(simple) {
     var self = this;
     if (typeof simple === 'undefined') {

@@ -4,6 +4,7 @@
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
   var isAuthor = true;
+  var parentView = false;
 
   /**
    * Defines sync behavior to the backend.
@@ -81,8 +82,22 @@
             console.error('Error fetching poem from server.');
             return;
           }
+
+          // Reset the poem's state if we're loading a different one.
+          if (model.id != data.poem.id) {
+            // Put the magnets back in their drawers.
+            model.words.each(function(word) {
+              $(word.view.el).appendTo('#drawer-' + word.get('vid'))
+                .css('top', '')
+                .css('left', '');
+            });
+            $('#related').empty();
+            parentView = false;
+          }
+
           isAuthor = data.author;
           model.set('nid', data.poem.nid);
+          model.set('parent', data.poem.parent);
           model.words.reset();
           _(data.poem.words).each(function(serverWord) {
             var drawer = window.MagPo.app.drawers[serverWord.vid].model;
@@ -102,6 +117,13 @@
           // Seems the words come back unsorted sometimes so we'll
           // force a sort on load.
           model.words.sort();
+
+          // Add the parent link if this is a child and we haven't done
+          // so already.
+          if (data.poem.parent && !parentView) {
+            parentView = new ParentView();
+            parentView.render();
+          }
         }
       });
     }
@@ -363,6 +385,10 @@
     initialize: function() {
       _.bindAll(this, 'render');
       $(this.$el).stop;
+
+      if (!isAuthor) {
+        $(this.el).html('Fork');
+      }
     },
     events: {
       'click': 'openShareDialog'
@@ -541,6 +567,16 @@
 
       return self;
     }
+  });
+
+  var ParentView = window.ParentView = Backbone.View.extend({
+    el: '#related',
+    template: _.template('<a href="<%= link %>" id="parent-link">&laquo; In response to</a>'),
+    render: function() {
+      $(this.el).append(this.template({
+        link: '#' + window.MagPo.app.poem.get('parent')
+      }));
+    },
   });
 
   /**
