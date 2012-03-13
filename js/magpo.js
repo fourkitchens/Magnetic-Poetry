@@ -3,6 +3,7 @@
   var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
+  var isAuthor = true;
 
   /**
    * Defines sync behavior to the backend.
@@ -19,14 +20,9 @@
       };
 
       // If this is an update we should always be sending along our uuid.
-      // TODO - store a cookie if local storage isn't supported?
-      var author = window.MagPo.app.user;
-      if (typeof author !== 'undefined' && author !== null) {
-        body.poem.author = author;
-      }
-      else {
-        // Fork it, baby!
-        model.id = null;
+      body.poem.author = localStorage.getItem('MagPo_me');
+      if (window.MagPo.app.user) {
+        body.poem.author = window.MagPo.app.user;
       }
 
       // Send to server.
@@ -52,6 +48,10 @@
             localStorage.setItem('MagPo_me', data.poem.author);
           }
           if (data.redirect) {
+            // The user just forked the poem, now they're the author.
+            if (!isAuthor) {
+              isAuthor = true;
+            }
             window.MagPo.app.router.navigate(model.id, { trigger: false });
           }
           window.MagPo.app.poem.trigger('saved', data.status);
@@ -81,9 +81,7 @@
             console.error('Error fetching poem from server.');
             return;
           }
-          if (data.author === false) {
-            model.id = null;
-          }
+          isAuthor = data.author;
           model.set('nid', data.poem.nid);
           model.words.reset();
           _(data.poem.words).each(function(serverWord) {
@@ -298,7 +296,7 @@
           }
 
           // If the poem has already been saved once, autosave on drop.
-          if (window.MagPo.app.poem.id) {
+          if (isAuthor && window.MagPo.app.poem.id) {
             if (window.MagPo.app.timeout) {
               clearTimeout(window.MagPo.app.timeout);
             }
@@ -677,7 +675,7 @@
               callback: window.location.origin + '/magpo/app/update/' + window.MagPo.app.poem.id,
               id: window.MagPo.app.poem.id,
               oldAuthor: oldId,
-              newAuthor: data.id
+              newAuthor: data.screen_name
             });
             worker.onmessage = function(event) {
               if (event.data !== 200) {

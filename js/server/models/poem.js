@@ -15,7 +15,10 @@ delete Poem.id;
 Poem.nid = Number;
 Poem.breakpoint = String;
 Poem.words = [ Word.WordSchema ];
+Poem.parent = String;
+Poem.children = [ String ];
 
+// SERVER SIDE FIELDS:
 // Author is only set on the server on purpose since this value lives
 // in localStorage on the client.
 Poem.author = String;
