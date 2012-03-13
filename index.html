@@ -42,6 +42,28 @@
     </footer>
   </div> <!--! end of #container -->
 
+  <!-- Templates -->
+  <script type="text/template" id="twitter-link-template">
+    <div>
+      <a href="https://twitter.com/share" class="twitter-share-button" id="twitterLink" data-related="<%= twitter.related %>" data-url="<%= twitter.url %>" data-lang="en" data-size="large" data-count="none">Tweet</a>
+    </div>
+  </script>
+
+  <script type="text/template" id="share-modal-template">
+    <div id="shareModal">
+      <p>Poem Saved!</p>
+      <textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>
+      <p id="shareURL"><%= url %></p>
+      <div id="tweetLinkContainer"><%= twitterLink %></div>
+    </div>
+  </script>
+
+  <script type="text/template" id="message-modal-template">
+    <div id="messageModal"><%= message %></div>
+  </script>
+
+  <!-- end of templates -->
+
   <!-- scripts concatenated and minified via ant build script-->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
