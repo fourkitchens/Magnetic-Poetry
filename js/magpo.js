@@ -484,29 +484,6 @@
     }
   });
 
-  window.JST = {};
-
-  window.JST['twitterLink'] = _.template(
-    '<div><a href="https://twitter.com/share" ' +
-    'class="twitter-share-button" ' +
-    'id="twitterLink" ' +
-    'data-related="<%= twitter.related %>" ' +
-    'data-url="<% twitter.url %>"' +
-    'data-lang="en" data-size="large" data-count="none">Tweet</a>' +
-    '</div>'
-  );
-  window.JST['shareModalHtml'] = _.template(
-    '<div id="shareModal">' +
-    '<p>Poem Saved!</p>' +
-    '<textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>' +
-    '<p id="shareURL"><%= url %></p>' +
-    '<div id="tweetLinkContainer"><%= JST["twitterLink"]({twitter: twitter}) %></div>' +
-    '</div>'
-  );
-  window.JST['messageModalHtml'] = _.template(
-    '<div id="messageModal"><%= message %></div>'
-  );
-
   /**
    * Defines the share dialog view.
    */
@@ -519,16 +496,21 @@
       closeImageUrl: 'img/close-modal.png',
       closeImageHoverUrl: 'img/close-modal-hover.png'
     },
+    twitterLinkTemplate: _.template($('#twitter-link-template').html()),
+    template: _.template($('#share-modal-template').html()),
     render: function() {
       var bp = window.MagPo.breakpoints[window.MagPo.app.poem.get('breakpoint')];
       var cols = Math.floor($('#fridge').width() / bp.charWidth);
-      $(this.el).html(JST['shareModalHtml']({
+      var twitter = {
+        related: 'fourkitchens',
+        url: document.URL
+      };
+      var twitterLink = this.twitterLinkTemplate({ twitter: twitter });
+      $(this.el).html(this.template({
         cols: cols,
         url: document.URL,
-        twitter: {
-          related: 'fourkitchens',
-          url: document.URL
-        }
+        twitter: twitter,
+        twitterLink: twitterLink
       }));
 
       // Log errors here rather than throwing them since we don't want this
@@ -557,10 +539,11 @@
       closeImageUrl: 'img/close-modal.png',
       closeImageHoverUrl: 'img/close-modal-hover.png'
     },
+    template: _.template($('#message-modal-template').html()),
     render: function() {
       var self = this;
       $(self.el).html(
-        JST['messageModalHtml']({
+        self.template({
           message: self.options.message
         })
       );
