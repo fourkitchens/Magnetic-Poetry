@@ -209,6 +209,21 @@ MagPo.attach = function() {
           }
           callback(err, poem, redirect);
 
+          // Update any parent poems with the new stringified version.
+          if (poem.parent) {
+            self.PoemModel.update(
+              { 'children.id': poem.id },
+              { $set: { 'children.$.poem': title } },
+              { multi: true },
+              function(err) {
+                if (err) {
+                  console.error(err);
+                  return;
+                }
+              }
+            );
+          }
+
           // Update the poem in Drupal.
           // If the client didn't send us a nid, look it up!
           if (typeof poem.nid === 'undefined' || poem.nid == null) {
