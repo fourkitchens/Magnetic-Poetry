@@ -51,7 +51,7 @@ body {
 }
 #drawers-container {
   z-index:300;
-  background: #DFD091;
+  background: #65B561;
 }
 #drawers {
 }
@@ -63,6 +63,7 @@ body {
   padding: 0px;
   list-style: none;
   color: #ffffff;
+  background: #DFD091;
 }
 .drawer-handle {
   display: inline;
