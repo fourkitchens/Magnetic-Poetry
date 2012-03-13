@@ -6,12 +6,14 @@
 if (typeof require !== 'undefined') {
   var Backbone = require('backbone');
   var wordModel = require('../models/word');
+  var simplePoemModel = require('../models/simplePoem');
   var poemModel = require('../models/poem');
   var WordCollection = require('./collections').WordCollection;
   var breakpoints = require('../mylibs/breakpoints.js');
 }
 else {
   var wordModel = window.MagPo.models.Word;
+  var simplePoemModel = window.MagPo.models.SimplePoem;
   var poemModel = window.MagPo.models.Poem;
   var WordCollection = window.MagPo.WordCollection;
   var breakpoints = window.MagPo.breakpoints;
@@ -38,6 +40,15 @@ var Drawer = Backbone.Model.extend({
     this.set('name', drawer.name);
     this.words = new WordCollection();
   }
+});
+
+/**
+ * Defines the simple poem model.
+ *
+ * @see models/simplePoem.js
+ */
+var SimplePoem = Backbone.Model.extend({
+  defaults: simplePoemModel,
 });
 
 /**
@@ -71,9 +82,29 @@ var Poem = Backbone.Model.extend({
       }
     });
     this.words = new poemCollection();
+
+    var childrenCollection = Backbone.Collection.extend({
+      comparator: function(a, b) {
+        if (a.get('changed') > b.get('changed')) {
+          return -1;
+        }
+        else if (a.get('changed') < b.get('changed')) {
+          return 1;
+        }
+        return 0;
+      }
+    });
+    this.children = new childrenCollection();
   },
   getWords: function() {
     return this.words.toJSON();
+  },
+  toJSON: function() {
+    // TODO - rethink how the ID is set in the model, we shouldn't
+    // need to do this.
+    var json = _.clone(this.attributes);
+    json.id = this.id;
+    return json;
   },
   stringify: function(simple) {
     var self = this;

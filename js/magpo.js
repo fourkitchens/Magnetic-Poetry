@@ -4,7 +4,6 @@
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
   var isAuthor = true;
-  var parentView = false;
 
   /**
    * Defines sync behavior to the backend.
@@ -53,7 +52,14 @@
             if (!isAuthor) {
               isAuthor = true;
             }
+
+            // Reset the parent and children.
+            model.set('parent', data.poem.parent);
+            model.children.reset();
+
+            // Update the URL and re-render the controls.
             window.MagPo.app.router.navigate(model.id, { trigger: false });
+            window.MagPo.app.controlsView.render();
           }
           window.MagPo.app.poem.trigger('saved', data.status);
         },
@@ -91,8 +97,6 @@
                 .css('top', '')
                 .css('left', '');
             });
-            $('#related').empty();
-            parentView = false;
           }
 
           isAuthor = data.author;
@@ -113,17 +117,18 @@
               });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
+          model.children.reset();
+          _(data.poem.children).each(function(child) {
+            model.children.create(child);
+          });
 
           // Seems the words come back unsorted sometimes so we'll
           // force a sort on load.
           model.words.sort();
+          model.children.sort();
 
-          // Add the parent link if this is a child and we haven't done
-          // so already.
-          if (data.poem.parent && !parentView) {
-            parentView = new ParentView();
-            parentView.render();
-          }
+          // Re-render the controls.
+          window.MagPo.app.controlsView.render();
         }
       });
     }
@@ -552,14 +557,41 @@
     }
   });
 
-  var ParentView = window.ParentView = Backbone.View.extend({
-    el: '#related',
-    template: _.template('<a href="<%= link %>" id="parent-link">&laquo; In response to</a>'),
-    render: function() {
-      $(this.el).append(this.template({
-        link: '#' + window.MagPo.app.poem.get('parent')
-      }));
+  /**
+   * Defines the controls view.
+   */
+  var controlsView = window.ControlsView = Backbone.View.extend({
+    el: '#controls',
+    events: {
+      'click #responses-handle': 'toggleResponses'
     },
+    template: _.template($('#controls-template').html()),
+    responseTemplate: _.template($('#response-template').html()),
+    render: function() {
+      var self = this;
+      var parent = window.MagPo.app.poem.get('parent');
+      var parentLink = false;
+      if (parent) {
+        parentLink = '#' + parent;
+      }
+      $(self.el).html(self.template({
+        parentLink: parentLink
+      }));
+
+      window.MagPo.app.poem.children.each(function(child) {
+        $('#responses').append(self.responseTemplate(child.toJSON()));
+      });
+
+      if (parent) {
+        $('#parent-link').show();
+      }
+      if (window.MagPo.app.poem.children.length) {
+        $('#responses-wrapper').show();
+      }
+    },
+    toggleResponses: function() {
+      $('#responses').slideToggle();
+    }
   });
 
   /**
@@ -614,6 +646,7 @@
     self.fridgeView = new FridgeView({ collection: self.poem });
     self.poemView = new PoemView({ collection: self.poem });
     self.shareLinkView = new ShareLinkView();
+    self.controlsView = new ControlsView();
 
     var shown = false;
     self.drawers = {};

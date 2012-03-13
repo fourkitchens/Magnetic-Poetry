@@ -156,9 +156,10 @@ MagPo.attach = function() {
     var self = this;
     var redirect = false;
     var poemObj = new self.PoemModel();
+    poemObj.changed = new Date();
     poemObj.breakpoint = poem.breakpoint;
     if (fork) {
-      poemObj.parent = fork;
+      poem.parent = poemObj.parent = fork;
     }
     var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
     underscore(poem.words).each(function(wordObj) {
@@ -193,10 +194,14 @@ MagPo.attach = function() {
 
     // If the id exists and the author is set, try to update.
     if (typeof poem.id !== 'undefined' && poem.id != null && poem.author != null) {
-      // TODO - this is fragile and assumes words is all we need to save.
+      // TODO - this is fragile and assumes this is all that needs to be saved.
       self.PoemModel.update(
         { _id: poem.id, author: poem.author },
-        { $set: { words: poemObj.words, breakpoint: poem.breakpoint } },
+        { $set: {
+          words: poemObj.words,
+          breakpoint: poem.breakpoint,
+          changed: poemObj.changed
+        } },
         function(err) {
           if (err) {
             callback(500, null, redirect);
@@ -255,7 +260,13 @@ MagPo.attach = function() {
               console.error(err);
               return;
             }
-            doc.children.push(poem.id);
+            var simplePoem = {
+              id: poem.id,
+              author: (poem.author.length > 20) ? 'Anonymous' : poem.author,
+              poem: title,
+              changed: poemObj.changed
+            };
+            doc.children.push(simplePoem);
             doc.save(function(err) {
               if (err) {
                 console.error(err);
