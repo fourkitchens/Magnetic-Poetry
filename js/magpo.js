@@ -239,7 +239,6 @@
         // Bail if this handle's drawer is already open.
         if ($(this).hasClass('open-handle')) {
           $(this).removeClass('open-handle');
-          $(self.model.view.$el).removeClass('open-drawer').slideUp(400);
           return;
         }
         $('.open-handle').removeClass('open-handle');
@@ -247,9 +246,6 @@
         if ($('.open-drawer').length == 1) {
           $('.open-drawer').removeClass('open-drawer').hide();
           $(self.model.view.$el).addClass('open-drawer').show();
-        }
-        else {
-          $(self.model.view.$el).addClass('open-drawer').slideDown(400);
         }
       });
     }
@@ -264,15 +260,15 @@
     el: $('#fridge'),
     initialize: function() {
       var self = this;
-      self.fridgeOffset = $(self.el).offset();
 
       $(self.el).droppable({
         drop: function(event, ui) {
+          fridgeOffset = $(self.el).offset();
           var dropped = $(ui.draggable).data('backbone-view').model;
           var dropOffset = ui.offset;
           resultOffset = {};
-          resultOffset.top = dropOffset.top - self.fridgeOffset.top;
-          resultOffset.left = dropOffset.left - self.fridgeOffset.left;
+          resultOffset.top = dropOffset.top - fridgeOffset.top;
+          resultOffset.left = dropOffset.left - fridgeOffset.left;
           if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
             // reset its position relative to the fridge.

@@ -1,3 +1,11 @@
+/* general styles that don't change based on the viewport */
+#drawers-container {
+-moz-transition: all 1s ease-in-out;
+-webkit-transition: all 1s ease-in-out;
+-o-transition: all 1s ease-in-out;
+transition: all 1s ease-in-out;
+
+}
 /* Anything less than 600px wide will default to these settings */
 #main {
   min-height: 100%;
@@ -19,14 +27,10 @@
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
 }
-#move-up {
+#word-bar {
   text-align: center;
   background: grey;
   width: 100%;
-  display: block;
-  position: absolute;
-  top:0;
-  left:0;
   z-index: 100;
 }
 #drawers-container {
@@ -34,7 +38,11 @@
   position: absolute;
   top: -320px;
 }
+#drawers-container.down {
+  top: 0px;
+}
 #drawers {
+  height: 287px;
 }
 .drawer {
   background: #DFD091;
@@ -68,7 +76,7 @@ footer {
     min-height: 100%;
     width: 600px;
   }
-  #move-up {
+  #word-bar {
     display:none;
   }
   #workspace {
@@ -94,19 +102,19 @@ footer {
     height: 200px;
     width: 586px;
     padding: 7px;
-  }          
+  }
 }
 
 /* Tablets with a 768 with (in portrait mode) */
 @media only screen and (min-width: 768px) {
   #main {
     min-height: 100%;
-    width: 768px;
+    width: 100%;
   }
 
   #workspace {
     min-height: 100%;
-    width: 768px;
+    width: 100%;
     background: #65B561;
     position: relative;
   }
@@ -122,9 +130,9 @@ footer {
   .drawer {
     background: #DFD091;
     height: 200px;
-    width: 754px;
+    width: 100%;
     padding: 7px;
-  }        
+  }
 }
 /* for devices  in landscape and smaller than 1024 wide */
 @media only screen and (min-width:481px) and (max-width:1023px) and (orientation:landscape) {
@@ -133,14 +141,11 @@ footer {
     width: 100%;
   }
 
-  #move-up {
+  #word-bar {
     text-align: center;
     background: grey;
     width: 100%;
     display: block;
-    position: absolute;
-    top:0;
-    left:0;
     z-index: 100;
   }
 }
@@ -157,7 +162,7 @@ footer {
     min-height: 100%;
     width: 960px;
   }
-  #move-up {
+  #word-bar {
     display: none;
   }
   #workspace {

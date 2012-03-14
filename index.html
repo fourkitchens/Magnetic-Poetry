@@ -28,15 +28,14 @@
 </head>
 
 <body>
-  <div id="turn-phone">Please turn your phone.</div>
   <div id="workspace">
     <header>
     </header>
     <div id="drawers-container">
       <div id="drawers" role="main" class="group"></div>
       <ul id="drawer-handles"></ul>
+      <div id="word-bar">^ words ^</div>
     </div>
-    <div id="move-up">^ more words ^</div>
     <div id="fridge" class="brushed-metal"></div>
     <footer>
       <div id="shareLink">Share</div>
@@ -44,6 +43,7 @@
     </footer>
   </div> <!--! end of #container -->
 
+  <div id="turn-phone">Please turn your phone.</div>
   <!-- Templates -->
   <script type="text/template" id="twitter-link-template">
     <div>
@@ -85,25 +85,22 @@
   <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
   <script>
     (function($) {
-      $('#move-up').on('click', function(){
-        if ($('#move-up').hasClass('bounce')){
-          $(this).animate({top:0});
-          $('#drawers-container').animate({top:'-300px'})
+      $('#word-bar').on('click', function(){
+        if ($('#word-bar').hasClass('down')){
+          $('#drawers-container').toggleClass('down')
           $(this).text('^ words ^');
-          $(this).toggleClass('bounce');
+          $(this).toggleClass('down');
         } else {
-          $(this).animate({top:'300px'});
-          $('#drawers-container').animate({top:0});
+          $('#drawers-container').toggleClass('down');
           $(this).text('^ poem  ^');
-          $(this).toggleClass('bounce');
+          $(this).toggleClass('down');
         }
       });
-      $('#move-up').droppable({
+      $('#word-bar').droppable({
         over: function (event, ui) {
-          $('#move-up').animate({top:0});
-          $('#drawers-container').animate({top:'-300px'});
-          $('#move-up').text('^ words ^');
-          $('#move-up').toggleClass('bounce');
+          $('#drawers-container').addClass('down');
+          $('#word-bar').text('^ words ^');
+          $('#word-bar').toggleClass('down');
         }
       });
       // commented out to experiment.
