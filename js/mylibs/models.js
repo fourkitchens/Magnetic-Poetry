@@ -104,6 +104,7 @@ var Poem = Backbone.Model.extend({
     // need to do this.
     var json = _.clone(this.attributes);
     json.id = this.id;
+    json.words = this.words.toJSON();
     return json;
   },
   stringify: function(simple) {
