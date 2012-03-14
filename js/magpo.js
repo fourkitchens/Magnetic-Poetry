@@ -3,6 +3,7 @@
   var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
+  var isAuthor = true;
 
   /**
    * Defines sync behavior to the backend.
@@ -19,14 +20,9 @@
       };
 
       // If this is an update we should always be sending along our uuid.
-      // TODO - store a cookie if local storage isn't supported?
-      var author = window.MagPo.app.user;
-      if (typeof author !== 'undefined' && author !== null) {
-        body.poem.author = author;
-      }
-      else {
-        // Fork it, baby!
-        model.id = null;
+      body.poem.author = localStorage.getItem('MagPo_me');
+      if (window.MagPo.app.user) {
+        body.poem.author = window.MagPo.app.user;
       }
 
       // Send to server.
@@ -52,7 +48,18 @@
             localStorage.setItem('MagPo_me', data.poem.author);
           }
           if (data.redirect) {
+            // The user just forked the poem, now they're the author.
+            if (!isAuthor) {
+              isAuthor = true;
+            }
+
+            // Reset the parent and children.
+            model.set('parent', data.poem.parent);
+            model.children.reset();
+
+            // Update the URL and perform post loading actions.
             window.MagPo.app.router.navigate(model.id, { trigger: false });
+            postLoad();
           }
           window.MagPo.app.poem.trigger('saved', data.status);
         },
@@ -81,10 +88,20 @@
             console.error('Error fetching poem from server.');
             return;
           }
-          if (data.author === false) {
-            model.id = null;
+
+          // Reset the poem's state if we're loading a different one.
+          if (model.id != data.poem.id) {
+            // Put the magnets back in their drawers.
+            model.words.each(function(word) {
+              $(word.view.el).appendTo('#drawer-' + word.get('vid'))
+                .css('top', '')
+                .css('left', '');
+            });
           }
+
+          isAuthor = data.author;
           model.set('nid', data.poem.nid);
+          model.set('parent', data.poem.parent);
           model.words.reset();
           _(data.poem.words).each(function(serverWord) {
             var drawer = window.MagPo.app.drawers[serverWord.vid].model;
@@ -100,10 +117,18 @@
               });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
+          model.children.reset();
+          _(data.poem.children).each(function(child) {
+            model.children.create(child);
+          });
 
           // Seems the words come back unsorted sometimes so we'll
           // force a sort on load.
           model.words.sort();
+          model.children.sort();
+
+          // Perform post loading actions.
+          postLoad();
         }
       });
     }
@@ -294,7 +319,7 @@
           }
 
           // If the poem has already been saved once, autosave on drop.
-          if (window.MagPo.app.poem.id) {
+          if (isAuthor && window.MagPo.app.poem.id) {
             if (window.MagPo.app.timeout) {
               clearTimeout(window.MagPo.app.timeout);
             }
@@ -358,12 +383,19 @@
    */
   var ShareLinkView = Backbone.View.extend({
     el: $('#shareLink'),
-    initialize: function() {
-      _.bindAll(this, 'render');
-      $(this.$el).stop;
-    },
     events: {
       'click': 'openShareDialog'
+    },
+    render: function() {
+      if (!isAuthor) {
+        $(this.el).html('Respond');
+      }
+      else if (!window.MagPo.app.poem.id) {
+        $(this.el).html('Share');
+      }
+      else {
+        $(this.el).html('Share changes');
+      }
     },
     openShareDialog: function(event) {
       autosave = false;
@@ -525,6 +557,52 @@
   });
 
   /**
+   * Defines the controls view.
+   */
+  var controlsView = window.ControlsView = Backbone.View.extend({
+    el: '#controls',
+    events: {
+      'click #responses-handle': 'toggleResponses'
+    },
+    template: _.template($('#controls-template').html()),
+    responseTemplate: _.template($('#response-template').html()),
+    render: function() {
+      var self = this;
+      var parent = window.MagPo.app.poem.get('parent');
+      var parentLink = false;
+      if (parent) {
+        parentLink = '#' + parent;
+      }
+      $(self.el).html(self.template({
+        parentLink: parentLink
+      }));
+
+      window.MagPo.app.poem.children.each(function(child) {
+        $('#responses').append(self.responseTemplate(child.toJSON()));
+      });
+
+      if (parent) {
+        $('#parent-link').show();
+      }
+      if (window.MagPo.app.poem.children.length) {
+        $('#responses-wrapper').show();
+      }
+    },
+    toggleResponses: function() {
+      $('#responses').slideToggle();
+    }
+  });
+
+  /**
+   * Helper function that performs post-loading actions.
+   */
+  function postLoad() {
+    // Re-render the controls.
+    window.MagPo.app.controlsView.render();
+    window.MagPo.app.shareLinkView.render();
+  }
+
+  /**
    * Helper function to reset positions of siblings after we move dom
    * elements around.
    *
@@ -576,6 +654,7 @@
     self.fridgeView = new FridgeView({ collection: self.poem });
     self.poemView = new PoemView({ collection: self.poem });
     self.shareLinkView = new ShareLinkView();
+    self.controlsView = new ControlsView();
 
     var shown = false;
     self.drawers = {};
@@ -602,11 +681,18 @@
     self.login = new LoginView();
     self.login.render();
 
+
     self.router = null;
   };
 
   MagPo.prototype.start = function() {
     var self = this;
+
+    // If this is a new poem, go ahead and perform post load actions.
+    if (!window.location.hash) {
+      postLoad();
+    }
+
     var oauth_token = getParameterByName('oauth_token');
     var oauth_verifier = getParameterByName('oauth_verifier');
     var tUser = localStorage.getItem('MagPo_tUser');
@@ -656,7 +742,7 @@
               callback: window.location.origin + '/magpo/app/update/' + window.MagPo.app.poem.id,
               id: window.MagPo.app.poem.id,
               oldAuthor: oldId,
-              newAuthor: data.id
+              newAuthor: data.screen_name
             });
             worker.onmessage = function(event) {
               if (event.data !== 200) {

@@ -94,11 +94,18 @@ body {
   margin: 10px 20px;
   height: 200px;
 }
-#shareLink {
-  cursor: pointer;
-}
 footer {
   text-align: center;
+}
+#responses-handle {
+  cursor: pointer;
+}
+#responses {
+  max-height: 100px;
+  overflow-y: scroll;
+}
+#shareLink {
+  cursor: pointer;
 }
 #login {
   cursor: pointer;
