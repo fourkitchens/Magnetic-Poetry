@@ -37,7 +37,8 @@
     </div>
     <div id="fridge" class="brushed-metal"> </div>
     <footer>
-      <div id="shareLink">Share</div>
+      <div id="controls"></div>
+      <div id="shareLink"></div>
       <img id="login" src="//si0.twimg.com/images/dev/buttons/sign-in-with-twitter-d.png" alt="Sign in with Twitter" />
     </footer>
   </div> <!--! end of #container -->
@@ -60,6 +61,21 @@
 
   <script type="text/template" id="message-modal-template">
     <div id="messageModal"><%= message %></div>
+  </script>
+
+  <script type="text/template" id="controls-template">
+    <a href="<%= parentLink %>" id="parent-link" style="display:none">&laquo; In response to</a>
+    <div id="responses-wrapper" style="display:none">
+      <span id="responses-handle">Responses</span>
+      <div id="responses" style="display:none"></div>
+    </div>
+  </script>
+
+  <script type="text/template" id="response-template">
+    <div id="response-<%= id %>" class="response">
+     <span class="response-author"><%= author %>:</span>
+     <a href="#<%= id %>" class="response-link"><%= poem %></a>
+    </div>
   </script>
 
   <!-- end of templates -->

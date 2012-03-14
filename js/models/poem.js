@@ -5,9 +5,11 @@
 if (typeof module !== 'undefined') {
   var Backbone = require('backbone');
   var Word = require('./word');
+  var SimplePoem = require('./simplePoem');
 }
 else {
   var Word = window.MagPo.Word;
+  var SimplePoem = window.MagPo.SimplePoem;
 }
 
 /**
@@ -19,6 +21,10 @@ var Poem = {
   breakpoint: '',
   words: Backbone.Collection.extend({
     model: Word
+  }),
+  parent: null,
+  children: Backbone.Collection.extend({
+    model: SimplePoem
   })
 };
 
