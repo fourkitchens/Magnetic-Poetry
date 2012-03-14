@@ -446,53 +446,6 @@
   });
 
   /**
-   * Defines the login view.
-   */
-  var LoginView = Backbone.View.extend({
-    el: $('#login'),
-    events: {
-      'click': 'login',
-    },
-    login: function(e) {
-      var self = this;
-      // Save the poem if it hasn't been saved yet so we have a valid
-      // return URL.
-      if (
-        (typeof window.MagPo.app.poem.id === 'undefined' ||
-          window.MagPo.app.poem.id === null
-        ) &&
-        window.MagPo.app.poem.words.length
-      ) {
-        window.MagPo.app.poem.save();
-        window.MagPo.app.poem.on('saved', function() {
-          self._login();
-          window.MagPo.app.poem.off('saved');
-        });
-      }
-      else {
-        self._login();
-      }
-    },
-    _login: function() {
-      // First, get a request token.
-      $.ajax({
-        url: 'app/login',
-        contentType: 'application/json',
-        data: JSON.stringify({
-          success: window.location.toString(),
-        }),
-        dataType: 'json',
-        type: 'POST',
-        success: function(data) {
-          // TODO - use cookies for people with ancient browsers?
-          localStorage.setItem('MagPo_tUser', data.tUser);
-          window.location = data.location;
-        }
-      });
-    }
-  });
-
-  /**
    * Defines the share dialog view.
    */
   var ShareDialogView = window.ModalView.extend({
@@ -598,6 +551,84 @@
   });
 
   /**
+   * Defines the authentication view.
+   */
+  var AuthView = window.MagPo.AuthView = Backbone.View.extend({
+    el: '#auth',
+    events: {
+      'click #login': 'login',
+      'click #logout': 'logout',
+    },
+    template: _.template($('#auth-template').html()),
+    render: function() {
+      var user = '';
+      if (window.MagPo.app.user && typeof window.MagPo.app.user.screen_name !== 'undefined') {
+        user = window.MagPo.app.user.screen_name;
+      }
+      $(this.el).html(this.template({
+        user: user
+      }));
+    },
+    loggedIn: function() {
+      var self = this;
+      self.render();
+      $('#login', self.$el).hide();
+      $('#howdy', self.$el).show();
+      $('#logout', self.$el).show();
+    },
+    login: function(e) {
+      var self = this;
+      // Save the poem if it hasn't been saved yet so we have a valid
+      // return URL.
+      if (
+        (typeof window.MagPo.app.poem.id === 'undefined' ||
+          window.MagPo.app.poem.id === null
+        ) &&
+        window.MagPo.app.poem.words.length
+      ) {
+        window.MagPo.app.poem.save();
+        window.MagPo.app.poem.on('saved', function() {
+          self._login();
+          window.MagPo.app.poem.off('saved');
+        });
+      }
+      else {
+        self._login();
+      }
+    },
+    _login: function() {
+      // First, get a request token.
+      $.ajax({
+        url: 'app/login',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          success: window.location.toString(),
+        }),
+        dataType: 'json',
+        type: 'POST',
+        success: function(data) {
+          // TODO - use cookies for people with ancient browsers?
+          localStorage.setItem('MagPo_tUser', data.tUser);
+          window.location = data.location;
+        }
+      });
+    },
+    logout: function(e) {
+      // TODO - delete local storage info, etc.
+      localStorage.removeItem('MagPo_me');
+      localStorage.removeItem('MagPo_user');
+      window.MagPo.app.user = null;
+
+      // Force this to false regardless of what it's currently set to.
+      isAuthor = false;
+
+      // Re-render stuff.
+      this.render();
+      postLoad();
+    }
+  });
+
+  /**
    * Helper function that performs post-loading actions.
    */
   function postLoad() {
@@ -682,15 +713,15 @@
       self.drawers[drawer.id] = drawerObj;
     });
 
-    self.login = new LoginView();
-    self.login.render();
-
+    self.authView = new AuthView();
 
     self.router = null;
   };
 
   MagPo.prototype.start = function() {
     var self = this;
+
+    self.authView.render();
 
     // If this is a new poem, go ahead and perform post load actions.
     if (!window.location.hash) {
@@ -758,7 +789,7 @@
 
           self.user = user;
 
-          self.loggedIn();
+          self.authView.loggedIn();
         },
         error: function() {
           localStorage.removeItem('MagPo_tUser');
@@ -770,18 +801,10 @@
       if (user) {
         self.user = user;
         localStorage.setItem('MagPo_me', user.id);
-        self.loggedIn();
+        self.authView.loggedIn();
       }
       self.startRouter();
     }
-  };
-
-  /**
-   * Updates DOM elements based on the user being logged in.
-   */
-  MagPo.prototype.loggedIn = function() {
-    $('#login').remove();
-    $('footer').append('Howdy @' + this.user.screen_name + '!');
   };
 
   /**
