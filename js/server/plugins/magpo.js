@@ -76,7 +76,7 @@ MagPo.attach = function() {
     };
 
     // First, if the author is set, verify that it's valid.
-    if (typeof poem.author !== 'undefined' && poem.author) {
+    if (poem.author && typeof poem.author === 'object') {
       UserModel.findOne(
         {
           access_token: poem.author.id,
@@ -105,6 +105,7 @@ MagPo.attach = function() {
    */
   this.savePoem = function(poem, callback) {
     var self = this;
+    var fork = false;
 
     self.validatePoem(poem, function onValidated(valid) {
       if (valid != true) {
@@ -114,7 +115,7 @@ MagPo.attach = function() {
       }
 
       // Reset the author to a string if it's an object.
-      if (typeof poem.author.screen_name != 'undefined') {
+      if (poem.author && typeof poem.author.screen_name != 'undefined') {
         poem.author = poem.author.screen_name;
       }
 
@@ -124,13 +125,18 @@ MagPo.attach = function() {
           // If no poem was found, or the authors don't match, unset the poem
           // id so a new poem will be saved.
           if (doc == null || typeof doc.author === 'undefined' || doc.author !== poem.author) {
+            fork = poem.id;
             poem.id = null;
           }
-          self._savePoem(poem, callback);
+          self._savePoem(poem, fork, callback);
         });
       }
       else {
-        self._savePoem(poem, callback);
+        if (poem.id) {
+          fork = poem.id;
+          poem.id = null;
+        }
+        self._savePoem(poem, fork, callback);
       }
     });
   };
@@ -140,14 +146,21 @@ MagPo.attach = function() {
    *
    * @param {object} poem
    *   The poem object to save.
+   * @param {mixed} fork
+   *   false if this is not a fork, else the ObjectID hash
+   *   for the parent poem.
    * @param {function} callback
    *   The function to execute after the poem is saved.
    */
-  this._savePoem = function(poem, callback) {
+  this._savePoem = function(poem, fork, callback) {
     var self = this;
     var redirect = false;
     var poemObj = new self.PoemModel();
+    poemObj.changed = new Date();
     poemObj.breakpoint = poem.breakpoint;
+    if (fork) {
+      poem.parent = poemObj.parent = fork;
+    }
     var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
     underscore(poem.words).each(function(wordObj) {
       var word = new self.WordModel();
@@ -181,16 +194,35 @@ MagPo.attach = function() {
 
     // If the id exists and the author is set, try to update.
     if (typeof poem.id !== 'undefined' && poem.id != null && poem.author != null) {
-      // TODO - this is fragile and assumes words is all we need to save.
+      // TODO - this is fragile and assumes this is all that needs to be saved.
       self.PoemModel.update(
         { _id: poem.id, author: poem.author },
-        { $set: { words: poemObj.words, breakpoint: poem.breakpoint } },
+        { $set: {
+          words: poemObj.words,
+          breakpoint: poem.breakpoint,
+          changed: poemObj.changed
+        } },
         function(err) {
           if (err) {
             callback(500, null, redirect);
             return;
           }
           callback(err, poem, redirect);
+
+          // Update any parent poems with the new stringified version.
+          if (poem.parent) {
+            self.PoemModel.update(
+              { 'children.id': poem.id },
+              { $set: { 'children.$.poem': title } },
+              { multi: true },
+              function(err) {
+                if (err) {
+                  console.error(err);
+                  return;
+                }
+              }
+            );
+          }
 
           // Update the poem in Drupal.
           // If the client didn't send us a nid, look it up!
@@ -221,7 +253,7 @@ MagPo.attach = function() {
       // Generate a unique identifier that will be used to "authenticate" the
       // author. The only time this value is returned (for local storage) is
       // on initial save.
-      if (typeof poem.author === 'undefined') {
+      if (!poem.author) {
         poemObj.author = require('node-uuid').v4();
       }
       else {
@@ -235,6 +267,29 @@ MagPo.attach = function() {
         poem.author = poemObj.author;
         redirect = true;
         callback(err, poem, redirect);
+
+        // If this was a fork, add the new id to the parent's child array.
+        if (fork) {
+          self.PoemModel.findOne({ _id: fork }, function(err, doc) {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            var simplePoem = {
+              id: poem.id,
+              author: (poem.author.length > 20) ? 'Anonymous' : poem.author,
+              poem: title,
+              changed: poemObj.changed
+            };
+            doc.children.push(simplePoem);
+            doc.save(function(err) {
+              if (err) {
+                console.error(err);
+                return;
+              }
+            });
+          });
+        }
 
         // Save the poem to Drupal.
         post.field_poem_unique_id.und[0].value = poem.id;
