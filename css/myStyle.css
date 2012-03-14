@@ -102,6 +102,7 @@ footer {
 #shareLink {
   cursor: pointer;
 }
-#login {
+#login,
+#logout {
   cursor: pointer;
 }

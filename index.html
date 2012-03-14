@@ -39,7 +39,7 @@
     <footer>
       <div id="controls"></div>
       <div id="shareLink"></div>
-      <img id="login" src="//si0.twimg.com/images/dev/buttons/sign-in-with-twitter-d.png" alt="Sign in with Twitter" />
+      <div id="auth"></div>
     </footer>
   </div> <!--! end of #container -->
 
@@ -76,6 +76,12 @@
      <span class="response-author"><%= author %>:</span>
      <a href="#<%= id %>" class="response-link"><%= poem %></a>
     </div>
+  </script>
+
+  <script type="text/template" id="auth-template">
+    <img id="login" src="//si0.twimg.com/images/dev/buttons/sign-in-with-twitter-d.png" alt="Sign in with Twitter" />
+    <span id="howdy" style="display:none">Howdy @<%= user %>!</span>
+    <span id="logout" style="display:none">Logout</span>
   </script>
 
   <!-- end of templates -->
