@@ -275,7 +275,41 @@
       });
     }
   });
-
+  /**
+   * Defines the moving "word-bar" panel.
+   */
+  var WordBarView = Backbone.View.extend({
+    el: $('#drawers-container'),
+    initialize: function() {
+      this.hiddenHeight = (($(window).height() - $('#word-bar').height()) * -1);
+      this.render();
+    },
+    render: function() {
+      var self = this;
+      if (window.MagPo.app.barVisible) {
+        $('#drawers-container').css('height', $(window).height());
+        $('#drawers-container').css('top', this.hiddenHeight);
+        $('#word-bar').css('bottom', 0);
+        $('#word-bar').on('click', function(){
+          if ($('#drawers-container').hasClass('down')){
+            $('#drawers-container').toggleClass('down')
+            $(this).text('^ words ^');
+            $('#drawers-container').css('top', self.hiddenHeight); 
+          } else {
+            $('#drawers-container').css('top', 0);
+            $('#drawers-container').toggleClass('down');
+            $(this).text('^ poem  ^');
+          }
+        });
+        $('#word-bar').droppable({
+          over: function (event, ui) {
+            $('#word-bar').text('^ words ^');
+            $('#drawers-container').toggleClass('down');
+          }
+        });
+      }
+    }
+  });
   /**
    * Defines the fridge (workspace) view.
    *
@@ -647,7 +681,7 @@
     self.timeout = false;
     self.user = false;
     self.delay = 1000;
-
+    window.MagPo.app.barVisible = $('#word-bar').is(':visible');
     // TODO - detect the correct breakpoint.
     self.poem = new Poem({ breakpoint: 'desktop' });
 
@@ -655,6 +689,7 @@
     self.poemView = new PoemView({ collection: self.poem });
     self.shareLinkView = new ShareLinkView();
     self.controlsView = new ControlsView();
+    self.wordBarView = new WordBarView();
 
     var shown = false;
     self.drawers = {};

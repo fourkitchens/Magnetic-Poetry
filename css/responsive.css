@@ -32,17 +32,14 @@ transition: all 1s ease-in-out;
   background: grey;
   width: 100%;
   z-index: 100;
+  position: absolute;
 }
 #drawers-container {
   width: 100%;
   position: absolute;
-  top: -320px;
 }
 #drawers-container.down {
   top: 0px;
-}
-#drawers {
-  height: 287px;
 }
 .drawer {
   background: #DFD091;
@@ -89,7 +86,7 @@ footer {
   #fridge {
     width: 600px;
     margin: 20px 0px;
-    height: 300px;
+    height: 387px;
     position: relative;
   }
 
@@ -122,7 +119,7 @@ footer {
   #fridge {
     width: 600px;
     margin: 20px 84px;
-    height: 300px;
+    height: 387px;
     position: relative;
   }
   #drawers {
@@ -176,10 +173,8 @@ footer {
     -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   }
 
-  #fridge {
-    width: 600px;
     margin: 20px 180px;
-    height: 300px;
+    height: 387px;
     position: relative;
   }
 
