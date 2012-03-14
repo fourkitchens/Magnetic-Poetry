@@ -167,16 +167,19 @@
       this.model.bind('change', this.render, this);
     },
     render: function() {
-      $(this.el)
-        .draggable({
-          stack: '.tiles',
-          start: function(event, ui) {
-            if (barVisible) {
-              $('#drawers-container').css('top', window.MagPo.app.hiddenHeight);
-            }
-          }
-        });
+      var draggable = {
+        stack: '.tiles'
+      };
 
+      // These options are only needed for mobile devices.
+      if (barVisible) {
+        draggable.helper = this.getHelper();
+        draggable.start = function(event, ui) {
+          $('#drawers-container').css('top', window.MagPo.app.wordBarView.hiddenHeight);
+        };
+      }
+
+      $(this.el).draggable(draggable);
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
@@ -193,6 +196,14 @@
       }
 
       return this;
+    },
+    getHelper: function() {
+      if ($(this.el).parent().attr('id') == 'fridge') {
+        return 'original';
+      }
+      return function(event) {
+        return $(event.target).clone().css({ 'background': 'white', 'z-index': 1000 }).appendTo('#fridge');
+      };
     }
   });
 
@@ -213,6 +224,10 @@
 
       $(self.el).droppable({
         drop: function(event, ui) {
+          // We only need to do this on mobile devices.
+          if (barVisible) {
+            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
+          }
           var dropped = $(ui.draggable).data('backbone-view').model;
           window.MagPo.app.poem.words.remove(dropped);
           window.MagPo.app.poemView.render();
@@ -300,13 +315,13 @@
       var self = this;
       if (barVisible) {
         $('#drawers-container').css('height', $(window).height());
-        $('#drawers-container').css('top', this.hiddenHeight);
+        $('#drawers-container').css('top', self.hiddenHeight);
         $('#word-bar').css('bottom', 0);
         $('#word-bar').on('click', function(){
           if ($('#drawers-container').hasClass('down')){
             $('#drawers-container').toggleClass('down')
             $(this).text('^ words ^');
-            $('#drawers-container').css('top', self.hiddenHeight); 
+            $('#drawers-container').css('top', self.hiddenHeight);
           } else {
             $('#drawers-container').css('top', 0);
             $('#drawers-container').toggleClass('down');
@@ -315,8 +330,26 @@
         });
         $('#word-bar').droppable({
           over: function (event, ui) {
+            $('#word-bar').text('remove');
+          },
+          out: function (event, ui) {
             $('#word-bar').text('^ words ^');
-            $('#drawers-container').toggleClass('down');
+          },
+          drop: function(event, ui) {
+            $('#word-bar').text('^ words ^');
+            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
+            var dropped = $(ui.draggable).data('backbone-view').model;
+            window.MagPo.app.poem.words.remove(dropped);
+            window.MagPo.app.poemView.render();
+
+            var siblings = $(ui.draggable).nextAll();
+            // Unset the top and left values for this item since its drawer is
+            // currently hidden and off the screen.
+            $(ui.draggable)
+              .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
+              .css('top', '')
+              .css('left', '');
+            repositionSiblings(siblings);
           }
         });
       }
@@ -334,6 +367,10 @@
 
       $(self.el).droppable({
         drop: function(event, ui) {
+          // We only need to do this on mobile devices.
+          if (barVisible) {
+            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
+          }
           fridgeOffset = $(self.el).offset();
           var dropped = $(ui.draggable).data('backbone-view').model;
           var dropOffset = ui.offset;
@@ -704,7 +741,11 @@
    */
   function repositionSiblings(siblings) {
     _(siblings).each(function(sibling) {
-      var sModel = $(sibling).data('backbone-view').model;
+      var sModel = $(sibling).data('backbone-view');
+      if (!sModel) {
+        return;
+      }
+      sModel = sModel.model;
       $(sibling).position({
         of: '#fridge',
         my: 'left top',

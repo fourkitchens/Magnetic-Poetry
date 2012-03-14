@@ -50,7 +50,6 @@ body {
   margin: .3em;
 }
 #drawers-container {
-  z-index:300;
   background: #DFD091;
 }
 #drawers {
