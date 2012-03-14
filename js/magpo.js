@@ -614,7 +614,7 @@
       });
     },
     logout: function(e) {
-      // TODO - delete local storage info, etc.
+      // Delete local storage info, etc.
       localStorage.removeItem('MagPo_me');
       localStorage.removeItem('MagPo_user');
       window.MagPo.app.user = null;
