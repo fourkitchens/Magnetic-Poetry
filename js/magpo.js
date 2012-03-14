@@ -4,6 +4,7 @@
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
   var isAuthor = true;
+  var barVisible = $('#word-bar').is(':visible');
 
   /**
    * Defines sync behavior to the backend.
@@ -162,7 +163,12 @@
     render: function() {
       $(this.el)
         .draggable({
-          stack: '.tiles'
+          stack: '.tiles',
+          start: function(event, ui) {
+            if (barVisible) {
+              $('#drawers-container').css('top', window.MagPo.app.hiddenHeight);
+            }
+          }
         });
 
       $(this.el).data('backbone-view', this);
@@ -286,7 +292,7 @@
     },
     render: function() {
       var self = this;
-      if (window.MagPo.app.barVisible) {
+      if (barVisible) {
         $('#drawers-container').css('height', $(window).height());
         $('#drawers-container').css('top', this.hiddenHeight);
         $('#word-bar').css('bottom', 0);
@@ -681,7 +687,6 @@
     self.timeout = false;
     self.user = false;
     self.delay = 1000;
-    window.MagPo.app.barVisible = $('#word-bar').is(':visible');
     // TODO - detect the correct breakpoint.
     self.poem = new Poem({ breakpoint: 'desktop' });
 
