@@ -57,9 +57,9 @@
             model.set('parent', data.poem.parent);
             model.children.reset();
 
-            // Update the URL and re-render the controls.
+            // Update the URL and perform post loading actions.
             window.MagPo.app.router.navigate(model.id, { trigger: false });
-            window.MagPo.app.controlsView.render();
+            postLoad();
           }
           window.MagPo.app.poem.trigger('saved', data.status);
         },
@@ -127,8 +127,8 @@
           model.words.sort();
           model.children.sort();
 
-          // Re-render the controls.
-          window.MagPo.app.controlsView.render();
+          // Perform post loading actions.
+          postLoad();
         }
       });
     }
@@ -387,16 +387,19 @@
    */
   var ShareLinkView = Backbone.View.extend({
     el: $('#shareLink'),
-    initialize: function() {
-      _.bindAll(this, 'render');
-      $(this.$el).stop;
-
-      if (!isAuthor) {
-        $(this.el).html('Fork');
-      }
-    },
     events: {
       'click': 'openShareDialog'
+    },
+    render: function() {
+      if (!isAuthor) {
+        $(this.el).html('Respond');
+      }
+      else if (!window.MagPo.app.poem.id) {
+        $(this.el).html('Share');
+      }
+      else {
+        $(this.el).html('Share changes');
+      }
     },
     openShareDialog: function(event) {
       autosave = false;
@@ -595,6 +598,15 @@
   });
 
   /**
+   * Helper function that performs post-loading actions.
+   */
+  function postLoad() {
+    // Re-render the controls.
+    window.MagPo.app.controlsView.render();
+    window.MagPo.app.shareLinkView.render();
+  }
+
+  /**
    * Helper function to reset positions of siblings after we move dom
    * elements around.
    *
@@ -673,11 +685,18 @@
     self.login = new LoginView();
     self.login.render();
 
+
     self.router = null;
   };
 
   MagPo.prototype.start = function() {
     var self = this;
+
+    // If this is a new poem, go ahead and perform post load actions.
+    if (!window.location.hash) {
+      postLoad();
+    }
+
     var oauth_token = getParameterByName('oauth_token');
     var oauth_verifier = getParameterByName('oauth_verifier');
     var tUser = localStorage.getItem('MagPo_tUser');
