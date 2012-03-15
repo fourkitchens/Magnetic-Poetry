@@ -11,7 +11,8 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <meta name="viewport" content="width=device-width; initial-scale=1.0; user-scalable=no;">
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; user-scalable=0;
+  minimum-scale=1.0; maximum-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <!-- humans.txt -->
   <link type="text/plain" rel="author" href="humans.txt" />
@@ -27,15 +28,15 @@
 </head>
 
 <body>
-  <div id="turn-phone">Please turn your phone.</div>
   <div id="workspace">
     <header>
     </header>
     <div id="drawers-container">
       <div id="drawers" role="main" class="group"></div>
       <ul id="drawer-handles"></ul>
+      <div id="word-bar">^ words ^</div>
     </div>
-    <div id="fridge" class="brushed-metal"> </div>
+    <div id="fridge" class="brushed-metal"></div>
     <footer>
       <div id="controls"></div>
       <div id="shareLink"></div>
@@ -43,6 +44,7 @@
     </footer>
   </div> <!--! end of #container -->
 
+  <div id="turn-phone">Please turn your phone.</div>
   <!-- Templates -->
   <script type="text/template" id="twitter-link-template">
     <div>
@@ -113,7 +115,6 @@
   <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
   <script>
     (function($) {
-      document.body.addEventListener('touchmove', function(e){ e.preventDefault(); });
       var loaded = false;
       $(window).load(function() {
         loaded = true;
