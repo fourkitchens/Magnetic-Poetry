@@ -79,9 +79,9 @@ body {
   -webkit-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);  
 }
 
-#shareModal {
-}
+#shareModal,
 #messageModal {
+  font-size: .75em;
   width: 350px;
   padding: 20px;
 }
@@ -103,6 +103,7 @@ footer {
   cursor: pointer;
 }
 #login,
+#loginModal,
 #logout {
   cursor: pointer;
 }
