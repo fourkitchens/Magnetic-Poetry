@@ -78,9 +78,6 @@ body {
   height: 300px;
   position: relative;
   background: #8FBEDE;
-  box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);  
 }
 
 #shareModal {

@@ -23,9 +23,6 @@ transition: all 1s ease-in-out;
   height: 310px;
   position: relative;
   margin: 0px;
-  box-shadow: none;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
 }
 #word-bar {
   text-align: center;
@@ -49,7 +46,6 @@ transition: all 1s ease-in-out;
   padding: 7px;
 }
 #drawer-handles {
-
 }
 footer {
   display: none;
@@ -119,9 +115,9 @@ footer {
 
   #fridge {
     width: 600px;
-    margin: 20px 84px;
     height: 387px;
     position: relative;
+    margin: 0px auto;
   }
   #drawers {
   }
@@ -135,13 +131,11 @@ footer {
 /* for devices  in landscape and smaller than 1024 wide */
 @media only screen and (min-width:481px) and (max-width:1023px) and (orientation:landscape) {
   #workspace {
-    background:blue;
     width: 100%;
   }
 
   #word-bar {
     text-align: center;
-    background: grey;
     width: 100%;
     display: block;
     z-index: 100;
@@ -175,12 +169,13 @@ footer {
     -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   }
 
-  /* LOL WUT? */
-  margin: 20px 180px;
-  height: 387px;
-  position: relative;
-}
-
+  #fridge {
+    width: 600px;
+    margin: 20px 180px;
+    height: 387px;
+    position: relative;
+    margin: 0px auto;
+  }
   #drawers-container {
     height: 300px;
     width: 100%;
@@ -190,5 +185,5 @@ footer {
     height: 200px;
     width: 946px;
     padding: 7px;
-  }       
+  }
 }
