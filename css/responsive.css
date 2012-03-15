@@ -43,7 +43,6 @@ transition: all 1s ease-in-out;
   background: #DFD091;
   height: 200px;
   width: 100%;
-  padding: 7px;
 }
 #drawer-handles {
 }
@@ -94,8 +93,7 @@ footer {
   .drawer {
     background: #DFD091;
     height: 200px;
-    width: 586px;
-    padding: 7px;
+    width: 100%;
   }
 }
 
@@ -125,7 +123,9 @@ footer {
     background: #DFD091;
     height: 200px;
     width: 100%;
-    padding: 7px;
+  }
+  footer {
+    display: block;
   }
 }
 /* for devices  in landscape and smaller than 1024 wide */
@@ -139,6 +139,9 @@ footer {
     width: 100%;
     display: block;
     z-index: 100;
+  }
+  footer {
+   display: none;
   }
 }
 /* for devices in portrait with a screen size wider than 600 */
@@ -183,7 +186,6 @@ footer {
   .drawer {
     background: #DFD091;
     height: 200px;
-    width: 946px;
-    padding: 7px;
+    width: 100%;
   }
 }

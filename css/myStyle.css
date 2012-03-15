@@ -41,6 +41,7 @@ body {
   cursor: move;
   float:left;
   background: white;
+  margin: 4px 0 0 4px;
 }
 .ui-draggable-dragging {
   -webkit-box-shadow: 8px 8px 6px #888;
