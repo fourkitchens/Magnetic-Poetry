@@ -311,7 +311,7 @@
   var WordBarView = Backbone.View.extend({
     el: $('#drawers-container'),
     events: {
-      'click #word-bar': 'toggleBar'
+      'click #word-bar-handle': 'toggleBar'
     },
     initialize: function() {
       this.hiddenHeight = (($(window).height() - $('#word-bar').height()) * -1);
@@ -323,15 +323,15 @@
         $('#drawers-container').css('height', $(window).height());
         $('#drawers-container').css('top', self.hiddenHeight);
         $('#word-bar').css('bottom', 0);
-                $('#word-bar').droppable({
+        $('#word-bar-handle').droppable({
           over: function (event, ui) {
-            $('#word-bar').text('x remove x');
+            $('#word-bar-handle').text('x remove x');
           },
           out: function (event, ui) {
-            $('#word-bar').text('^ words ^');
+            $('#word-bar-handle').text('^ words ^');
           },
           drop: function(event, ui) {
-            $('#word-bar').text('^ words ^');
+            $('#word-bar-handle').text('^ words ^');
             var dropped = $(ui.draggable).data('backbone-view').model;
             window.MagPo.app.poem.words.remove(dropped);
             window.MagPo.app.poemView.render();
@@ -356,11 +356,11 @@
     toggleBar: function() {
       var self = this;
       if ($('#drawers-container').hasClass('down')) {
-        $('#word-bar').text('^ words ^');
+        $('#word-bar-handle').text('^ words ^');
         $('#drawers-container').css('top', self.hiddenHeight);
       }
       else {
-        $('#word-bar').text('v poem  v');
+        $('#word-bar-handle').text('v poem v');
         $('#drawers-container').css('top', 0);
       }
       $('#drawers-container').toggleClass('down');
@@ -609,6 +609,9 @@
       closeImageUrl: 'img/close-modal.png',
       closeImageHoverUrl: 'img/close-modal-hover.png'
     },
+    events: {
+      'click a': 'hideModal'
+    },
     template: _.template($('#message-modal-template').html()),
     render: function() {
       var self = this;
@@ -619,45 +622,68 @@
       );
 
       return self;
-    }
+    },
   });
 
   /**
    * Defines the controls view.
    */
-  var controlsView = window.ControlsView = Backbone.View.extend({
-    el: 'menu',
+  var ControlsView = window.ControlsView = Backbone.View.extend({
+    el: 'menu ul',
     events: {
-      'click #responses-handle': 'toggleResponses'
+      'click #login-menu': 'toggleLogin',
+      'click #shareLinkMenu': 'openShareDialog',
+      'click #responses-handle': 'showResponses'
     },
-    template: _.template($('#controls-template').html()),
+    menuResponseTemplate: _.template($('#menu-response-template').html()),
     responseTemplate: _.template($('#response-template').html()),
     render: function() {
       var self = this;
-      var parent = window.MagPo.app.poem.get('parent');
-      var parentLink = false;
-      if (parent) {
-        parentLink = '#' + parent;
+      $('#responses-handle').hide();
+      if (window.MagPo.app.poem.children.length || window.MagPo.app.poem.get('parent')) {
+        $('#responses-handle').show();
       }
-      $(self.el).html(self.template({
-        parentLink: parentLink
-      }));
 
-/*
-      window.MagPo.app.poem.children.each(function(child) {
-        $('#responses').append(self.responseTemplate(child.toJSON()));
-      });
-*/
-
-      if (parent) {
-        $('#parent-link').show();
+      // Move the menu into the word-bar on mobile devices.
+      if (barVisible) {
+        $('menu').appendTo('#word-bar');
       }
-      if (window.MagPo.app.poem.children.length) {
-        $('#responses-wrapper').show();
+
+      if (window.MagPo.app.user) {
+        $('#login-menu').addClass('logged-in').text('Logout');
       }
     },
-    toggleResponses: function() {
-      $('#responses').slideToggle();
+    toggleLogin: function(e) {
+      if (window.MagPo.app.user) {
+        window.MagPo.app.authView.logout();
+        $('#login-menu').toggleClass('logged-in').text('Login');
+      }
+      else {
+        window.MagPo.app.authView.login();
+        $('#login-menu').toggleClass('logged-in').text('Logout');
+      }
+    },
+    showResponses: function(event) {
+      var self = this;
+      var responses = '';
+      var parent = window.MagPo.app.poem.get('parent');
+      var parentLink = false;
+
+      event.stopPropagation();
+
+      if (parent) {
+        parentLink = '#' + parent;
+        responses += self.menuResponseTemplate({ parentLink: parentLink });
+      }
+      window.MagPo.app.poem.children.each(function(child) {
+        responses += self.responseTemplate(child.toJSON());
+      });
+
+      var dialog = new MessageDialogView({ message: responses });
+      dialog.render().showModal({});
+    },
+    openShareDialog: function(e) {
+      window.MagPo.app.shareLinkView.openShareDialog(e);
     }
   });
 
@@ -799,10 +825,10 @@
     // TODO - detect the correct breakpoint.
     self.poem = new Poem({ breakpoint: 'desktop' });
 
+    self.controlsView = new ControlsView();
     self.fridgeView = new FridgeView({ collection: self.poem });
     self.poemView = new PoemView({ collection: self.poem });
     self.shareLinkView = new ShareLinkView();
-    self.controlsView = new ControlsView();
     self.wordBarView = new WordBarView();
 
     var shown = false;
