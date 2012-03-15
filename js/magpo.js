@@ -4,6 +4,7 @@
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
   var autosave = true;
   var isAuthor = true;
+  var barVisible = $('#word-bar').is(':visible');
 
   /**
    * Defines sync behavior to the backend.
@@ -166,11 +167,22 @@
       this.model.bind('change', this.render, this);
     },
     render: function() {
-      $(this.el)
-        .draggable({
-          stack: '.tiles'
-        });
+      var draggable = {
+        stack: '.tiles'
+      };
 
+      // These options are only needed for mobile devices.
+      if (barVisible) {
+        draggable.helper = this.getHelper();
+        draggable.start = function(event, ui) {
+          // Only do this if the word is in a drawer.
+          if (event.target.parentElement.id !== 'fridge') {
+            window.MagPo.app.wordBarView.toggleBar();
+          }
+        };
+      }
+
+      $(this.el).draggable(draggable);
       $(this.el).data('backbone-view', this);
 
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
@@ -187,6 +199,14 @@
       }
 
       return this;
+    },
+    getHelper: function() {
+      if ($(this.el).parent().attr('id') == 'fridge') {
+        return 'original';
+      }
+      return function(event) {
+        return $(event.target).clone().css({ 'background': 'white', 'z-index': 1000 }).appendTo('#fridge');
+      };
     }
   });
 
@@ -207,6 +227,10 @@
 
       $(self.el).droppable({
         drop: function(event, ui) {
+          // We only need to do this on mobile devices.
+          if (barVisible) {
+            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
+          }
           var dropped = $(ui.draggable).data('backbone-view').model;
           window.MagPo.app.poem.words.remove(dropped);
           window.MagPo.app.poemView.render();
@@ -270,7 +294,6 @@
         // Bail if this handle's drawer is already open.
         if ($(this).hasClass('open-handle')) {
           $(this).removeClass('open-handle');
-          $(self.model.view.$el).removeClass('open-drawer').slideUp(400);
           return;
         }
         $('.open-handle').removeClass('open-handle');
@@ -279,13 +302,70 @@
           $('.open-drawer').removeClass('open-drawer').hide();
           $(self.model.view.$el).addClass('open-drawer').show();
         }
-        else {
-          $(self.model.view.$el).addClass('open-drawer').slideDown(400);
-        }
       });
     }
   });
+  /**
+   * Defines the moving "word-bar" panel.
+   */
+  var WordBarView = Backbone.View.extend({
+    el: $('#drawers-container'),
+    events: {
+      'click #word-bar': 'toggleBar'
+    },
+    initialize: function() {
+      this.hiddenHeight = (($(window).height() - $('#word-bar').height()) * -1);
+      this.render();
+    },
+    render: function() {
+      var self = this;
+      if (barVisible) {
+        $('#drawers-container').css('height', $(window).height());
+        $('#drawers-container').css('top', self.hiddenHeight);
+        $('#word-bar').css('bottom', 0);
+                $('#word-bar').droppable({
+          over: function (event, ui) {
+            $('#word-bar').text('x remove x');
+          },
+          out: function (event, ui) {
+            $('#word-bar').text('^ words ^');
+          },
+          drop: function(event, ui) {
+            $('#word-bar').text('^ words ^');
+            var dropped = $(ui.draggable).data('backbone-view').model;
+            window.MagPo.app.poem.words.remove(dropped);
+            window.MagPo.app.poemView.render();
 
+            var siblings = $(ui.draggable).nextAll();
+            // Unset the top and left values for this item since its drawer is
+            // currently hidden and off the screen.
+            $(ui.draggable)
+              .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
+              .css('top', '')
+              .css('left', '')
+              .draggable(
+                'option',
+                'helper',
+                $(ui.draggable).data('backbone-view').getHelper()
+              );
+            repositionSiblings(siblings);
+          }
+        });
+      }
+    },
+    toggleBar: function() {
+      var self = this;
+      if ($('#drawers-container').hasClass('down')) {
+        $('#word-bar').text('^ words ^');
+        $('#drawers-container').css('top', self.hiddenHeight);
+      }
+      else {
+        $('#word-bar').text('v poem  v');
+        $('#drawers-container').css('top', 0);
+      }
+      $('#drawers-container').toggleClass('down');
+    }
+  });
   /**
    * Defines the fridge (workspace) view.
    *
@@ -295,15 +375,19 @@
     el: $('#fridge'),
     initialize: function() {
       var self = this;
-      self.fridgeOffset = $(self.el).offset();
 
       $(self.el).droppable({
         drop: function(event, ui) {
+          // We only need to do this on mobile devices.
+          if (barVisible) {
+            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
+          }
+          fridgeOffset = $(self.el).offset();
           var dropped = $(ui.draggable).data('backbone-view').model;
           var dropOffset = ui.offset;
           resultOffset = {};
-          resultOffset.top = dropOffset.top - self.fridgeOffset.top;
-          resultOffset.left = dropOffset.left - self.fridgeOffset.left;
+          resultOffset.top = dropOffset.top - fridgeOffset.top;
+          resultOffset.left = dropOffset.left - fridgeOffset.left;
           if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
             // reset its position relative to the fridge.
@@ -446,13 +530,11 @@
           var view = new ShareDialogView();
           var fridgeOffset = $('#fridge').offset();
           view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
-
-          $('#shareURL').text(document.URL);
-          $('#twitterLink').attr('data-url', document.URL);
-          var string = window.MagPo.app.poem.stringify(false);
-          $('#twitterLink').attr('data-text', string);
-
           twttr.widgets.load();
+
+          if (!window.MagPo.app.user) {
+            $('#loginInfo').show();
+          }
         }
 
         // Remove the listener.
@@ -480,34 +562,38 @@
       closeImageUrl: 'img/close-modal.png',
       closeImageHoverUrl: 'img/close-modal-hover.png'
     },
+    events: {
+      'click #loginModal': 'login',
+    },
     twitterLinkTemplate: _.template($('#twitter-link-template').html()),
     template: _.template($('#share-modal-template').html()),
     render: function() {
-      var bp = window.MagPo.breakpoints[window.MagPo.app.poem.get('breakpoint')];
-      var cols = Math.floor($('#fridge').width() / bp.charWidth);
+      // Log errors here rather than throwing them since we don't want this
+      // functionality to break the rest of the app.
+      var string = '';
+      try {
+        string = window.MagPo.app.poem.stringify();
+      }
+      catch (exception) {
+        console.error(exception.message);
+      }
+
       var twitter = {
         related: 'fourkitchens',
         url: document.URL
       };
-      var twitterLink = this.twitterLinkTemplate({ twitter: twitter });
+      var twitterLink = this.twitterLinkTemplate({ twitter: twitter, string: string });
+
       $(this.el).html(this.template({
-        cols: cols,
         url: document.URL,
         twitter: twitter,
         twitterLink: twitterLink
       }));
 
-      // Log errors here rather than throwing them since we don't want this
-      // functionality to break the rest of the app.
-      try {
-        var string = window.MagPo.app.poem.stringify(false);
-        $('#poemDialog', this.el).text(string);
-      }
-      catch (exception) {
-        console.error(exception.message);
-        $('#poemDialog', this.el).text('we dun fucked up');
-      }
       return this;
+    },
+    login: function() {
+      window.MagPo.app.authView._login();
     }
   });
 
@@ -668,7 +754,11 @@
    */
   function repositionSiblings(siblings) {
     _(siblings).each(function(sibling) {
-      var sModel = $(sibling).data('backbone-view').model;
+      var sModel = $(sibling).data('backbone-view');
+      if (!sModel) {
+        return;
+      }
+      sModel = sModel.model;
       $(sibling).position({
         of: '#fridge',
         my: 'left top',
@@ -704,7 +794,6 @@
     self.timeout = false;
     self.user = false;
     self.delay = 1000;
-
     // TODO - detect the correct breakpoint.
     self.poem = new Poem({ breakpoint: 'desktop' });
 
@@ -712,6 +801,7 @@
     self.poemView = new PoemView({ collection: self.poem });
     self.shareLinkView = new ShareLinkView();
     self.controlsView = new ControlsView();
+    self.wordBarView = new WordBarView();
 
     var shown = false;
     self.drawers = {};

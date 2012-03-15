@@ -1,137 +1,166 @@
+/* general styles that don't change based on the viewport */
+#drawers-container {
+-moz-transition: all 1s ease-in-out;
+-webkit-transition: all 1s ease-in-out;
+-o-transition: all 1s ease-in-out;
+transition: all 1s ease-in-out;
+
+}
 /* Anything less than 600px wide will default to these settings */
 #main {
   min-height: 100%;
-  width: 600px;
+  width: 100%;
 }
 #workspace {
-  margin: auto;
   min-height: 100%;
-  width: 600px;
+  width: 100%;
   background: #65B561;
   position: relative;
-  box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
 }
 
 #fridge {
-  width: 600px;
-  margin: 20px 0px;
-  height: 300px;
+  width: 480px;
+  height: 310px;
   position: relative;
+  margin: 0px;
 }
-
-#drawers-container {
-  height: 300px;
+#word-bar {
+  text-align: center;
+  background: grey;
   width: 100%;
+  z-index: 100;
+  position: absolute;
+}
+#drawers-container {
+  z-index: 300;
+  width: 100%;
+  position: absolute;
+}
+#drawers-container.down {
+  top: 0px;
 }
 .drawer {
   background: #DFD091;
   height: 200px;
-  width: 586px;
-  padding: 7px;
+  width: 100%;
 }
-/* For phones in portrate we want display a message.*/
+#drawer-handles {
+}
+footer {
+  display: none;
+}
+/* For phones in portrait we want display a message.*/
 @media only screen and (max-width: 599px) and (orientation:portrait) {
   #turn-phone {
     height: 100%;
     z-index: 10000;
     position: absolute;
     display: block;
-    background: red;
+    background: pink;
+    width: 100%;
   }
   #workspace {
     display: none;
   }
 }
 /* Tablets with a 600px width (in portrait mode) */
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 600px) and (orientation:portrait) {
   #main {
     min-height: 100%;
     width: 600px;
   }
-
+  #word-bar {
+    display:none;
+  }
   #workspace {
-    margin: auto;
     min-height: 100%;
     width: 600px;
     background: #65B561;
     position: relative;
-    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   }
 
   #fridge {
     width: 600px;
     margin: 20px 0px;
-    height: 300px;
+    height: 387px;
     position: relative;
   }
 
   #drawers-container {
-    height: 300px;
-    width: 100%;
+    position: relative;
+    top:0px;
   }
   .drawer {
     background: #DFD091;
     height: 200px;
-    width: 586px;
-    padding: 7px;
-  }          
+    width: 100%;
+  }
 }
 
 /* Tablets with a 768 with (in portrait mode) */
-@media only screen and (min-width: 768px) { 
+@media only screen and (min-width: 768px) {
   #main {
     min-height: 100%;
-    width: 768px;
+    width: 100%;
   }
-  
+
   #workspace {
-    margin: auto;
     min-height: 100%;
-    width: 768px;
+    width: 100%;
     background: #65B561;
     position: relative;
-    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   }
 
   #fridge {
     width: 600px;
-    margin: 20px 84px;
-    height: 300px;
+    height: 387px;
     position: relative;
+    margin: 0px auto;
   }
-
-  #drawers-container {
-    height: 300px;
-    width: 100%;
+  #drawers {
   }
-/*
-  body {
-    font-family: 'DejaVuSansMonoBook';
-    font-size: 1.5em;
-    color: #4d4d4d;
-  }
-*/  
   .drawer {
     background: #DFD091;
     height: 200px;
-    width: 754px;
-    padding: 7px;
-  }        
+    width: 100%;
+  }
+  footer {
+    display: block;
+  }
 }
+/* for devices  in landscape and smaller than 1024 wide */
+@media only screen and (min-width:481px) and (max-width:1023px) and (orientation:landscape) {
+  #workspace {
+    width: 100%;
+  }
 
-/* 960px+ for Desktop, Laptop, or Tablet (in landscape mode) */
-@media only screen and (min-width: 960px) {
+  #word-bar {
+    text-align: center;
+    width: 100%;
+    display: block;
+    z-index: 100;
+  }
+  footer {
+   display: none;
+  }
+}
+/* for devices in portrait with a screen size wider than 600 */
+@media only screen and (min-width:600px) and (orientation:portrait) {
+}
+/* 1024px+ for Desktop, Laptop, or Tablet (in landscape mode) */
+@media only screen and (min-width: 1024px) {
+  #drawers-container {
+    z-index: 1;
+    position: relative;
+    top: 0px;
+  }
   #main {
     min-height: 100%;
     width: 960px;
   }
-
+  #word-bar {
+    display: none;
+  }
   #workspace {
     margin: auto;
     min-height: 100%;
@@ -146,25 +175,17 @@
   #fridge {
     width: 600px;
     margin: 20px 180px;
-    height: 300px;
+    height: 387px;
     position: relative;
+    margin: 0px auto;
   }
-
   #drawers-container {
     height: 300px;
     width: 100%;
   }
-/*
-  body {
-    font-family: 'DejaVuSansMonoBook';
-    font-size: 1.5em;
-    color: #4d4d4d;
-  }
-*/  
   .drawer {
     background: #DFD091;
     height: 200px;
-    width: 946px;
-    padding: 7px;
-  }       
+    width: 100%;
+  }
 }

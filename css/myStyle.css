@@ -41,6 +41,7 @@ body {
   cursor: move;
   float:left;
   background: white;
+  margin: 4px 0 0 4px;
 }
 .ui-draggable-dragging {
   -webkit-box-shadow: 8px 8px 6px #888;
@@ -49,39 +50,40 @@ body {
 .tile span {
   margin: .3em;
 }
-
+#drawers-container {
+  background: #DFD091;
+}
 #drawers {
-  box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
 }
 .drawer {
   background: #DFD091;
 }
 #drawer-handles {
+  margin: 0px;
+  padding: 0px;
   list-style: none;
   color: #ffffff;
+  background: #DFD091;
 }
 .drawer-handle {
   display: inline;
   cursor: pointer;
   background: #735522;
 }
-
+.open-handle {
+  background: #66B360;
+}
 #fridge {
   width: 560px;
   margin: 20px 200px;
   height: 300px;
   position: relative;
   background: #8FBEDE;
-  box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
-  -moz-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);
-  -webkit-box-shadow: 7px 7px 24px rgba(0, 0, 0, 0.80);  
 }
 
-#shareModal {
-}
+#shareModal,
 #messageModal {
+  font-size: .75em;
   width: 350px;
   padding: 20px;
 }
@@ -103,6 +105,7 @@ footer {
   cursor: pointer;
 }
 #login,
+#loginModal,
 #logout {
   cursor: pointer;
 }
