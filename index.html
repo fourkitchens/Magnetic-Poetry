@@ -46,16 +46,24 @@
   <!-- Templates -->
   <script type="text/template" id="twitter-link-template">
     <div>
-      <a href="https://twitter.com/share" class="twitter-share-button" id="twitterLink" data-related="<%= twitter.related %>" data-url="<%= twitter.url %>" data-lang="en" data-size="large" data-count="none">Tweet</a>
+      <a href="https://twitter.com/share" class="twitter-share-button" id="twitterLink" data-related="<%= twitter.related %>" data-url="<%= twitter.url %>" data-lang="en" data-size="large" data-count="none" data-text="<%= string %>">Tweet</a>
     </div>
   </script>
 
   <script type="text/template" id="share-modal-template">
     <div id="shareModal">
       <p>Poem Saved!</p>
-      <textarea id="poemDialog" rows="2" cols="<%= cols %>"></textarea>
-      <p id="shareURL"><%= url %></p>
+      <a id="shareURL" href="<%= url %>">Permalink</a>
       <div id="tweetLinkContainer"><%= twitterLink %></div>
+      <div id="loginInfo" style="display:none">
+        <span>
+          <img id="loginModal" src="//si0.twimg.com/images/dev/buttons/sign-in-with-twitter-d.png" alt="Sign in with Twitter" /> to
+        </span>
+        <ul>
+          <li>edit your poem later</li>
+          <li>let other people know that you made this one</li>
+        </ul>
+      </div>
     </div>
   </script>
 

@@ -446,13 +446,11 @@
           var view = new ShareDialogView();
           var fridgeOffset = $('#fridge').offset();
           view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
-
-          $('#shareURL').text(document.URL);
-          $('#twitterLink').attr('data-url', document.URL);
-          var string = window.MagPo.app.poem.stringify(false);
-          $('#twitterLink').attr('data-text', string);
-
           twttr.widgets.load();
+
+          if (!window.MagPo.app.user) {
+            $('#loginInfo').show();
+          }
         }
 
         // Remove the listener.
@@ -480,34 +478,38 @@
       closeImageUrl: 'img/close-modal.png',
       closeImageHoverUrl: 'img/close-modal-hover.png'
     },
+    events: {
+      'click #loginModal': 'login',
+    },
     twitterLinkTemplate: _.template($('#twitter-link-template').html()),
     template: _.template($('#share-modal-template').html()),
     render: function() {
-      var bp = window.MagPo.breakpoints[window.MagPo.app.poem.get('breakpoint')];
-      var cols = Math.floor($('#fridge').width() / bp.charWidth);
+      // Log errors here rather than throwing them since we don't want this
+      // functionality to break the rest of the app.
+      var string = '';
+      try {
+        string = window.MagPo.app.poem.stringify();
+      }
+      catch (exception) {
+        console.error(exception.message);
+      }
+
       var twitter = {
         related: 'fourkitchens',
         url: document.URL
       };
-      var twitterLink = this.twitterLinkTemplate({ twitter: twitter });
+      var twitterLink = this.twitterLinkTemplate({ twitter: twitter, string: string });
+
       $(this.el).html(this.template({
-        cols: cols,
         url: document.URL,
         twitter: twitter,
         twitterLink: twitterLink
       }));
 
-      // Log errors here rather than throwing them since we don't want this
-      // functionality to break the rest of the app.
-      try {
-        var string = window.MagPo.app.poem.stringify(false);
-        $('#poemDialog', this.el).text(string);
-      }
-      catch (exception) {
-        console.error(exception.message);
-        $('#poemDialog', this.el).text('we dun fucked up');
-      }
       return this;
+    },
+    login: function() {
+      window.MagPo.app.authView._login();
     }
   });
 
