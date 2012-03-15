@@ -11,6 +11,22 @@ body {
   background: #66B360;
   color: #ffffff;
 }
+
+menu {
+  background: grey;
+  margin: 0;
+}
+menu ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+menu ul li {
+  padding: 2px 0 0 2px;
+  float: left;
+}
+
+
 #turn-phone {
   display:none;
 }
@@ -74,9 +90,7 @@ body {
   background: #66B360;
 }
 #fridge {
-  width: 560px;
   margin: 20px 200px;
-  height: 300px;
   position: relative;
   background: #8FBEDE;
 }
@@ -84,8 +98,11 @@ body {
 #shareModal,
 #messageModal {
   font-size: .75em;
-  width: 350px;
   padding: 20px;
+  min-width: 350px;
+  max-height: 200px;
+  max-width: 85%;
+  overflow-y: scroll;
 }
 #poemDialog {
   margin: 10px 20px;
@@ -101,6 +118,7 @@ footer {
   max-height: 100px;
   overflow-y: scroll;
 }
+#shareLinkMenu,
 #shareLink {
   cursor: pointer;
 }
@@ -109,3 +127,202 @@ footer {
 #logout {
   cursor: pointer;
 }
+
+/* general styles that don't change based on the viewport */
+#drawers-container {
+-moz-transition: all 1s ease-in-out;
+-webkit-transition: all 1s ease-in-out;
+-o-transition: all 1s ease-in-out;
+transition: all 1s ease-in-out;
+
+}
+/* Anything less than 600px wide will default to these settings */
+#main {
+  min-height: 100%;
+  width: 100%;
+}
+#workspace {
+  min-height: 100%;
+  width: 100%;
+  background: #65B561;
+  position: relative;
+}
+
+#fridge {
+  width: 480px;
+  height: 310px;
+  position: relative;
+  margin: 0px;
+}
+#word-bar {
+  background: grey;
+  width: 100%;
+  z-index: 100;
+  position: absolute;
+}
+#word-bar-handle {
+  float: left;
+  cursor: pointer;
+}
+#word-bar menu {
+  float: left;
+}
+#drawers-container {
+  z-index: 300;
+  width: 100%;
+  position: absolute;
+}
+#drawers-container.down {
+  top: 0px;
+}
+.drawer {
+  background: #DFD091;
+  height: 200px;
+  width: 100%;
+}
+#drawer-handles {
+}
+footer {
+  display: none;
+}
+/* For phones in portrait we want display a message.*/
+@media only screen and (max-width: 599px) and (orientation:portrait) {
+  #turn-phone {
+    height: 100%;
+    z-index: 10000;
+    position: absolute;
+    display: block;
+    background: pink;
+    width: 100%;
+  }
+  #workspace {
+    display: none;
+  }
+}
+/* Tablets with a 600px width (in portrait mode) */
+@media only screen and (min-width: 600px) and (orientation:portrait) {
+  #main {
+    min-height: 100%;
+    width: 600px;
+  }
+  #word-bar {
+    display:none;
+  }
+  #workspace {
+    min-height: 100%;
+    width: 600px;
+    background: #65B561;
+    position: relative;
+  }
+
+  #fridge {
+    width: 600px;
+    margin: 20px 0px;
+    height: 387px;
+    position: relative;
+  }
+
+  #drawers-container {
+    position: relative;
+    top:0px;
+  }
+  .drawer {
+    background: #DFD091;
+    height: 200px;
+    width: 100%;
+  }
+}
+
+/* Tablets with a 768 with (in portrait mode) */
+@media only screen and (min-width: 768px) {
+  #main {
+    min-height: 100%;
+    width: 100%;
+  }
+
+  #workspace {
+    min-height: 100%;
+    width: 100%;
+    background: #65B561;
+    position: relative;
+  }
+
+  #fridge {
+    width: 600px;
+    height: 387px;
+    position: relative;
+    margin: 0px auto;
+  }
+  #drawers {
+  }
+  .drawer {
+    background: #DFD091;
+    height: 200px;
+    width: 100%;
+  }
+  footer {
+    display: block;
+  }
+}
+/* for devices  in landscape and smaller than 1024 wide */
+@media only screen and (min-width:481px) and (max-width:1023px) and (orientation:landscape) {
+  #workspace {
+    width: 100%;
+  }
+
+  #word-bar {
+    text-align: center;
+    width: 100%;
+    display: block;
+    z-index: 100;
+  }
+  footer {
+   display: none;
+  }
+}
+/* for devices in portrait with a screen size wider than 600 */
+@media only screen and (min-width:600px) and (orientation:portrait) {
+}
+/* 1024px+ for Desktop, Laptop, or Tablet (in landscape mode) */
+@media only screen and (min-width: 1024px) {
+  #drawers-container {
+    z-index: 1;
+    position: relative;
+    top: 0px;
+  }
+  #main {
+    min-height: 100%;
+    width: 960px;
+  }
+  #word-bar {
+    display: none;
+  }
+  #workspace {
+    margin: auto;
+    min-height: 100%;
+    width: 960px;
+    background: #65B561;
+    position: relative;
+    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
+  }
+
+  #fridge {
+    width: 600px;
+    margin: 20px 180px;
+    height: 387px;
+    position: relative;
+    margin: 0px auto;
+  }
+  #drawers-container {
+    height: 300px;
+    width: 100%;
+  }
+  .drawer {
+    background: #DFD091;
+    height: 200px;
+    width: 100%;
+  }
+}
+
