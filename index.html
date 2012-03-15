@@ -28,9 +28,9 @@
 </head>
 
 <body>
+  <menu>
+  </menu>
   <div id="workspace">
-    <header>
-    </header>
     <div id="drawers-container">
       <div id="drawers" role="main" class="group"></div>
       <ul id="drawer-handles"></ul>
@@ -38,7 +38,6 @@
     </div>
     <div id="fridge" class="brushed-metal"></div>
     <footer>
-      <div id="controls"></div>
       <div id="shareLink"></div>
       <div id="auth"></div>
     </footer>
@@ -74,10 +73,13 @@
   </script>
 
   <script type="text/template" id="controls-template">
-    <a href="<%= parentLink %>" id="parent-link" style="display:none">&laquo; In response to</a>
-    <div id="responses-wrapper" style="display:none">
-      <span id="responses-handle">Responses</span>
-      <div id="responses" style="display:none"></div>
+    <ul>
+      <li id="parent-link" style="display:none" class="menu-item">
+        <a href="<%= parentLink %>" id="parent-link" style="display:none" alt="In response to">&laquo;</a>
+      </li>
+      <li id="responses-handle" class="menu-item">
+        <span>Responses</span>
+      </li>
     </div>
   </script>
 

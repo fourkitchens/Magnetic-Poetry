@@ -626,7 +626,7 @@
    * Defines the controls view.
    */
   var controlsView = window.ControlsView = Backbone.View.extend({
-    el: '#controls',
+    el: 'menu',
     events: {
       'click #responses-handle': 'toggleResponses'
     },
@@ -643,9 +643,11 @@
         parentLink: parentLink
       }));
 
+/*
       window.MagPo.app.poem.children.each(function(child) {
         $('#responses').append(self.responseTemplate(child.toJSON()));
       });
+*/
 
       if (parent) {
         $('#parent-link').show();
