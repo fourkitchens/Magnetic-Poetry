@@ -175,7 +175,10 @@
       if (barVisible) {
         draggable.helper = this.getHelper();
         draggable.start = function(event, ui) {
-          $('#drawers-container').css('top', window.MagPo.app.wordBarView.hiddenHeight);
+          // Only do this if the word is in a drawer.
+          if (event.target.parentElement.id !== 'fridge') {
+            window.MagPo.app.wordBarView.toggleBar();
+          }
         };
       }
 
@@ -307,6 +310,9 @@
    */
   var WordBarView = Backbone.View.extend({
     el: $('#drawers-container'),
+    events: {
+      'click #word-bar': 'toggleBar'
+    },
     initialize: function() {
       this.hiddenHeight = (($(window).height() - $('#word-bar').height()) * -1);
       this.render();
@@ -317,27 +323,15 @@
         $('#drawers-container').css('height', $(window).height());
         $('#drawers-container').css('top', self.hiddenHeight);
         $('#word-bar').css('bottom', 0);
-        $('#word-bar').on('click', function(){
-          if ($('#drawers-container').hasClass('down')){
-            $('#drawers-container').toggleClass('down')
-            $(this).text('^ words ^');
-            $('#drawers-container').css('top', self.hiddenHeight);
-          } else {
-            $('#drawers-container').css('top', 0);
-            $('#drawers-container').toggleClass('down');
-            $(this).text('^ poem  ^');
-          }
-        });
-        $('#word-bar').droppable({
+                $('#word-bar').droppable({
           over: function (event, ui) {
-            $('#word-bar').text('remove');
+            $('#word-bar').text('x remove x');
           },
           out: function (event, ui) {
             $('#word-bar').text('^ words ^');
           },
           drop: function(event, ui) {
             $('#word-bar').text('^ words ^');
-            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
             var dropped = $(ui.draggable).data('backbone-view').model;
             window.MagPo.app.poem.words.remove(dropped);
             window.MagPo.app.poemView.render();
@@ -348,11 +342,28 @@
             $(ui.draggable)
               .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
               .css('top', '')
-              .css('left', '');
+              .css('left', '')
+              .draggable(
+                'option',
+                'helper',
+                $(ui.draggable).data('backbone-view').getHelper()
+              );
             repositionSiblings(siblings);
           }
         });
       }
+    },
+    toggleBar: function() {
+      var self = this;
+      if ($('#drawers-container').hasClass('down')) {
+        $('#word-bar').text('^ words ^');
+        $('#drawers-container').css('top', self.hiddenHeight);
+      }
+      else {
+        $('#word-bar').text('v poem  v');
+        $('#drawers-container').css('top', 0);
+      }
+      $('#drawers-container').toggleClass('down');
     }
   });
   /**
