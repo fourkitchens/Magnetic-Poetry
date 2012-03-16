@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'Bryant';
-    src: url('/css/webfonts/BryantWebMedium.eot'); /* IE9 Compat Modes */
-    src: url('/css/webfonts/BryantWebMedium.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-    url('/css/webfonts/BryantWebMedium.woff') format('woff'), /* Modern Browsers */
-    url('/css/webfonts/BryantWebMedium.ttf')  format('truetype'), /* Safari, Android, iOS */
+    src: url('webfonts/BryantWebMedium.eot'); /* IE9 Compat Modes */
+    src: url('webfonts/BryantWebMedium.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('webfonts/BryantWebMedium.woff') format('woff'), /* Modern Browsers */
+    url('webfonts/BryantWebMedium.ttf')  format('truetype'); /* Safari, Android, iOS */
 }
 
 body {
