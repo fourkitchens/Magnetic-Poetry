@@ -205,7 +205,19 @@
         return 'original';
       }
       return function(event) {
-        return $(event.target).clone().css({ 'background': 'white', 'z-index': 1000 }).appendTo('#fridge');
+        // TODO - figure out why adding the tiles class to this completely blows
+        // up and makes everything look wrong.
+        return $(event.target)
+          .clone()
+          .css({
+            'z-index': 1000,
+            'background': 'white',
+            'padding': '2px 6px 2px 6px',
+            '-webkit-box-shadow': '2px 2px 0px 0px #666',
+            '-moz-box-shadow': '2px 2px 0px 0px #666',
+            'box-shadow': '2px 2px 0px 0px #666'
+          })
+          .appendTo('#fridge');
       };
     }
   });
@@ -647,7 +659,7 @@
 
       // Move the menu into the word-bar on mobile devices.
       if (barVisible) {
-        $('menu').appendTo('#word-bar');
+        $('menu').prependTo('#word-bar');
       }
 
       if (window.MagPo.app.user) {

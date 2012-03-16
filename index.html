@@ -30,7 +30,8 @@
   <menu>
     <ul id="menu" class="group">
       <li id="login-menu" class="menu-item" title="Login">Login</li>
-      <li id="shareLinkMenu" class="menu-item" title="Share">S</li>
+      <li id="new-poem" class="menu-item" title="New"><a href="/magpo/"><img src="img/icon-create-new.png" alt="New" /></a></li>
+      <li id="shareLinkMenu" class="menu-item" title="Share"><img src="img/icon-share.png" alt="Share" /></li>
       <li id="responses-handle" style="display:none" class="menu-item" title="Responses">R</li>
     </ul>
   </menu>
@@ -43,7 +44,7 @@
       </div>
       <div id="fridge" class="brushed-metal"></div>
       <footer>
-        <div id="shareLink"></div>
+        <div id="shareLinkWrapper"><span id="shareLink"></span></div>
         <div id="auth"></div>
       </footer>
     </div>
@@ -59,7 +60,7 @@
 
   <script type="text/template" id="share-modal-template">
     <div id="shareModal">
-      <p>Poem Saved!</p>
+      <span>Poem Saved!</span>
       <a id="shareURL" href="<%= url %>">Permalink</a>
       <div id="tweetLinkContainer"><%= twitterLink %></div>
       <div id="loginInfo" style="display:none">
@@ -96,7 +97,7 @@
   </script>
 
   <script type="text/template" id="avatar-template">
-    <img id="avatar" src="http://api.twitter.com/1/users/profile_image?screen_name=<%= user %>&size=mini" alt="Logout" />
+    <img id="avatar" src="http://api.twitter.com/1/users/profile_image?screen_name=<%= user %>" alt="Logout" />
   </script>
 
   <!-- end of templates -->

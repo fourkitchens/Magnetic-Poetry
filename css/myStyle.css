@@ -151,9 +151,30 @@ footer {
   max-height: 100px;
   overflow-y: scroll;
 }
-#shareLinkMenu,
-#shareLink {
+#shareLink,
+#shareLinkMenu {
   cursor: pointer;
+}
+#shareLink {
+  font-family: Bryant, arial, san-serif;
+  color: #ffffff;
+  font-size: 27px;
+  padding: 10px;
+  text-decoration: none;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-box-shadow: 0px 1px 3px #666666;
+  -moz-box-shadow: 0px 1px 3px #666666;
+  text-shadow: 1px 1px 3px #666666;
+  border: solid #CE9E32 1px;
+  background: #E5BB53;
+}
+#shareLink:hover {
+  background: #CE9E32;
+}
+#avatar {
+  width: 42px;
+  height: 42px;
 }
 #login,
 #loginModal,
@@ -193,16 +214,17 @@ transition: all 1s ease-in-out;
   position: absolute;
 }
 #word-bar-handle {
-  float: left;
+  float: right;
   cursor: pointer;
 }
 #word-bar menu {
-  float: left;
+  float: right;
 }
 #drawers-container {
   z-index: 300;
   width: 100%;
   position: absolute;
+  background: #9AC3A5;
 }
 #drawers-container.down {
   top: 0px;
@@ -282,8 +304,6 @@ footer {
     position: relative;
     margin: 0px auto;
   }
-  #drawers {
-  }
   .drawer {
     height: 200px;
     width: 100%;
@@ -317,6 +337,9 @@ footer {
     z-index: 1;
     position: relative;
     top: 0px;
+    background: none;
+    height: 300px;
+    width: 100%;
   }
   #main {
     min-height: 100%;
@@ -341,10 +364,6 @@ footer {
     height: 387px;
     position: relative;
     margin: 0px auto;
-  }
-  #drawers-container {
-    height: 300px;
-    width: 100%;
   }
   .drawer {
     height: 200px;
