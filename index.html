@@ -19,7 +19,6 @@
 
   <!-- CSS concatenated and minified via build script-->
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/fontkit/fontsheet.css">
   <link rel="stylesheet" href="css/myStyle.css">
   <!-- end CSS-->
 
@@ -36,17 +35,19 @@
     </ul>
   </menu>
   <div id="workspace">
-    <div id="drawers-container">
-      <div id="drawers" role="main" class="group"></div>
-      <ul id="drawer-handles"></ul>
-      <div id="word-bar"><span id="word-bar-handle">^ words ^</span></div>
+    <div id="workspace-inner">
+      <div id="drawers-container">
+        <ul id="drawer-handles"></ul>
+        <div id="drawers" role="main" class="group"></div>
+        <div id="word-bar"><span id="word-bar-handle">^ words ^</span></div>
+      </div>
+      <div id="fridge" class="brushed-metal"></div>
+      <footer>
+        <div id="shareLink"></div>
+        <div id="auth"></div>
+      </footer>
     </div>
-    <div id="fridge" class="brushed-metal"></div>
-    <footer>
-      <div id="shareLink"></div>
-      <div id="auth"></div>
-    </footer>
-  </div> <!--! end of #container -->
+  </div> <!--! end of #workspace -->
 
   <div id="turn-phone">Please turn your phone.</div>
   <!-- Templates -->

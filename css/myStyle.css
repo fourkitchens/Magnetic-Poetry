@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'Bryant';
+    src: url('/css/webfonts/BryantWebMedium.eot'); /* IE9 Compat Modes */
+    src: url('/css/webfonts/BryantWebMedium.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('/css/webfonts/BryantWebMedium.woff') format('woff'), /* Modern Browsers */
+    url('/css/webfonts/BryantWebMedium.ttf')  format('truetype'), /* Safari, Android, iOS */
+}
+
+body {
+  font-family: 'Bryant', 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 1.5em;
+  color: #4d4d4d;
+}
+
 html {
   height: 100%;
 }
@@ -5,6 +19,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  background: url('../img/wallpaper-background.png');
 }
 ::selection,
 ::-moz-selection {
@@ -13,25 +28,37 @@ body {
 }
 
 menu {
-  background: grey;
+  background: #EEBD54;
   margin: 0;
 }
 menu ul {
-  margin: 0;
+  margin: 0 10px 0 0;
   padding: 0;
   list-style: none;
 }
 menu ul li {
   padding: 2px 0 0 2px;
-  float: left;
+  float: right;
 }
-
-
 #turn-phone {
   display:none;
 }
 #workspace {
-  background: #65B561;
+  height: 100%;
+}
+#workspace-inner {
+  width:100%;
+  margin:auto;
+  height: 100%;
+  min-height: 100%;
+  background: #b8e76c; /* Old browsers */
+  background: -moz-linear-gradient(left,  #b8e76c 0%, #abcaae 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%,#b8e76c), color-stop(100%,#abcaae)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left,  #b8e76c 0%,#abcaae 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left,  #b8e76c 0%,#abcaae 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(left,  #b8e76c 0%,#abcaae 100%); /* IE10+ */
+  background: linear-gradient(left,  #b8e76c 0%,#abcaae 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b8e76c', endColorstr='#abcaae',GradientType=1 ); /* IE6-9 */
 }
 
 /* clearfix group */
@@ -47,11 +74,6 @@ menu ul li {
     zoom:1; /* For IE 6/7 (trigger hasLayout) */
 }
 
-body {
-  font-family: 'DejaVuSansMonoBook';
-  font-size: 1.5em;
-  color: #4d4d4d;
-}
 
 .tiles {
   cursor: move;
@@ -66,33 +88,24 @@ body {
 .tile span {
   margin: .3em;
 }
-#drawers-container {
-  background: #DFD091;
-}
-#drawers {
-}
-.drawer {
-  background: #DFD091;
-}
 #drawer-handles {
   margin: 0px;
   padding: 0px;
   list-style: none;
-  color: #ffffff;
-  background: #DFD091;
+  padding-left:10%;
 }
 .drawer-handle {
   display: inline;
   cursor: pointer;
-  background: #735522;
 }
 .open-handle {
-  background: #66B360;
 }
 #fridge {
   margin: 20px 200px;
   position: relative;
-  background: #8FBEDE;
+  background: #9AC3A5;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
 }
 
 #shareModal,
@@ -144,7 +157,6 @@ transition: all 1s ease-in-out;
 #workspace {
   min-height: 100%;
   width: 100%;
-  background: #65B561;
   position: relative;
 }
 
@@ -155,7 +167,7 @@ transition: all 1s ease-in-out;
   margin: 0px;
 }
 #word-bar {
-  background: grey;
+  background: #EEBD54;
   width: 100%;
   z-index: 100;
   position: absolute;
@@ -176,7 +188,6 @@ transition: all 1s ease-in-out;
   top: 0px;
 }
 .drawer {
-  background: #DFD091;
   height: 200px;
   width: 100%;
 }
@@ -227,7 +238,6 @@ footer {
     top:0px;
   }
   .drawer {
-    background: #DFD091;
     height: 200px;
     width: 100%;
   }
@@ -243,7 +253,6 @@ footer {
   #workspace {
     min-height: 100%;
     width: 100%;
-    background: #65B561;
     position: relative;
   }
 
@@ -256,7 +265,6 @@ footer {
   #drawers {
   }
   .drawer {
-    background: #DFD091;
     height: 200px;
     width: 100%;
   }
@@ -301,13 +309,12 @@ footer {
     margin: auto;
     min-height: 100%;
     width: 960px;
-    background: #65B561;
+    background: url(../img/fridge-sides.png);
     position: relative;
-    box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -moz-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
-    -webkit-box-shadow: 0px 7px 24px rgba(0, 0, 0, 0.80);
   }
-
+  #workspace-inner {
+    width:867px;
+  }
   #fridge {
     width: 600px;
     margin: 20px 180px;
@@ -320,7 +327,6 @@ footer {
     width: 100%;
   }
   .drawer {
-    background: #DFD091;
     height: 200px;
     width: 100%;
   }
