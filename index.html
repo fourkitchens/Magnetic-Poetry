@@ -29,8 +29,8 @@
 <body>
   <menu>
     <ul id="menu" class="group">
-      <li id="login-menu" class="menu-item">Login</li>
-      <li id="shareLinkMenu" class="menu-item">S</li>
+      <li id="login-menu" class="menu-item" title="Login">Login</li>
+      <li id="shareLinkMenu" class="menu-item" title="Share">S</li>
       <li id="parent-link" style="display:none" class="menu-item"></li>
       <li id="responses-handle" style="display:none" class="menu-item">R</li>
     </ul>
@@ -92,6 +92,10 @@
     <img id="login" src="//si0.twimg.com/images/dev/buttons/sign-in-with-twitter-d.png" alt="Sign in with Twitter" />
     <span id="howdy" style="display:none">Howdy @<%= user %>!</span>
     <span id="logout" style="display:none">Logout</span>
+  </script>
+
+  <script type="text/template" id="avatar-template">
+    <img id="avatar" src="http://api.twitter.com/1/users/profile_image?screen_name=<%= user %>&size=mini" alt="Logout" />
   </script>
 
   <!-- end of templates -->

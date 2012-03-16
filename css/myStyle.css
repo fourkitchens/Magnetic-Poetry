@@ -25,6 +25,12 @@ menu ul li {
   padding: 2px 0 0 2px;
   float: left;
 }
+menu ul li.logged-in {
+  padding-top: 0;
+}
+.menu-item {
+  cursor: pointer;
+}
 
 
 #turn-phone {
