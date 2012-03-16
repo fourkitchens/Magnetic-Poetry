@@ -635,6 +635,7 @@
       'click #shareLinkMenu': 'openShareDialog',
       'click #responses-handle': 'showResponses'
     },
+    avatarTemplate: _.template($('#avatar-template').html()),
     menuResponseTemplate: _.template($('#menu-response-template').html()),
     responseTemplate: _.template($('#response-template').html()),
     render: function() {
@@ -650,7 +651,9 @@
       }
 
       if (window.MagPo.app.user) {
-        $('#login-menu').addClass('logged-in').text('Logout');
+        $('#login-menu')
+          .html(self.avatarTemplate({ user: window.MagPo.app.user.screen_name }))
+          .addClass('logged-in');
       }
     },
     toggleLogin: function(e) {
@@ -660,7 +663,9 @@
       }
       else {
         window.MagPo.app.authView.login();
-        $('#login-menu').toggleClass('logged-in').text('Logout');
+        $('#login-menu')
+          .html(avatarTemplate({ user: window.MagPo.app.user.screen_name }))
+          .toggleClass('logged-in');
       }
     },
     showResponses: function(event) {
