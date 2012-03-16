@@ -4,7 +4,8 @@
 
 #modalContainer {
   z-index: 99999;
-  position: relative;
+  position: absolute;
+  opacity: 0;
 }
 #modal-blanket {
   position: absolute;

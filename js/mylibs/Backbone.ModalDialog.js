@@ -113,11 +113,8 @@ var ModalView = Backbone.View.extend({
       .empty()
       .append($el)
       .css({
-        "opacity": 0,
-        "position": "absolute",
         "top": positionY + "px",
         "left": positionX + "px",
-        "z-index": 999999
       });
 
     this.setFocusOnFirstFormControl();
