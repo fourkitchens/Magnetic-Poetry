@@ -98,12 +98,20 @@ menu ul li {
   padding: 0px;
   list-style: none;
   padding-left:10%;
+  padding: 10px 0 10px 10%;
 }
 .drawer-handle {
+  padding: 0px 10px 0px 10px;
+  margin: 0px 20px 0px 0px;
   display: inline;
-  cursor: pointer;
+  cursor:pointer;
 }
 .open-handle {
+  color: black;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  background-color: #e5bb53;
 }
 #fridge {
   margin: 20px 200px;
