@@ -21,24 +21,28 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fontkit/fontsheet.css">
   <link rel="stylesheet" href="css/myStyle.css">
-  <link rel="stylesheet" href="css/responsive.css">
   <!-- end CSS-->
 
   <script src="js/libs/modernizr-2.5.3.min.js"></script>
 </head>
 
 <body>
+  <menu>
+    <ul id="menu" class="group">
+      <li id="login-menu" class="menu-item">Login</li>
+      <li id="shareLinkMenu" class="menu-item">S</li>
+      <li id="parent-link" style="display:none" class="menu-item"></li>
+      <li id="responses-handle" style="display:none" class="menu-item">R</li>
+    </ul>
+  </menu>
   <div id="workspace">
-    <header>
-    </header>
     <div id="drawers-container">
       <div id="drawers" role="main" class="group"></div>
       <ul id="drawer-handles"></ul>
-      <div id="word-bar">^ words ^</div>
+      <div id="word-bar"><span id="word-bar-handle">^ words ^</span></div>
     </div>
     <div id="fridge" class="brushed-metal"></div>
     <footer>
-      <div id="controls"></div>
       <div id="shareLink"></div>
       <div id="auth"></div>
     </footer>
@@ -73,12 +77,8 @@
     <div id="messageModal"><%= message %></div>
   </script>
 
-  <script type="text/template" id="controls-template">
-    <a href="<%= parentLink %>" id="parent-link" style="display:none">&laquo; In response to</a>
-    <div id="responses-wrapper" style="display:none">
-      <span id="responses-handle">Responses</span>
-      <div id="responses" style="display:none"></div>
-    </div>
+  <script type="text/template" id="menu-response-template">
+    <a href="<%= parentLink %>" alt="In response to">&laquo; In response to</a>
   </script>
 
   <script type="text/template" id="response-template">
