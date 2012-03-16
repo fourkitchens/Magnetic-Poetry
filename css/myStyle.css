@@ -355,6 +355,7 @@ footer {
     width: 960px;
     background: url(../img/fridge-sides.png);
     position: relative;
+    height: auto;
   }
   #workspace-inner {
     width:867px;
