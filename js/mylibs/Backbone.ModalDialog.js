@@ -2,8 +2,7 @@ var ModalView = Backbone.View.extend({
   name: "ModalView",
   modalBlanket: null,
   modalContainer: null,
-  defaultOptions:
-  {
+  defaultOptions: {
     fadeInDuration:150,
     fadeOutDuration:150,
     showCloseButton:true,
@@ -24,7 +23,6 @@ var ModalView = Backbone.View.extend({
   ensureModalContainer: function() {
     if( this.modalContainer == null) {
       this.modalContainer = $("<div id='modalContainer'>")
-        .css({ "z-index":"99999", "position":"relative" })
         .appendTo(document.body);
     }
 
@@ -36,14 +34,8 @@ var ModalView = Backbone.View.extend({
     if (this.modalBlanket.length == 0) {
       this.modalBlanket = $("<div id='modal-blanket'>")
         .css({
-          position: "absolute",
           top: $(document).scrollTop(), // Use document scrollTop so it's on-screen even if the window is scrolled
-          left: 0,
           height: $(document).height(), // Span the full document height...
-          width: "100%", // ...and full width
-          opacity: 0.5, // Make it slightly transparent
-          backgroundColor: "#000",
-          "z-index": 5000
         })
         .appendTo( document.body)
         .hide();
@@ -105,14 +97,6 @@ var ModalView = Backbone.View.extend({
     }
 
     $el.addClass("modal");
-    $el.css({
-      "border": "2px solid #111",
-      "background-color": "#fff",
-      "border-radius": "5px;",
-      "-webkit-box-shadow": "0px 0px 15px 4px rgba(0, 0, 0, 0.5)",
-      "-moz-box-shadow": "0px 0px 15px 4px rgba(0, 0, 0, 0.5)",
-      "box-shadow": "0px 0px 15px 4px rgba(0, 0, 0, 0.5)"
-    });
 
     this.showModalBlanket();
     this.keyup = _.bind(this.keyup, this);
@@ -127,7 +111,7 @@ var ModalView = Backbone.View.extend({
 
     this.ensureModalContainer()
       .empty()
-      .append( $el)
+      .append($el)
       .css({
         "opacity": 0,
         "position": "absolute",
@@ -142,21 +126,15 @@ var ModalView = Backbone.View.extend({
       var view = this;
       var image = $("<a href='#' id='modalCloseButton'>&#160;</a>")
         .css({
-          "position":"absolute",
-          "top":"-10px",
-          "right":"-10px",
-          "width":"32px",
-          "height":"32px",
           "background":"transparent url(" + view.options.closeImageUrl + ") top left no-repeat",
-          "text-decoration":"none"
         })
         .appendTo(this.modalContainer)
         .hover(
           function() {
-            $(this).css( "background-image", "url(" + view.options.closeImageHoverUrl + ") !important");
+            $(this).css("background-image", "url(" + view.options.closeImageHoverUrl + ") !important");
           },
           function() {
-            $(this).css( "background-image", "url(" + view.options.closeImageUrl + ") !important");
+            $(this).css("background-image", "url(" + view.options.closeImageUrl + ") !important");
           }
         )
         .click(function (event) {
