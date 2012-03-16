@@ -155,6 +155,9 @@ footer {
 #shareLinkMenu {
   cursor: pointer;
 }
+#shareLinkWrapper {
+  padding: 20px 0 20px 0;
+}
 #shareLink {
   font-family: Bryant, arial, san-serif;
   color: #ffffff;
@@ -368,6 +371,13 @@ footer {
   .drawer {
     height: 200px;
     width: 100%;
+  }
+  #fridge-handle {
+    float: left;
+    margin: -90px 0 0 40px;
+    width: 58px;
+    height: 659px;
+    background: url(../img/handle.png);
   }
 }
 
