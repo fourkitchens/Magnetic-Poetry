@@ -43,7 +43,7 @@
       </div>
       <div id="fridge" class="brushed-metal"></div>
       <footer>
-        <div id="shareLink"></div>
+        <div id="shareLinkWrapper"><span id="shareLink"></span></div>
         <div id="auth"></div>
       </footer>
     </div>
@@ -59,7 +59,7 @@
 
   <script type="text/template" id="share-modal-template">
     <div id="shareModal">
-      <p>Poem Saved!</p>
+      <span>Poem Saved!</span>
       <a id="shareURL" href="<%= url %>">Permalink</a>
       <div id="tweetLinkContainer"><%= twitterLink %></div>
       <div id="loginInfo" style="display:none">
