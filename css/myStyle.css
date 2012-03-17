@@ -354,6 +354,7 @@ footer {
     min-height: 100%;
     width: 960px;
     background: url(../img/fridge-sides.png);
+    background-size: auto auto;
     position: relative;
     height: auto;
   }
