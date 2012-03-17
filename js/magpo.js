@@ -1,7 +1,8 @@
 (function($) {
 
   var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
-  var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Try again later.';
+  var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Find a Web Chef!';
+  var failedToLoginTxt = 'Uh oh! There was a problem logging you in. Find a Web Chef!';
   var autosave = true;
   var isAuthor = true;
   var barVisible = $('#word-bar').is(':visible');
@@ -763,6 +764,10 @@
           // TODO - use cookies for people with ancient browsers?
           localStorage.setItem('MagPo_tUser', data.tUser);
           window.location = data.location;
+        },
+        error: function() {
+          var dialog = new MessageDialogView({ message: failedToLoginTxt });
+          dialog.render().showModal({});
         }
       });
     },
