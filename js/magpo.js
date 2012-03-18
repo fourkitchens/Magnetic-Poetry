@@ -186,6 +186,7 @@
       dispatch.on('orientationChange', function() {
         if (barVisible) {
           $(self.el).draggable('option', 'helper', self.getHelper());
+          // TODO - bind the dragstart if it hasn't been bound yet.
         }
         else {
           $(self.el).draggable('option', 'helper', 'original');
@@ -357,22 +358,29 @@
     },
     initialize: function() {
       var self = this;
-      self.hiddenHeight = (($(window).height() - $('#word-bar').height()) * -1);
+      var height = (300 - $('#word-bar').height());
+      if ($(window).height() <= 300) {
+        height = ($(window).height() - $('#word-bar').height());
+      }
+      self.hiddenHeight = height * -1;
       self.render();
 
       dispatch.on('orientationChange', function() {
-        self.hiddenHeight = (($(window).height() - $('#word-bar').height()) * -1);
-        // If the bar isn't being shown and the drawers height isn't set to
-        // its default max, resize some stuff.
-        if (!barVisible && $('#drawers-container').height() != 300) {
+        var height = (300 - $('#word-bar').height());
+        if ($(window).height() <= 300) {
+          height = ($(window).height() - $('#word-bar').height());
+        }
+        self.hiddenHeight = (height * -1);
+        // Resize the drawers according to the current state.
+        if (!barVisible) {
           $('#drawers-container').css({
             height: '300px',
             top: '0px'
           });
         }
-        else if (barVisible && $('#drawers-container').height() == 300) {
+        else if (barVisible) {
           $('#drawers-container').css({
-            height: $(window).height,
+            height: height,
             top: self.hiddenHeight
           });
         }
@@ -381,8 +389,12 @@
     render: function() {
       if (barVisible) {
         var self = this;
+        var height = (300 - $('#word-bar').height());
+        if ($(window).height() <= 300) {
+          height = ($(window).height() - $('#word-bar').height());
+        }
         $('#drawers-container').css({
-          height: $(window).height(),
+          height: height,
           top: self.hiddenHeight
         });
         $('#word-bar').css('bottom', 0);
