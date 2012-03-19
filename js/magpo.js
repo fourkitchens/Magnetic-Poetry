@@ -306,7 +306,9 @@
 
       dispatch.on('orientationChange', function() {
         if (barVisible) {
-          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+          var handlePadding = $('#drawer-handles').css('padding-top').replace('px', '') -
+            $('#drawer-handles').css('padding-bottom').replace('px', '');
+          var height = ($(window).height() - $('#word-bar').height() - ($('#drawer-handles').height() + handlePadding));
           $(self.el).css('height', height);
         }
       });
@@ -318,7 +320,9 @@
     },
     setHeight: function() {
       if (barVisible) {
-        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+        var handlePadding = $('#drawer-handles').css('padding-top').replace('px', '') -
+          $('#drawer-handles').css('padding-bottom').replace('px', '');
+        var height = ($(window).height() - $('#word-bar').height() - ($('#drawer-handles').height() + handlePadding));
         $(this.el).css('height', height);
       }
     },
@@ -376,17 +380,17 @@
     },
     initialize: function() {
       var self = this;
-      var height = (300 - $('#word-bar').height());
-      if ($(window).height() <= 300) {
-        height = ($(window).height() - $('#word-bar').height());
+      var height = ($(window).height() - $('#word-bar').height());
+      if ($(window).height() > 500) {
+        height = (300 - $('#word-bar').height());
       }
       self.hiddenHeight = height * -1;
       self.render();
 
       dispatch.on('orientationChange', function() {
-        var height = (300 - $('#word-bar').height());
-        if ($(window).height() <= 300) {
-          height = ($(window).height() - $('#word-bar').height());
+        var height = ($(window).height() - $('#word-bar').height());
+        if ($(window).height() > 500) {
+          height = (300 - $('#word-bar').height());
         }
         self.hiddenHeight = (height * -1);
         // Resize the drawers according to the current state.
@@ -407,9 +411,9 @@
     render: function() {
       if (barVisible) {
         var self = this;
-        var height = (300 - $('#word-bar').height());
-        if ($(window).height() <= 300) {
-          height = ($(window).height() - $('#word-bar').height());
+        var height = ($(window).height() - $('#word-bar').height());
+        if ($(window).height() > 500) {
+          height = (300 - $('#word-bar').height());
         }
         $('#drawers-container').css({
           height: height,
