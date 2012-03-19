@@ -7,6 +7,20 @@
   var isAuthor = true;
   var barVisible = $('#word-bar').is(':visible');
 
+  var supportsOrientationChange = "onorientationchange" in window;
+  var orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
+
+  // Reset barVisible on orientation changes.
+  var dispatch = _.clone(Backbone.Events);
+  window.addEventListener(
+    orientationEvent,
+    function() {
+      barVisible = $('#word-bar').is(':visible');
+      dispatch.trigger('orientationChange');
+    },
+    false
+  );
+
   /**
    * Defines sync behavior to the backend.
    *
@@ -164,8 +178,23 @@
       class: 'draggable tiles'
     },
     initialize: function() {
+      var self = this;
       this.model.view = this;
       this.model.bind('change', this.render, this);
+
+      // Update the helper and start events if necessary.
+      dispatch.on('orientationChange', function() {
+        if (barVisible) {
+          $(self.el).draggable('option', 'helper', self.getHelper());
+          // TODO - bind the dragstart if it hasn't been bound yet.
+          if (!$(self.el).data('draggable').options.start) {
+            $(self.el).draggable('option', 'start', self.dragstart);
+          }
+        }
+        else {
+          $(self.el).draggable('option', 'helper', 'original');
+        }
+      });
     },
     render: function() {
       var draggable = {
@@ -175,12 +204,7 @@
       // These options are only needed for mobile devices.
       if (barVisible) {
         draggable.helper = this.getHelper();
-        draggable.start = function(event, ui) {
-          // Only do this if the word is in a drawer.
-          if (event.target.parentElement.id !== 'fridge') {
-            window.MagPo.app.wordBarView.toggleBar();
-          }
-        };
+        draggable.start = this.dragstart;
       }
 
       $(this.el).draggable(draggable);
@@ -200,6 +224,16 @@
       }
 
       return this;
+    },
+    dragstart: function(event, ui) {
+      // Check barVisible again in case of an orientation change.
+      if (!barVisible) {
+        return;
+      }
+      // Only do this if the word is in a drawer.
+      if (event.target.parentElement.id !== 'fridge') {
+        window.MagPo.app.wordBarView.toggleBar();
+      }
     },
     getHelper: function() {
       if ($(this.el).parent().attr('id') == 'fridge') {
@@ -327,14 +361,46 @@
       'click #word-bar-handle': 'toggleBar'
     },
     initialize: function() {
-      this.hiddenHeight = (($(window).height() - $('#word-bar').height()) * -1);
-      this.render();
+      var self = this;
+      var height = (300 - $('#word-bar').height());
+      if ($(window).height() <= 300) {
+        height = ($(window).height() - $('#word-bar').height());
+      }
+      self.hiddenHeight = height * -1;
+      self.render();
+
+      dispatch.on('orientationChange', function() {
+        var height = (300 - $('#word-bar').height());
+        if ($(window).height() <= 300) {
+          height = ($(window).height() - $('#word-bar').height());
+        }
+        self.hiddenHeight = (height * -1);
+        // Resize the drawers according to the current state.
+        if (!barVisible) {
+          $('#drawers-container').css({
+            height: '300px',
+            top: '0px'
+          });
+        }
+        else if (barVisible) {
+          $('#drawers-container').css({
+            height: height,
+            top: self.hiddenHeight
+          });
+        }
+      });
     },
     render: function() {
-      var self = this;
       if (barVisible) {
-        $('#drawers-container').css('height', $(window).height());
-        $('#drawers-container').css('top', self.hiddenHeight);
+        var self = this;
+        var height = (300 - $('#word-bar').height());
+        if ($(window).height() <= 300) {
+          height = ($(window).height() - $('#word-bar').height());
+        }
+        $('#drawers-container').css({
+          height: height,
+          top: self.hiddenHeight
+        });
         $('#word-bar').css('bottom', 0);
         $('#word-bar-handle').droppable({
           over: function (event, ui) {
@@ -651,6 +717,16 @@
     avatarTemplate: _.template($('#avatar-template').html()),
     menuResponseTemplate: _.template($('#menu-response-template').html()),
     responseTemplate: _.template($('#response-template').html()),
+    initialize: function() {
+      dispatch.on('orientationChange', function() {
+        if (barVisible && $('menu').parent().attr('id') != 'word-bar') {
+          $('menu').prependTo('#word-bar');
+        }
+        else if (!barVisible && $('menu').parent().attr('id') == 'word-bar') {
+          $('menu').prependTo('body');
+        }
+      });
+    },
     render: function() {
       var self = this;
       $('#responses-handle').hide();
