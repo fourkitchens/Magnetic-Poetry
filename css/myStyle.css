@@ -107,18 +107,23 @@ menu ul li.logged-in {
 .tile span {
   margin: .3em;
 }
+#drawer-container {
+  overflow: auto;
+}
 #drawer-handles {
   margin: 0px;
   list-style: none;
   padding-left:10%;
   padding: 10px;
+  min-width: 700px;
   overflow: auto;
 }
 .drawer-handle {
-  padding: 0px 10px 0px 10px;
-  margin: 0px 10px 0px 0px;
+  padding: 0px 1em 0px 1em;
+  margin: 0px .2em 0px 0px;
   display: inline;
   cursor:pointer;
+  float: left;
 }
 .open-handle {
   color: black;
@@ -260,8 +265,7 @@ menu h1 {
  font-size: .8em;
 }
 #drawer-handles {
-  line-height: 1em;
-  font-size: .6em;
+  font-size: .7em;
   padding: 0;
 }
 footer {
