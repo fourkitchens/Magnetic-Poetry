@@ -109,7 +109,6 @@ menu ul li.logged-in {
 }
 #drawer-handles {
   margin: 0px;
-  padding: 0px;
   list-style: none;
   padding-left:10%;
   padding: 10px;
@@ -232,10 +231,14 @@ menu h1 {
   width: 100%;
   z-index: 100;
   position: absolute;
+  height: 44px;
+  background: #EEBD54 url('../img/logo-4k.png') no-repeat left center;
+  text-align: center;
 }
 #word-bar-handle {
-  float: right;
+  margin: auto;
   cursor: pointer;
+  text-align: center;
 }
 #word-bar menu {
   float: right;
@@ -255,6 +258,9 @@ menu h1 {
   overflow: auto;
 }
 #drawer-handles {
+  line-height: 1em;
+  font-size: .6em;
+  padding: 0;
 }
 footer {
   display: none;
@@ -383,8 +389,8 @@ footer {
     width: 100%;
     overflow: visible;
   }
-  .drawer {
-    overflow: visible;
+  #drawers-container.down {
+    background: none;
   }
   #main {
     min-height: 100%;
@@ -415,12 +421,18 @@ footer {
     position: relative;
     margin: 0px auto;
   }
+  #drawer-handles {
+    line-height: 1.4em;
+    font-size: 1em;
+    padding: 10px;
+  }
   #fourk-logo {
     display: block;
   }
   .drawer {
     height: 200px;
     width: 100%;
+    overflow: visible;
   }
   #fridge-handle {
     float: left;
