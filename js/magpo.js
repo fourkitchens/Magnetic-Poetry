@@ -307,7 +307,7 @@
 
       dispatch.on('orientationChange', function() {
         if (barVisible) {
-          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-container').height());
           $(self.el).css('height', height);
         }
       });
@@ -319,7 +319,7 @@
     },
     setHeight: function() {
       if (barVisible) {
-        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-container').height());
         $(this.el).css('height', height);
       }
     },

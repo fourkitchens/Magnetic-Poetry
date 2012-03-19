@@ -119,7 +119,7 @@ menu ul li.logged-in {
   overflow: auto;
 }
 .drawer-handle {
-  padding: 0px 1em 0px 1em;
+  padding: 0px 10px 0px 10px;
   margin: 0px .2em 0px 0px;
   display: inline;
   cursor:pointer;
