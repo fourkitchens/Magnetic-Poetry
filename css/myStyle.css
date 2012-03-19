@@ -257,7 +257,7 @@ menu h1 {
   overflow: auto;
 }
 .tiles {
- font-size: .8em;
+ font-size: .9em;
 }
 #drawer-handles {
   line-height: 1em;
@@ -302,9 +302,6 @@ footer {
     width: 100%;
     position: relative;
     height: 100%;
-  }
-  .tiles {
-    font-size: inherit;
   }
   #fridge {
     width: 600px;
@@ -376,9 +373,6 @@ footer {
     display: block;
     z-index: 100;
   }
-  .tiles {
-   font-size: inherit; 
-  }
   footer {
    display: none;
   }
@@ -421,9 +415,6 @@ footer {
   }
   #workspace-inner {
     width:867px;
-  }
-  .tiles {
-    font-size: inherit;
   }
   #fridge {
     width: 600px;
