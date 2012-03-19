@@ -304,19 +304,23 @@
         }
       });
 
-      _.bind(self.setHeight, self);
-      dispatch.on('orientationChange', self.setHeight);
-      self.setHeight();
+      dispatch.on('orientationChange', function() {
+        if (barVisible) {
+          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+          $(self.el).css('height', height);
+        }
+      });
+    },
+    render: function() {
+      $(this.el).attr('id', 'drawer-' + this.model.id);
+      $('#drawers').append(this.$el);
+      this.setHeight();
     },
     setHeight: function() {
       if (barVisible) {
         var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
         $(this.el).css('height', height);
       }
-    },
-    render: function() {
-      $(this.el).attr('id', 'drawer-' + this.model.id);
-      $('#drawers').append(this.$el);
     },
     addAll: function() {
       var self = this;
@@ -411,7 +415,6 @@
           height: height,
           top: self.hiddenHeight
         });
-        $('#word-bar').css('bottom', 0);
         $('#word-bar-handle').droppable({
           over: function (event, ui) {
             $('#word-bar-handle').text('x remove x');
