@@ -1,3 +1,4 @@
+/* general styles that don't change based on the viewport */
 @font-face {
   font-family: 'Bryant';
     src: url('webfonts/BryantWebMedium.eot'); /* IE9 Compat Modes */
@@ -29,6 +30,11 @@ body {
 
 menu {
   background: #EEBD54;
+  margin: 0;
+}
+menu h1 {
+  font-size: 1em;
+  float: left;
   margin: 0;
 }
 menu ul {
@@ -101,11 +107,12 @@ menu ul li.logged-in {
   padding: 0px;
   list-style: none;
   padding-left:10%;
-  padding: 10px 0 10px 10%;
+  padding: 10px;
+  overflow: auto;
 }
 .drawer-handle {
   padding: 0px 10px 0px 10px;
-  margin: 0px 20px 0px 0px;
+  margin: 0px 10px 0px 0px;
   display: inline;
   cursor:pointer;
 }
@@ -181,7 +188,6 @@ footer {
   cursor: pointer;
 }
 
-/* general styles that don't change based on the viewport */
 #drawers-container {
 -moz-transition: all 1s ease-in-out;
 -webkit-transition: all 1s ease-in-out;
@@ -206,6 +212,9 @@ transition: all 1s ease-in-out;
   position: relative;
   margin: 0px;
 }
+menu h1 {
+  display: none;
+}
 #word-bar {
   background: #EEBD54;
   width: 100%;
@@ -227,10 +236,11 @@ transition: all 1s ease-in-out;
 #drawers-container.down {
   top: 0px;
   background: #9AC3A5;
+  height: 100%;
 }
 .drawer {
-  height: 200px;
   width: 100%;
+  overflow: auto;
 }
 #drawer-handles {
 }
@@ -244,8 +254,12 @@ footer {
     z-index: 10000;
     position: absolute;
     display: block;
-    background: pink;
+    background: #9AC3A5;
     width: 100%;
+  }
+  #turn-phone span {
+    margin: 1em;
+    display: block;
   }
   #workspace {
     display: none;
@@ -256,6 +270,9 @@ footer {
   #main {
     min-height: 100%;
     width: 600px;
+  }
+  menu h1 {
+    display: block;
   }
   #word-bar {
     display:none;
@@ -277,10 +294,15 @@ footer {
   #drawers-container {
     position: relative;
     top:0px;
+    overflow: visible;
   }
   .drawer {
     height: 200px;
     width: 100%;
+    overflow: visible;
+  }
+  footer {
+    display: block;
   }
 }
 
@@ -341,10 +363,17 @@ footer {
     background: none;
     height: 300px;
     width: 100%;
+    overflow: visible;
+  }
+  .drawer {
+    overflow: visible;
   }
   #main {
     min-height: 100%;
     width: 960px;
+  }
+  menu h1 {
+   display: block;
   }
   #word-bar {
     display: none;
