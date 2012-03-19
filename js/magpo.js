@@ -303,6 +303,16 @@
           }
         }
       });
+
+      _.bind(self.setHeight, self);
+      dispatch.on('orientationChange', self.setHeight);
+      self.setHeight();
+    },
+    setHeight: function() {
+      if (barVisible) {
+        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+        $(this.el).css('height', height);
+      }
     },
     render: function() {
       $(this.el).attr('id', 'drawer-' + this.model.id);
@@ -385,7 +395,7 @@
         else if (barVisible) {
           $('#drawers-container').css({
             height: height,
-            top: self.hiddenHeight
+            top: self.hiddenHeight,
           });
         }
       });

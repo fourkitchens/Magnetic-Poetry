@@ -104,7 +104,6 @@ menu ul li.logged-in {
 }
 #drawer-handles {
   margin: 0px;
-  padding: 0px;
   list-style: none;
   padding-left:10%;
   padding: 10px;
@@ -243,6 +242,9 @@ menu h1 {
   overflow: auto;
 }
 #drawer-handles {
+  line-height: 1em;
+  font-size: .6em;
+  padding: 10px 10px 2px 10px;
 }
 footer {
   display: none;
@@ -365,9 +367,6 @@ footer {
     width: 100%;
     overflow: visible;
   }
-  .drawer {
-    overflow: visible;
-  }
   #main {
     min-height: 100%;
     width: 960px;
@@ -397,9 +396,15 @@ footer {
     position: relative;
     margin: 0px auto;
   }
+  #drawer-handles {
+    line-height: 1.4em;
+    font-size: 1em;
+    padding: 10px;
+  }
   .drawer {
     height: 200px;
     width: 100%;
+    overflow: visible;
   }
   #fridge-handle {
     float: left;
