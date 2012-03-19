@@ -237,10 +237,11 @@ menu h1 {
 #drawers-container.down {
   top: 0px;
   background: #9AC3A5;
+  height: 100%;
 }
 .drawer {
-  height: 200px;
   width: 100%;
+  overflow: auto;
 }
 #drawer-handles {
 }
