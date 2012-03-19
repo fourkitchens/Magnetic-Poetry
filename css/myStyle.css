@@ -231,9 +231,10 @@ menu h1 {
   width: 100%;
   z-index: 100;
   position: absolute;
+  height: 44px;
 }
 #word-bar-handle {
-  float: right;
+  margin: auto;
   cursor: pointer;
 }
 #word-bar menu {
@@ -366,6 +367,7 @@ footer {
     width: 100%;
     display: block;
     z-index: 100;
+    background: #EEBD54 url('../img/logo-4k.png') no-repeat left center;
   }
   footer {
    display: none;
