@@ -250,7 +250,8 @@
             'padding': '2px 6px 2px 6px',
             '-webkit-box-shadow': '2px 2px 0px 0px #666',
             '-moz-box-shadow': '2px 2px 0px 0px #666',
-            'box-shadow': '2px 2px 0px 0px #666'
+            'box-shadow': '2px 2px 0px 0px #666',
+            'font-size': '.9em'
           })
           .appendTo('#fridge');
       };
@@ -306,7 +307,7 @@
 
       dispatch.on('orientationChange', function() {
         if (barVisible) {
-          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-container').height());
           $(self.el).css('height', height);
         }
       });
@@ -318,7 +319,7 @@
     },
     setHeight: function() {
       if (barVisible) {
-        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-container').height());
         $(this.el).css('height', height);
       }
     },
