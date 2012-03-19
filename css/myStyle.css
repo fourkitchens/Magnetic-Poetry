@@ -140,7 +140,6 @@ menu ul li.logged-in {
   top: 247px;
   left: 681px;
   overflow: hidden;
-  display: block;
 }
 #shareModal,
 #messageModal {
@@ -257,6 +256,9 @@ menu h1 {
   width: 100%;
   overflow: auto;
 }
+.tiles {
+ font-size: .8em;
+}
 #drawer-handles {
   line-height: 1em;
   font-size: .6em;
@@ -301,7 +303,9 @@ footer {
     position: relative;
     height: 100%;
   }
-
+  .tiles {
+    font-size: inherit;
+  }
   #fridge {
     width: 600px;
     margin: 20px auto;
@@ -310,6 +314,7 @@ footer {
   }
 
   #fourk-logo {
+    display: block;
     left: 495px;
   }
   #drawers-container {
@@ -371,6 +376,9 @@ footer {
     display: block;
     z-index: 100;
   }
+  .tiles {
+   font-size: inherit; 
+  }
   footer {
    display: none;
   }
@@ -413,6 +421,9 @@ footer {
   }
   #workspace-inner {
     width:867px;
+  }
+  .tiles {
+    font-size: inherit;
   }
   #fridge {
     width: 600px;
