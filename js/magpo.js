@@ -303,10 +303,24 @@
           }
         }
       });
+
+      dispatch.on('orientationChange', function() {
+        if (barVisible) {
+          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+          $(self.el).css('height', height);
+        }
+      });
     },
     render: function() {
       $(this.el).attr('id', 'drawer-' + this.model.id);
       $('#drawers').append(this.$el);
+      this.setHeight();
+    },
+    setHeight: function() {
+      if (barVisible) {
+        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
+        $(this.el).css('height', height);
+      }
     },
     addAll: function() {
       var self = this;
@@ -362,18 +376,12 @@
     },
     initialize: function() {
       var self = this;
-      var height = (300 - $('#word-bar').height());
-      if ($(window).height() <= 300) {
-        height = ($(window).height() - $('#word-bar').height());
-      }
+      var height = ($(window).height() - $('#word-bar').height());
       self.hiddenHeight = height * -1;
       self.render();
 
       dispatch.on('orientationChange', function() {
-        var height = (300 - $('#word-bar').height());
-        if ($(window).height() <= 300) {
-          height = ($(window).height() - $('#word-bar').height());
-        }
+        var height = ($(window).height() - $('#word-bar').height());
         self.hiddenHeight = (height * -1);
         // Resize the drawers according to the current state.
         if (!barVisible) {
@@ -385,7 +393,7 @@
         else if (barVisible) {
           $('#drawers-container').css({
             height: height,
-            top: self.hiddenHeight
+            top: self.hiddenHeight,
           });
         }
       });
@@ -393,15 +401,11 @@
     render: function() {
       if (barVisible) {
         var self = this;
-        var height = (300 - $('#word-bar').height());
-        if ($(window).height() <= 300) {
-          height = ($(window).height() - $('#word-bar').height());
-        }
+        var height = ($(window).height() - $('#word-bar').height());
         $('#drawers-container').css({
           height: height,
           top: self.hiddenHeight
         });
-        $('#word-bar').css('bottom', 0);
         $('#word-bar-handle').droppable({
           over: function (event, ui) {
             $('#word-bar-handle').text('x remove x');
