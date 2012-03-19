@@ -187,6 +187,9 @@
         if (barVisible) {
           $(self.el).draggable('option', 'helper', self.getHelper());
           // TODO - bind the dragstart if it hasn't been bound yet.
+          if (!$(self.el).data('draggable').options.start) {
+            $(self.el).draggable('option', 'start', self.dragstart);
+          }
         }
         else {
           $(self.el).draggable('option', 'helper', 'original');
@@ -201,16 +204,7 @@
       // These options are only needed for mobile devices.
       if (barVisible) {
         draggable.helper = this.getHelper();
-        draggable.start = function(event, ui) {
-          // Check barVisible again in case of an orientation change.
-          if (!barVisible) {
-            return;
-          }
-          // Only do this if the word is in a drawer.
-          if (event.target.parentElement.id !== 'fridge') {
-            window.MagPo.app.wordBarView.toggleBar();
-          }
-        };
+        draggable.start = this.dragstart;
       }
 
       $(this.el).draggable(draggable);
@@ -230,6 +224,16 @@
       }
 
       return this;
+    },
+    dragstart: function(event, ui) {
+      // Check barVisible again in case of an orientation change.
+      if (!barVisible) {
+        return;
+      }
+      // Only do this if the word is in a drawer.
+      if (event.target.parentElement.id !== 'fridge') {
+        window.MagPo.app.wordBarView.toggleBar();
+      }
     },
     getHelper: function() {
       if ($(this.el).parent().attr('id') == 'fridge') {
