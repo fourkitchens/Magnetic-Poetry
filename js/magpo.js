@@ -306,9 +306,7 @@
 
       dispatch.on('orientationChange', function() {
         if (barVisible) {
-          var handlePadding = $('#drawer-handles').css('padding-top').replace('px', '') -
-            $('#drawer-handles').css('padding-bottom').replace('px', '');
-          var height = ($(window).height() - $('#word-bar').height() - ($('#drawer-handles').height() + handlePadding));
+          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
           $(self.el).css('height', height);
         }
       });
@@ -320,9 +318,7 @@
     },
     setHeight: function() {
       if (barVisible) {
-        var handlePadding = $('#drawer-handles').css('padding-top').replace('px', '') -
-          $('#drawer-handles').css('padding-bottom').replace('px', '');
-        var height = ($(window).height() - $('#word-bar').height() - ($('#drawer-handles').height() + handlePadding));
+        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-handles').height());
         $(this.el).css('height', height);
       }
     },
@@ -381,17 +377,11 @@
     initialize: function() {
       var self = this;
       var height = ($(window).height() - $('#word-bar').height());
-      if ($(window).height() > 500) {
-        height = (300 - $('#word-bar').height());
-      }
       self.hiddenHeight = height * -1;
       self.render();
 
       dispatch.on('orientationChange', function() {
         var height = ($(window).height() - $('#word-bar').height());
-        if ($(window).height() > 500) {
-          height = (300 - $('#word-bar').height());
-        }
         self.hiddenHeight = (height * -1);
         // Resize the drawers according to the current state.
         if (!barVisible) {
@@ -412,9 +402,6 @@
       if (barVisible) {
         var self = this;
         var height = ($(window).height() - $('#word-bar').height());
-        if ($(window).height() > 500) {
-          height = (300 - $('#word-bar').height());
-        }
         $('#drawers-container').css({
           height: height,
           top: self.hiddenHeight

@@ -257,6 +257,9 @@ menu h1 {
 #drawer-handles {
   line-height: 1em;
   font-size: .6em;
+  padding: 0;
+}
+.drawer-handle {
   padding: 10px 10px 2px 10px;
 }
 footer {
@@ -386,6 +389,9 @@ footer {
     height: 300px;
     width: 100%;
     overflow: visible;
+  }
+  #drawers-container.down {
+    background: none;
   }
   #main {
     min-height: 100%;
