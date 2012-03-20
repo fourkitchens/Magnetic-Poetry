@@ -274,6 +274,7 @@
       self.model.words.bind('all', self.render, self);
 
       $(self.el).droppable({
+        accept: '.tiles',
         drop: function(event, ui) {
           // We only need to do this on mobile devices.
           if (barVisible) {
@@ -408,6 +409,7 @@
           top: self.hiddenHeight
         });
         $('#word-bar-handle').droppable({
+          accept: '.tiles',
           over: function (event, ui) {
             $('#word-bar-handle').text('x remove x');
           },
@@ -461,6 +463,7 @@
       var self = this;
 
       $(self.el).droppable({
+        accept: '.tiles',
         drop: function(event, ui) {
           // We only need to do this on mobile devices.
           if (barVisible) {
@@ -642,12 +645,10 @@
       fadeInDuration: 150,
       fadeOutDuration: 150,
       showCloseButton: true,
-      bodyOverflowHidden: false,
-      closeImageUrl: 'img/close-modal.png',
-      closeImageHoverUrl: 'img/close-modal-hover.png'
+      bodyOverflowHidden: false
     },
     events: {
-      'click #loginModal': 'login',
+      'click #loginModal': 'login'
     },
     twitterLinkTemplate: _.template($('#twitter-link-template').html()),
     template: _.template($('#share-modal-template').html()),

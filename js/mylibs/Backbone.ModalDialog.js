@@ -6,9 +6,7 @@ var ModalView = Backbone.View.extend({
     fadeInDuration:150,
     fadeOutDuration:150,
     showCloseButton:true,
-    bodyOverflowHidden:false,
-    closeImageUrl: "close-modal.png",
-    closeImageHoverUrl: "close-modal-hover.png",
+    bodyOverflowHidden:false
   },
   initialize: function() {
   },
@@ -23,7 +21,8 @@ var ModalView = Backbone.View.extend({
   ensureModalContainer: function() {
     if( this.modalContainer == null) {
       this.modalContainer = $("<div id='modalContainer'>")
-        .appendTo(document.body);
+        .appendTo(document.body)
+        .draggable();
     }
 
     return this.modalContainer;
@@ -122,18 +121,7 @@ var ModalView = Backbone.View.extend({
     if (this.options.showCloseButton) {
       var view = this;
       var image = $("<a href='#' id='modalCloseButton'>&#160;</a>")
-        .css({
-          "background":"transparent url(" + view.options.closeImageUrl + ") top left no-repeat",
-        })
         .appendTo(this.modalContainer)
-        .hover(
-          function() {
-            $(this).css("background-image", "url(" + view.options.closeImageHoverUrl + ") !important");
-          },
-          function() {
-            $(this).css("background-image", "url(" + view.options.closeImageUrl + ") !important");
-          }
-        )
         .click(function (event) {
           event.preventDefault();
           view.hideModal();
