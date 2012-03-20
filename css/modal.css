@@ -16,19 +16,20 @@
   z-index: 5000;
 }
 .modal {
-  border: 2px solid #111;
   background-color: #fff;
   border-radius: 5px;
   -webkit-box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.5);
   box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.5);
+  cursor: move;
 }
 
 #modalCloseButton {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 32px;
-  height: 32px;
+  top: 4px;
+  right: 4px;
+  width: 13px;
+  height: 13px;
   text-decoration: none;
+  background: url('../img/x.png') no-repeat top left;
 }

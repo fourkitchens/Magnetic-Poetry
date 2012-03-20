@@ -153,7 +153,7 @@ menu ul li.logged-in {
   min-width: 350px;
   max-height: 200px;
   max-width: 85%;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 #poemDialog {
   margin: 10px 20px;
