@@ -9,6 +9,7 @@ var settings = require('../local');
 var underscore = require('underscore');
 var url = require('url');
 var UserModel = require('../models/user').UserModel;
+var zlib = require('zlib');
 
 var MagPo = exports;
 
@@ -40,13 +41,10 @@ MagPo.attach = function() {
     var validateWords = function() {
       // TODO - cache money, baby!
       var options = url.parse(settings.words);
-      http.get(options, function onGet(res) {
+      var req = http.get(options);
+      req.on('response', function(res) {
         var data = '';
-        res.on('data', function onData(chunk) {
-          data += chunk;
-        });
-
-        res.on('end', function onEnd() {
+        var onEnd = function() {
           var drawers = JSON.parse(data);
           // Walk through our poem and confirm the words are valid.
           underscore(poem.words).each(function(poemWord) {
@@ -66,9 +64,26 @@ MagPo.attach = function() {
             });
           });
           callback(valid);
-        });
+        };
+
+        switch (res.headers['content-encoding']) {
+          case 'gzip':
+            var gunzip = zlib.createGunzip();
+            res.pipe(gunzip);
+            gunzip.on('data', function(chunk) {
+              data += chunk;
+            });
+            gunzip.on('end', onEnd);
+            break;
+          default:
+            res.on('data', function onData(chunk) {
+              data += chunk;
+            });
+            res.on('end', onEnd);
+            break;
+        }
       })
-        .on('error', function(e) {
+      req.on('error', function(e) {
           console.error(e);
           valid = false;
           callback(valid);
