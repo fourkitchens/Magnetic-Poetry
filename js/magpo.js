@@ -362,7 +362,6 @@
           }
           var dropped = $(ui.draggable).data('backbone-view').model;
           window.MagPo.app.poem.words.remove(dropped);
-          window.MagPo.app.poemView.render();
 
           // Bail if we're dropping back into the same drawer.
           if ($(ui.draggable).parent().attr('id') === $(self.el).attr('id')) {
@@ -497,7 +496,6 @@
             $('#word-bar-handle').text('^ words ^');
             var dropped = $(ui.draggable).data('backbone-view').model;
             window.MagPo.app.poem.words.remove(dropped);
-            window.MagPo.app.poemView.render();
 
             var siblings = $(ui.draggable).nextAll();
             // Unset the top and left values for this item since its drawer is
@@ -588,7 +586,6 @@
               });
             }, window.MagPo.app.delay);
           }
-          window.MagPo.app.poemView.render();
         },
         out: function(event, ui) {
           var dropped = $(ui.draggable).data('backbone-view').model;
@@ -611,29 +608,6 @@
     }
   });
 
-  /**
-   * Defines the textual representation view of a poem.
-   */
-  var PoemView = Backbone.View.extend({
-    el: $('#poemText'),
-    initialize: function() {
-      _.bindAll(this, 'render');
-
-      this.collection.bind('add', this.render, this);
-      this.collection.bind('remove', this.render, this);
-    },
-    render: function() {
-      // Log errors here rather than throwing them since we don't want this
-      // functionality to break the rest of the app.
-      try {
-        var string = window.MagPo.app.poem.stringify(false);
-        $(this.el).text(string);
-      }
-      catch (exception) {
-        console.error(exception.message);
-      }
-    }
-  });
 
   /**
    * Defines the share link view.
@@ -1068,7 +1042,6 @@
 
     self.controlsView = new ControlsView();
     self.fridgeView = new FridgeView({ collection: self.poem });
-    self.poemView = new PoemView({ collection: self.poem });
     self.shareLinkView = new ShareLinkView();
     self.wordBarView = new WordBarView();
 
