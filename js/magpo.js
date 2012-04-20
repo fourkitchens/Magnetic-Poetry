@@ -3,9 +3,13 @@
   var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Find a Web Chef!';
   var failedToLoginTxt = 'Uh oh! There was a problem logging you in. Find a Web Chef!';
+  var needToLoginTxt = "Welcome back! If you'd like to be able to edit your poems later you should really log in from the link at the top.";
   var autosave = true;
   var isAuthor = true;
   var barVisible = $('#word-bar').is(':visible');
+  var listingsVisible = $('#listings').is(':visible');
+  var listingsPage = 0;
+  var loadingListings = false;
 
   var supportsOrientationChange = "onorientationchange" in window;
   var orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
@@ -16,10 +20,20 @@
     orientationEvent,
     function() {
       barVisible = $('#word-bar').is(':visible');
+      listingsVisible = $('#listings').is(':visible');
       dispatch.trigger('orientationChange');
     },
     false
   );
+
+  // Event handler for the throbber.
+  var throbberEvent = _.clone(Backbone.Events);
+  throbberEvent.on('show', function() {
+    $('#loading').show();
+  });
+  throbberEvent.on('hide', function() {
+    $('#loading').hide();
+  });
 
   /**
    * Defines sync behavior to the backend.
@@ -28,8 +42,10 @@
    *   The sync method.
    * @param {object} model
    *   The model object that is being synced.
+   * @param {object} options
+   *   Sync options.
    */
-  Backbone.sync = function(method, model) {
+  Backbone.sync = function(method, model, options) {
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
       var body = {
         poem: model.toJSON()
@@ -41,6 +57,8 @@
         body.poem.author = window.MagPo.app.user;
       }
 
+      throbberEvent.trigger('show');
+
       // Send to server.
       $.ajax({
         url: 'app/save',
@@ -49,6 +67,7 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
+          throbberEvent.trigger('hide');
           if (data.status != 'ok') {
             console.error('Error saving poem to server.');
             // Prevent dialogs during autosaves.
@@ -86,6 +105,7 @@
           window.MagPo.app.poem.trigger('saved', data.status);
         },
         error: function(jqXHR, textStatus, errorThrown) {
+          throbberEvent.trigger('hide');
           console.error(errorThrown);
           // Prevent dialogs during autosaves.
           if (!autosave) {
@@ -98,6 +118,7 @@
       });
     }
     else if (model instanceof Poem && method == 'read') {
+      throbberEvent.trigger('show');
       var author = localStorage.getItem('MagPo_me');
       $.ajax({
         url: 'app/load/' + model.id,
@@ -106,6 +127,7 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
+          throbberEvent.trigger('hide');
           if (data.status != 'ok') {
             console.error('Error fetching poem from server.');
             return;
@@ -154,6 +176,49 @@
         }
       });
     }
+    else if (model instanceof Listings && method == 'read') {
+      var page = 0;
+      if (options.page) {
+        page = options.page;
+      }
+      loadingListings = true;
+      throbberEvent.trigger('show');
+      $('#listings').append(window.MagPo.app.listingsView.loadingTemplate({}));
+      $.ajax({
+        url: 'app/list/' + page,
+        success: function(data) {
+          throbberEvent.trigger('hide');
+          _.each(data.poems, function(poem) {
+            poem.id = poem._id;
+            delete poem._id;
+            var poemObj = new Poem(poem);
+            _(poem.words).each(function(serverWord) {
+              if (!window.MagPo.app.drawers[serverWord.vid]) {
+                return;
+              }
+              var drawer = window.MagPo.app.drawers[serverWord.vid].model;
+              var word = drawer.words.get(serverWord.id);
+              if (typeof word == 'undefined') {
+                return;
+              }
+              poemObj.words.add(word);
+            });
+            model.add(poemObj);
+          });
+          // HACK - leave the page as "loading" if no new poems were returned.
+          // This will prevent the pager from continuously increasing.
+          if (data.poems.length != 0) {
+            loadingListings = false;
+          }
+          $('#loading-listings').remove();
+        },
+        error: function() {
+          throbberEvent.trigger('hide');
+          loadingListings = false;
+          $('#loading-listings').remove();
+        }
+      });
+    }
   };
 
   /**
@@ -186,9 +251,10 @@
       dispatch.on('orientationChange', function() {
         if (barVisible) {
           $(self.el).draggable('option', 'helper', self.getHelper());
-          // TODO - bind the dragstart if it hasn't been bound yet.
-          if (!$(self.el).data('draggable').options.start) {
-            $(self.el).draggable('option', 'start', self.dragstart);
+          // Bind the dragstart/stop if it hasn't been bound yet.
+          if (!$(self.el).data('draggable').options.start || !$(self.el).data('draggable').options.stop) {
+            $(self.el).draggable('option', 'start', _.bind(self.dragstart, self));
+            $(self.el).draggable('option', 'stop', _.bind(self.dragstop, self));
           }
         }
         else {
@@ -204,7 +270,8 @@
       // These options are only needed for mobile devices.
       if (barVisible) {
         draggable.helper = this.getHelper();
-        draggable.start = this.dragstart;
+        draggable.start = _.bind(this.dragstart, this);
+        draggable.stop = _.bind(this.dragstop, this);
       }
 
       $(this.el).draggable(draggable);
@@ -234,6 +301,19 @@
       if (event.target.parentElement.id !== 'fridge') {
         window.MagPo.app.wordBarView.toggleBar();
       }
+      else {
+        // Store the original z-index and increase it to 1000.
+        this.zIndex = $(event.target).css('z-index');
+        $(event.target).css({ 'z-index': 1000 });
+      }
+    },
+    dragstop: function(event, ui) {
+      if (!barVisible || !this.zIndex) {
+        return;
+      }
+      // Reset the z-index to the value it was before the drag started.
+      $(event.target).css({ 'z-index': this.zIndex });
+      delete this.zIndex;
     },
     getHelper: function() {
       if ($(this.el).parent().attr('id') == 'fridge') {
@@ -393,10 +473,7 @@
           });
         }
         else if (barVisible) {
-          $('#drawers-container').css({
-            height: height,
-            top: self.hiddenHeight,
-          });
+          self.render();
         }
       });
     },
@@ -869,6 +946,67 @@
   });
 
   /**
+   * Handles a listing view.
+   */
+  var ListingsView = Backbone.View.extend({
+    el: '#listings',
+    infoTemplate: _.template($('#info-template').html()),
+    poemTemplate: _.template($('#listing-template').html()),
+    loadingTemplate: _.template($('#loading-template').html()),
+    events: {
+      'click .listing': 'loadPoem'
+    },
+    initialize: function() {
+      this.collection.bind('add', this.addOne, this);
+      this.collection.bind('reset', this.render, this);
+      $(window).on('scroll', this.loadOnScroll);
+    },
+    render: function() {
+      this.collection.each(function(poem) {
+        this.addOne(poem);
+      });
+    },
+    addOne: function(poem) {
+      var author = '@' + poem.get('author');
+      if (author.length > 20) {
+        author = 'Anonymous';
+      }
+      $(this.el).append(this.poemTemplate({
+        id: poem.id,
+        author: author,
+        time: moment(poem.get('changed')).format('D MMM, h:mma'),
+        poem: poem.stringify()
+      }));
+    },
+    loadOnScroll: function(e) {
+      if (!listingsVisible || loadingListings) {
+        return;
+      }
+      if ($(window).height() + $(window).scrollTop() >= $(document).height() - 600) {
+        listingsPage++;
+        window.MagPo.app.listings.fetch({ page: listingsPage });
+      }
+    },
+    loadPoem: function(e) {
+      // Redirect to a new poem if the id wasn't set and a poem has
+      // already been loaded.
+      if (!$(e.currentTarget).attr('data-id') && window.MagPo.app.poem.id) {
+        window.location = '/magpo/';
+        return;
+      }
+
+      window.MagPo.app.router.navigate(
+        $(e.currentTarget).attr('data-id'),
+        { trigger: true }
+      );
+      $(e.currentTarget).append(this.infoTemplate);
+      setTimeout(function() {
+        $('#listing-info').fadeOut(1000, function() { $(this).remove() });
+      }, 2000);
+    }
+  });
+
+  /**
    * Helper function that performs post-loading actions.
    */
   function postLoad() {
@@ -958,6 +1096,8 @@
     });
 
     self.authView = new AuthView();
+    self.listings = new Listings();
+    self.listingsView = new ListingsView({ collection: self.listings });
 
     self.router = null;
   };
@@ -965,7 +1105,20 @@
   MagPo.prototype.start = function() {
     var self = this;
 
+    throbberEvent.trigger('hide');
+
     self.authView.render();
+    self.listings.fetch();
+
+    var tUser = localStorage.getItem('MagPo_tUser');
+    var user = JSON.parse(localStorage.getItem('MagPo_user'));
+    var me = localStorage.getItem('MagPo_me');
+
+    // Show a warning dialog if the user isn't logged in.
+    if (!user && me) {
+      var dialog = new MessageDialogView({ message: needToLoginTxt });
+      dialog.render().showModal({});
+    }
 
     // If this is a new poem, go ahead and perform post load actions.
     if (!window.location.hash) {
@@ -974,8 +1127,6 @@
 
     var oauth_token = getParameterByName('oauth_token');
     var oauth_verifier = getParameterByName('oauth_verifier');
-    var tUser = localStorage.getItem('MagPo_tUser');
-    var user = JSON.parse(localStorage.getItem('MagPo_user'));
     if (oauth_token.length && oauth_verifier.length && tUser) {
       // Remove the query arguments.
       // TODO - detect a hash.

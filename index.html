@@ -36,12 +36,12 @@
       <li id="new-poem" class="menu-item" title="New"><a href="/magpo/"><img src="img/icon-create-new.png" alt="New" /></a></li>
       <li id="shareLinkMenu" class="menu-item" title="Share"><img src="img/icon-share.png" alt="Share" /></li>
       <li id="responses-handle" style="display:none" class="menu-item" title="Responses"><img src="img/icon-responses.png" alt="Responses" /></li>
+      <li id="loading" class="menu-item" title="Loading"><img src="img/loading.gif" alt="Loading" /></li>
     </ul>
   </menu>
   <div id="workspace">
     <div id="workspace-inner">
       <div id="drawers-container">
-        
         <div id="drawer-container"><ul id="drawer-handles"></ul></div>
         <div id="drawers" role="main" class="group"></div>
         <div id="word-bar"><span id="word-bar-handle">^ words ^</span></div>
@@ -56,7 +56,11 @@
     </div> <!--! end of #workspace-inner -->
   </div> <!--! end of #workspace -->
 
-  <div id="turn-phone"><span>Too skinny! Please turn your phone, or resize your window.</span></div>
+  <div id="listings">
+    <div class="listing">
+      Turn your phone to create/edit your poem.
+    </div>
+  </div>
   <!-- Templates -->
   <script type="text/template" id="twitter-link-template">
     <div>
@@ -106,6 +110,26 @@
     <img id="avatar" src="http://api.twitter.com/1/users/profile_image?screen_name=<%= user %>" alt="Logout" />
   </script>
 
+  <script type="text/template" id="listing-template">
+    <div class="listing" data-id="<%= id %>">
+      <div class="meta">
+        <span class="author"><%= author %></span>
+        <span class="time"><%= time %></span>
+      </div>
+      <div class="listing-poem"><%= poem %></div>
+    </div>
+  </script>
+
+  <script type="text/template" id="loading-template">
+    <div id="loading-listings">
+      Loading more...
+    </div>
+  </script>
+
+  <script type="text/template" id="info-template">
+    <div id="listing-info">Turn phone to view/edit poem.</div>
+  </script>
+
   <!-- end of templates -->
   <!-- JavaScript at the bottom for fast page loading -->
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
@@ -116,6 +140,7 @@
   <script type="text/javascript" src="js/mylibs/jquery-ui-1.8.18.custom.min.js"></script>
   <script type="text/javascript" src="js/mylibs/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+  <script src="js/mylibs/moment.min.js"></script>
   <script src="js/mylibs/underscore.js"></script>
   <script src="js/mylibs/backbone.js"></script>
   <script src="js/mylibs/Backbone.ModalDialog.js" type="text/javascript"></script>
@@ -140,7 +165,7 @@
         window.MagPo = { };
       }
       $.ajax({
-        url: 'json',
+        url: 'app/drawers',
         success: function(drawers) {
           window.MagPo.app = new window.MagPo.class(drawers);
           if (loaded) {
@@ -185,15 +210,47 @@
     <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
   <![endif]-->
 
-  <!--    _____ ______ __  __ ______
-         / ___// __  // / / // __  /
-        / /_  / / / // / / // /_/ /
-       / __/ / /_/ // /_/ // _  _/            Four Kitchens
-      /_/   /_____//_____//_/ \_\  http://fourkitchens.com
-      __  __  __ _______ _____ __   __ _____ __  __ _____
-     / /_/ / / //__  __// ___// /__/ // ___//  \/ // ___/
-    /   __/ / /   / /  / /   / ___  // __/ / /\  // /__
-   / /\ \  / /   / /  / /__ / /  / // ___ / / / /___  /
-  /_/  \_\/_/   /_/  /____//_/  /_//____//_/ /_//____/ -->
+<!--
+
+         .:77777777777777777777777777777777777777777777777777777777777777777777777777..
+        .77777777777777777777777777777777777777777777777777777777777777777777777777777:.
+        777777777777777777777777777777^777777777777777777777777777777777777777777777777?
+        77777777777777777777777777777..77777777777777777777777/.......77777777777777777?
+        777777777777777777777777777,...77777777777777777777...........77777777777777777?
+        7777777777777777777777777I.....I77777777777777777....... +777777777777777777777?
+        777777777777777777777777I......I7777777777777777,.....7I77777777777777777777777?
+        77777777777777777777777+.......+7777777777777777.....?7777777777777777777777777?
+        7777777777777777777777I.........777777777777777I.....77777777777777777777777777?
+        777777777777777777777I..........777777777777777I.....77777777777777777777777777?
+        777777777777777777777...........777777777777777I.....77777777777777777777777777?
+        777777777777777777777...........777777777777777I.....77777777777777777777777777?
+        77777777777777777777............777777777777777=.....77777777777777777777777777?
+        7777777777777777777I............777777777777777......77777777777777777777777777?
+        7777777777777777777.............77777777777777+.....777777777777777777777777777?
+        7777777777777777777.............7777777777777..... 7777777777777777777777777777?
+        7777777777777777777.............77777777I7,.......77777777777777777777777777777?
+        777777777777777777..............777777........~77777777777777777777777777777777?
+        777777777777777777..............777777.........~7777777777777777777777777777777?
+        777777777777777777..............77777777777=......I7777777777777777777777777777?
+        77777777777777777I..............77777777777777 .....777777777777777777777777777?
+        77777777777777777~..............777777777777777.....?77777777777777777777777777?
+        7777777777777777777777777I:.....777777777777777......77777777777777777777777777?
+        777777777777777777777777777.....777777777777777?.....77777777777777777777777777?
+        777777777777777777777777777..0..777777777777777I.....77777777777777777777777777?
+        77777777777777777777777777I.....777777777777777I.....77777777777777777777777777?
+        77777777777777777777777777?.....777777777777777I.....77777777777777777777777777?
+        77777777777777777777777777I..0..777777777777777I.....77777777777777777777777777?
+        777777777777777777777777777 ....7777777777777777.....,7777777777777777777777777?
+        777777777777777777777777777.....7777777777777777?......I77777777777777777777777?
+        7777777777777777777777777?..0...777777777777777777..........,,77777777777777777?
+        7777777777777777777777777......77777777777777777777?..........77777777777777777?
+        77777777777777777777777777+ ..77777777777777777777777777I?~:::77777777777777777?
+        7777777777777777777777777777777777777777777777777777777777777777777777777777777?
+        7777777777777777777777777777777777777777777777777777777777777777777777777777777?
+        .777777777777777777777777777777777777777777777777777777777777777777777777777777.
+         .:77777777777777777777777777777777777777777777777777777777777777777777777777:.
+
+                                     http://fourkitchens.com
+-->
 </body>
 </html>
