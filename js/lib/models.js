@@ -9,7 +9,7 @@ if (typeof require !== 'undefined') {
   var simplePoemModel = require('../models/simplePoem');
   var poemModel = require('../models/poem');
   var WordCollection = require('./collections').WordCollection;
-  var breakpoints = require('../mylibs/breakpoints.js');
+  var breakpoints = require('../lib/breakpoints.js');
 }
 else {
   var wordModel = window.MagPo.models.Word;
