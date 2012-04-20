@@ -525,20 +525,57 @@
    * Defines a view that is shared by various representations of the poem.
    */
   var PoemView = Backbone.View.extend({
+    // phone size is: 480 wide and 310 tall
+    // desktop size is: 600 wide x 378 tall
+    // ratio is .8
+    /**
+     *  Transforms numbers based on the breakpoint ratios.
+     *
+     *  @param {number} startNum
+     *    The number we are working on.
+     *
+     *  @param {string} from
+     *     The breakpoint we are transforming from.
+     *  @param {string} to
+     *     The breakpoint we are transforming to.
+     *
+     *  @return {number}
+     *    The transformed number. If the breakpoints match
+     *    will return the original number.
+     */
+    resizeWord: function(startNum, from, to) {
+      var resultNum = startNum;
+      if (from === to) {
+        return resultNum;
+      }
+      if (to === 'phone') {
+        resultNum = startNum * 0.8;
+      }
+      else if (to === 'desktop') {
+        resultNum = startNum * 1.25;
+      }
+      return resultNum;
+    },
+    initialize: function() {
+      this.breakpoint = ($('#fridge').width() == 480) ? 'phone' : 'desktop';
+    },
     render: function(breakpoint) {
       if (typeof breakpoint === 'undefined') {
-        breakpoint = 'desktop';
+        breakpoint = this.breakpoint;
       }
-      this.collection.words.each(function(word) {
+      var eachFunction = _.bind(function(word) {
+        var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
+        var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
         $(word.view.el)
           .appendTo('#fridge')
           .position({
             of: '#fridge',
             my: 'left top',
             at: 'left top',
-            offset: word.get('left') + ' ' + word.get('top')
+            offset: left + ' ' + top
           });
-      });
+      }, this);
+      this.collection.words.each(eachFunction);
       return this;
     }
   });
@@ -551,21 +588,33 @@
   var FridgeView = PoemView.extend({
     el: $('#fridge'),
     initialize: function() {
+      PoemView.prototype.initialize.call(this);
+
       var self = this;
-      
+
       $(self.el).droppable({
         accept: '.tiles',
         drop: function(event, ui) {
           // We only need to do this on mobile devices.
           if (barVisible) {
-            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
+            $(ui.draggable).draggable(
+              'option',
+              'helper',
+              $(ui.draggable).data('backbone-view').getHelper()
+            );
           }
           var fridgeOffset = $(self.el).offset();
           var dropped = $(ui.draggable).data('backbone-view').model;
           var dropOffset = ui.offset;
-          var resultOffset = {};
-          resultOffset.top = dropOffset.top - fridgeOffset.top;
-          resultOffset.left = dropOffset.left - fridgeOffset.left;
+          var resultOffset = {
+            top: dropOffset.top - fridgeOffset.top,
+            left: dropOffset.left - fridgeOffset.left
+          };
+          var resizedOffset = {
+            top: self.resizeWord(resultOffset.top, self.breakpoint, 'desktop'),
+            left: self.resizeWord(resultOffset.left, self.breakpoint, 'desktop')
+          };
+          // if it's not currently in the poem, append to fridge
           if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
             // Move the element to the fridge so we can hide the drawer and
             // reset its position relative to the fridge.
@@ -580,13 +629,14 @@
 
             repositionSiblings(siblings);
 
-            dropped.set('top', resultOffset.top);
-            dropped.set('left', resultOffset.left);
+            dropped.set('top', resizedOffset.top);
+            dropped.set('left', resizedOffset.left);
             window.MagPo.app.poem.words.add(dropped);
           }
+          // otherwise only change the position on the model.
           else {
-            dropped.set('top', resultOffset.top);
-            dropped.set('left', resultOffset.left);
+            dropped.set('top', resizedOffset.top);
+            dropped.set('left', resizedOffset.left);
             window.MagPo.app.poem.words.sort();
           }
 
