@@ -151,16 +151,9 @@
             var drawer = window.MagPo.app.drawers[serverWord.vid].model;
             var word = drawer.words.get(serverWord.id);
             model.words.add(word);
-            $(word.view.el)
-              .appendTo('#fridge')
-              .position({
-                of: '#fridge',
-                my: 'left top',
-                at: 'left top',
-                offset: serverWord.left + ' ' + serverWord.top
-              });
             word.set({ top: serverWord.top, left: serverWord.left });
           });
+          window.MagPo.app.fridgeView.render();
           model.children.reset();
           _(data.poem.children).each(function(child) {
             model.children.create(child);
@@ -527,16 +520,39 @@
       $('#drawers-container').toggleClass('down');
     }
   });
+
+  /**
+   * Defines a view that is shared by various representations of the poem.
+   */
+  var PoemView = Backbone.View.extend({
+    render: function(breakpoint) {
+      if (typeof breakpoint === 'undefined') {
+        breakpoint = 'desktop';
+      }
+      this.collection.words.each(function(word) {
+        $(word.view.el)
+          .appendTo('#fridge')
+          .position({
+            of: '#fridge',
+            my: 'left top',
+            at: 'left top',
+            offset: word.get('left') + ' ' + word.get('top')
+          });
+      });
+      return this;
+    }
+  });
+
   /**
    * Defines the fridge (workspace) view.
    *
    * TODO - rename to PoemView and deprecate existing PoemView?
    */
-  var FridgeView = Backbone.View.extend({
+  var FridgeView = PoemView.extend({
     el: $('#fridge'),
     initialize: function() {
       var self = this;
-
+      
       $(self.el).droppable({
         accept: '.tiles',
         drop: function(event, ui) {
@@ -605,7 +621,7 @@
           }
         }
       });
-    }
+    },
   });
 
 
