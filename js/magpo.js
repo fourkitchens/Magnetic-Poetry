@@ -67,10 +67,14 @@
                 return;
               }
               var drawer = window.MagPo.app.drawers[serverWord.vid].model;
-              var word = drawer.words.get(serverWord.id);
+              var word = new Word(serverWord);
               if (typeof word === 'undefined') {
                 return;
               }
+              var wordView = new WordView({
+                model: word
+              });
+              wordView.render();
               poemObj.words.add(word);
             });
             model.add(poemObj);
@@ -343,7 +347,7 @@
         $('.open-drawer').removeClass('open-drawer').hide();
         $(this.model.view.$el).addClass('open-drawer').show();
       }
-    },
+    }
   });
 
   /**
@@ -377,6 +381,9 @@
       }
       else if (to === 'desktop') {
         resultNum = startNum * 1.25;
+      }
+      else if (to === 'phoneListing') {
+        resultNum = startNum * .25;
       }
       return resultNum;
     },
@@ -454,7 +461,7 @@
           accept: '.tiles',
           over: _.bind(this.over, this),
           out: _.bind(this.out, this),
-          drop: _.bind(this.drop, this),
+          drop: _.bind(this.drop, this)
         });
       }
     },
@@ -472,10 +479,10 @@
         this.render();
       }
     },
-    over: function (event, ui) {
+    over: function(event, ui) {
       $('#word-bar-handle').text('x remove x');
     },
-    out: function (event, ui) {
+    out: function(event, ui) {
       $('#word-bar-handle').text('^ words ^');
     },
     drop: function(event, ui) {
@@ -510,6 +517,34 @@
     }
   });
 
+  /**
+   * Defines the poem listing view.
+   *
+   */
+  var PoemListingView = PoemView.extend({
+    initialize: function() {
+      this.breakpoint = 'phoneListing';
+    },
+    render: function(breakpoint) {
+      if (typeof breakpoint === 'undefined') {
+        breakpoint = this.breakpoint;
+      }
+      this.collection.words.each(_.bind(function(word) {
+        var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
+        var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
+        var siblings = $(word.view.el)
+          .appendTo(this.$el)
+          .position({
+            of: this.$el,
+            my: 'left top',
+            at: 'left top',
+            offset: left + ' ' + top
+          })
+          .prevAll();
+      }, this));
+      return this;
+    }
+  });
   /**
    * Defines the fridge (workspace) view.
    */
@@ -943,6 +978,7 @@
     },
     addOne: function(poem) {
       var author = '@' + poem.get('author');
+      var poemListingView = new PoemListingView({collection: poem});
       if (author.length > 20) {
         author = 'Anonymous';
       }
@@ -950,8 +986,9 @@
         id: poem.id,
         author: author,
         time: moment(poem.get('changed')).format('D MMM, h:mma'),
-        poem: poem.stringify()
+        poem: poemListingView.render().$el.html()
       }));
+      //poemListingView.$el.height();
     },
     loadOnScroll: function(e) {
       if (!listingsVisible || loadingListings) {
