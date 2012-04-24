@@ -6,9 +6,11 @@
 if (typeof require !== 'undefined') {
   var Backbone = require('backbone');
   var Word = require('./models').Word;
+  var Poem = require('./models').Poem;
 }
 else {
   var Word = window.MagPo.Word;
+  var Poem = window.MagPo.Poem;
 }
 
 /**
@@ -16,6 +18,13 @@ else {
  */
 var WordCollection = Backbone.Collection.extend({
   model: Word
+});
+
+/**
+ * Defines the listings collection.
+ */
+var Listings = Backbone.Collection.extend({
+  model: Poem
 });
 
 // Export the definitions.
@@ -26,4 +35,5 @@ else {
   var exp = exports;
 }
 exp.WordCollection = WordCollection;
+exp.Listings = Listings;
 

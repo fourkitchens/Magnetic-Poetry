@@ -58,7 +58,7 @@ menu ul li.logged-in {
   cursor: pointer;
 }
 
-#turn-phone {
+#listings {
   display:none;
 }
 #workspace-inner {
@@ -273,17 +273,13 @@ footer {
 }
 /* For phones in portrait we want display a message.*/
 @media only screen and (max-width: 599px) and (orientation:portrait) {
-  #turn-phone {
+  #listings {
     height: 100%;
     z-index: 10000;
     position: absolute;
     display: block;
     background: #9AC3A5;
     width: 100%;
-  }
-  #turn-phone span {
-    margin: 1em;
-    display: block;
   }
   #workspace {
     display: none;

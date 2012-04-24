@@ -6,6 +6,7 @@
   var autosave = true;
   var isAuthor = true;
   var barVisible = $('#word-bar').is(':visible');
+  var listingsVisible = $('#listings').is(':visible');
 
   var supportsOrientationChange = "onorientationchange" in window;
   var orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
@@ -28,8 +29,10 @@
    *   The sync method.
    * @param {object} model
    *   The model object that is being synced.
+   * @param {object} options
+   *   Sync options.
    */
-  Backbone.sync = function(method, model) {
+  Backbone.sync = function(method, model, options) {
     if (model instanceof Poem && (method == 'create' || method == 'update')) {
       var body = {
         poem: model.toJSON()
@@ -151,6 +154,27 @@
 
           // Perform post loading actions.
           postLoad();
+        }
+      });
+    }
+    else if (model instanceof Listings && method == 'read') {
+      var page = 0;
+      if (options.page) {
+        page = options.page;
+      }
+      $.ajax({
+        url: 'app/list/' + page,
+        success: function(data) {
+          model.reset();
+          _.each(data.poems, function(poem) {
+            var poemObj = new Poem(poem);
+            _(poem.words).each(function(serverWord) {
+              var drawer = window.MagPo.app.drawers[serverWord.vid].model;
+              var word = drawer.words.get(serverWord.id);
+              poemObj.words.add(word);
+            });
+            model.add(poemObj);
+          });
         }
       });
     }
@@ -869,6 +893,41 @@
   });
 
   /**
+   * Handles a listing view.
+   */
+  var ListingView = Backbone.View.extend({
+    el: '#listings',
+    poemTemplate: _.template($('#listing-template').html()),
+    initialize: function() {
+      dispatch.on('orientationChange', this.orientationChange, this);
+      this.collection.bind('add', this.addOne, this);
+      this.collection.bind('reset', this.render, this);
+    },
+    render: function() {
+      this.collection.each(function(poem) {
+        this.addOne(poem);
+      });
+    },
+    addOne: function(poem) {
+      var author = '@' + poem.get('author');
+      if (author.length > 20) {
+        author = 'Anonymous';
+      }
+      $(this.el).append(this.poemTemplate({
+        author: author,
+        time: Date(poem.get('changed')).toLocaleString(),
+        poem: poem.stringify()
+      }));
+    },
+    orientationChange: function(e) {
+      if (!listingsVisible && $('#listings').is(':visible')) {
+        listingsVisible = true;
+        this.render();
+      }
+    }
+  });
+
+  /**
    * Helper function that performs post-loading actions.
    */
   function postLoad() {
@@ -958,6 +1017,8 @@
     });
 
     self.authView = new AuthView();
+    self.listings = new Listings();
+    self.listingView = new ListingView({ collection: self.listings });
 
     self.router = null;
   };
@@ -966,6 +1027,9 @@
     var self = this;
 
     self.authView.render();
+    if (listingsVisible) {
+      self.listings.fetch();
+    }
 
     // If this is a new poem, go ahead and perform post load actions.
     if (!window.location.hash) {

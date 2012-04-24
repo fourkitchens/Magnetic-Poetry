@@ -5,6 +5,7 @@
 var flatiron = require('flatiron');
 var settings = require('./local');
 var app = flatiron.app;
+var und = require('underscore');
 
 // Define the default response headers.
 var headers = {
@@ -37,6 +38,18 @@ app.router.get('/save', function() {
   });
 });
 
+app.router.get('/list/:page', function(page) {
+  var self = this;
+  app.list(page, function(err, docs) {
+    if (err) {
+      self.res.writeHead(500, headers);
+      self.res.json({ status: 'error' });
+      return;
+    }
+    self.res.json({ status: 'ok', poems: docs });
+  });
+});
+
 /**
  * POST routes.
  */
@@ -45,6 +58,7 @@ app.router.post('/login', function() {
   if (typeof self.req.body.success === 'undefined') {
     self.res.writeHead(400, headers);
     self.res.json({ status: 'error', error: 'Missing success URL.' });
+    return;
   }
   app.login(self.req, self.res, self.req.body.success);
 });
