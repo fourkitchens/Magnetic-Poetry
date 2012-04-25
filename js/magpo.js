@@ -19,6 +19,7 @@
     orientationEvent,
     function() {
       barVisible = $('#word-bar').is(':visible');
+      listingsVisible = $('#listings').is(':visible');
       dispatch.trigger('orientationChange');
     },
     false
@@ -918,13 +919,13 @@
    */
   var ListingsView = Backbone.View.extend({
     el: '#listings',
+    infoTemplate: _.template($('#info-template').html()),
     poemTemplate: _.template($('#listing-template').html()),
     loadingTemplate: _.template($('#loading-template').html()),
     events: {
       'click .listing': 'loadPoem'
     },
     initialize: function() {
-      dispatch.on('orientationChange', this.orientationChange, this);
       this.collection.bind('add', this.addOne, this);
       this.collection.bind('reset', this.render, this);
       $(window).on('scroll', this.loadOnScroll);
@@ -946,12 +947,6 @@
         poem: poem.stringify()
       }));
     },
-    orientationChange: function(e) {
-      if (!listingsVisible && $('#listings').is(':visible')) {
-        listingsVisible = true;
-        this.render();
-      }
-    },
     loadOnScroll: function(e) {
       if (!listingsVisible || loadingListings) {
         return;
@@ -962,11 +957,14 @@
       }
     },
     loadPoem: function(e) {
-      e.preventDefault();
       window.MagPo.app.router.navigate(
         $(e.currentTarget).attr('id'),
         { trigger: true }
       );
+      $(e.currentTarget).append(this.infoTemplate);
+      setTimeout(function() {
+        $('#listing-info').fadeOut(1000, function() { $(this).remove() });
+      }, 2000);
     }
   });
 
@@ -1070,9 +1068,7 @@
     var self = this;
 
     self.authView.render();
-    if (listingsVisible) {
-      self.listings.fetch();
-    }
+    self.listings.fetch();
 
     // If this is a new poem, go ahead and perform post load actions.
     if (!window.location.hash) {
