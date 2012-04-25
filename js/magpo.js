@@ -165,15 +165,18 @@
         page = options.page;
       }
       loadingListings = true;
+      $('#listings').append(window.MagPo.app.listingsView.loadingTemplate({}));
       $.ajax({
         url: 'app/list/' + page,
         success: function(data) {
-          model.reset();
           _.each(data.poems, function(poem) {
             poem.id = poem._id;
             delete poem._id;
             var poemObj = new Poem(poem);
             _(poem.words).each(function(serverWord) {
+              if (!window.MagPo.app.drawers[serverWord.vid]) {
+                return;
+              }
               var drawer = window.MagPo.app.drawers[serverWord.vid].model;
               var word = drawer.words.get(serverWord.id);
               if (typeof word == 'undefined') {
@@ -183,10 +186,16 @@
             });
             model.add(poemObj);
           });
-          loadingListings = false;
+          // HACK - leave the page as "loading" if no new poems were returned.
+          // This will prevent the pager from continuously increasing.
+          if (data.poems.length != 0) {
+            loadingListings = false;
+          }
+          $('#loading-listings').remove();
         },
         error: function() {
           loadingListings = false;
+          $('#loading-listings').remove();
         }
       });
     }
@@ -948,7 +957,8 @@
         return;
       }
       if ($(window).height() + $(window).scrollTop() == $(document).height()) {
-        console.log(this.el);
+        listingsPage++;
+        window.MagPo.app.listings.fetch({ page: listingsPage });
       }
     },
     loadPoem: function(e) {
@@ -1051,7 +1061,7 @@
 
     self.authView = new AuthView();
     self.listings = new Listings();
-    self.listingView = new ListingsView({ collection: self.listings });
+    self.listingsView = new ListingsView({ collection: self.listings });
 
     self.router = null;
   };
