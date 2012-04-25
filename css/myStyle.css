@@ -281,6 +281,20 @@ footer {
     background: #9AC3A5;
     width: 100%;
   }
+
+  #listings .listing {
+    font-size: .75em;
+    background: #9AC3A5;
+    padding: 5px;
+    border-bottom: 1px solid #8EB498;
+    border-top: 1px solid #B2E2BF;
+    cursor: pointer;
+  }
+
+  .listing .time {
+    float: right;
+  }
+
   #workspace {
     display: none;
   }

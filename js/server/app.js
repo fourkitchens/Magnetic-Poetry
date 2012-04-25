@@ -46,6 +46,7 @@ app.router.get('/list/:page', function(page) {
       self.res.json({ status: 'error' });
       return;
     }
+
     self.res.json({ status: 'ok', poems: docs });
   });
 });

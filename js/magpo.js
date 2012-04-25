@@ -167,6 +167,8 @@
         success: function(data) {
           model.reset();
           _.each(data.poems, function(poem) {
+            poem.id = poem._id;
+            delete poem._id;
             var poemObj = new Poem(poem);
             _(poem.words).each(function(serverWord) {
               var drawer = window.MagPo.app.drawers[serverWord.vid].model;
@@ -898,6 +900,9 @@
   var ListingView = Backbone.View.extend({
     el: '#listings',
     poemTemplate: _.template($('#listing-template').html()),
+    events: {
+      'click .listing': 'loadPoem'
+    },
     initialize: function() {
       dispatch.on('orientationChange', this.orientationChange, this);
       this.collection.bind('add', this.addOne, this);
@@ -914,8 +919,9 @@
         author = 'Anonymous';
       }
       $(this.el).append(this.poemTemplate({
+        id: poem.id,
         author: author,
-        time: Date(poem.get('changed')).toLocaleString(),
+        time: moment(poem.get('changed')).format('D MMM, h:mma'),
         poem: poem.stringify()
       }));
     },
@@ -924,6 +930,13 @@
         listingsVisible = true;
         this.render();
       }
+    },
+    loadPoem: function(e) {
+      e.preventDefault();
+      window.MagPo.app.router.navigate(
+        $(e.currentTarget).attr('id'),
+        { trigger: true }
+      );
     }
   });
 
