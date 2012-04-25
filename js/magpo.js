@@ -7,6 +7,8 @@
   var isAuthor = true;
   var barVisible = $('#word-bar').is(':visible');
   var listingsVisible = $('#listings').is(':visible');
+  var listingsPage = 0;
+  var loadingListings = false;
 
   var supportsOrientationChange = "onorientationchange" in window;
   var orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
@@ -162,6 +164,7 @@
       if (options.page) {
         page = options.page;
       }
+      loadingListings = true;
       $.ajax({
         url: 'app/list/' + page,
         success: function(data) {
@@ -173,10 +176,17 @@
             _(poem.words).each(function(serverWord) {
               var drawer = window.MagPo.app.drawers[serverWord.vid].model;
               var word = drawer.words.get(serverWord.id);
+              if (typeof word == 'undefined') {
+                return;
+              }
               poemObj.words.add(word);
             });
             model.add(poemObj);
           });
+          loadingListings = false;
+        },
+        error: function() {
+          loadingListings = false;
         }
       });
     }
@@ -897,9 +907,10 @@
   /**
    * Handles a listing view.
    */
-  var ListingView = Backbone.View.extend({
+  var ListingsView = Backbone.View.extend({
     el: '#listings',
     poemTemplate: _.template($('#listing-template').html()),
+    loadingTemplate: _.template($('#loading-template').html()),
     events: {
       'click .listing': 'loadPoem'
     },
@@ -907,6 +918,7 @@
       dispatch.on('orientationChange', this.orientationChange, this);
       this.collection.bind('add', this.addOne, this);
       this.collection.bind('reset', this.render, this);
+      $(window).on('scroll', this.loadOnScroll);
     },
     render: function() {
       this.collection.each(function(poem) {
@@ -929,6 +941,14 @@
       if (!listingsVisible && $('#listings').is(':visible')) {
         listingsVisible = true;
         this.render();
+      }
+    },
+    loadOnScroll: function(e) {
+      if (!listingsVisible || loadingListings) {
+        return;
+      }
+      if ($(window).height() + $(window).scrollTop() == $(document).height()) {
+        console.log(this.el);
       }
     },
     loadPoem: function(e) {
@@ -1031,7 +1051,7 @@
 
     self.authView = new AuthView();
     self.listings = new Listings();
-    self.listingView = new ListingView({ collection: self.listings });
+    self.listingView = new ListingsView({ collection: self.listings });
 
     self.router = null;
   };
