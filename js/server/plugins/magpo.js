@@ -17,6 +17,18 @@ MagPo.name = 'magpo';
 
 MagPo.attach = function() {
   /**
+   * Lists poems 20 per page.
+   */
+  this.list = function(page, callback) {
+    var limit = 20;
+    var query = this.PoemModel.find({});
+    query.limit(limit)
+      .skip(limit * page)
+      .sort('changed', -1)
+      .exec(callback);
+  };
+
+  /**
    * Loads a poem by id from persistant storage.
    *
    * @param {string} id
