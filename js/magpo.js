@@ -958,7 +958,7 @@
     },
     loadPoem: function(e) {
       window.MagPo.app.router.navigate(
-        $(e.currentTarget).attr('id'),
+        $(e.currentTarget).attr('data-id'),
         { trigger: true }
       );
       $(e.currentTarget).append(this.infoTemplate);
