@@ -58,9 +58,13 @@ menu ul li.logged-in {
   cursor: pointer;
 }
 
-#turn-phone {
+#listings {
   display:none;
 }
+#listing-info {
+  color: #B20000;
+}
+
 #workspace-inner {
   width:100%;
   margin:auto;
@@ -273,7 +277,7 @@ footer {
 }
 /* For phones in portrait we want display a message.*/
 @media only screen and (max-width: 599px) and (orientation:portrait) {
-  #turn-phone {
+  #listings {
     height: 100%;
     z-index: 10000;
     position: absolute;
@@ -281,10 +285,20 @@ footer {
     background: #9AC3A5;
     width: 100%;
   }
-  #turn-phone span {
-    margin: 1em;
-    display: block;
+
+  #listings .listing {
+    font-size: .75em;
+    background: #9AC3A5;
+    padding: 5px;
+    border-bottom: 1px solid #8EB498;
+    border-top: 1px solid #B2E2BF;
+    cursor: pointer;
   }
+
+  .listing .time {
+    float: right;
+  }
+
   #workspace {
     display: none;
   }
