@@ -61,6 +61,10 @@ menu ul li.logged-in {
 #listings {
   display:none;
 }
+#listing-info {
+  color: #B20000;
+}
+
 #workspace-inner {
   width:100%;
   margin:auto;
