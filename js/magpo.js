@@ -951,7 +951,7 @@
       if (!listingsVisible || loadingListings) {
         return;
       }
-      if ($(window).height() + $(window).scrollTop() == $(document).height()) {
+      if ($(window).height() + $(window).scrollTop() >= $(document).height() - 600) {
         listingsPage++;
         window.MagPo.app.listings.fetch({ page: listingsPage });
       }
