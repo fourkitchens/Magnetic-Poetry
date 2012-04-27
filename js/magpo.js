@@ -25,6 +25,15 @@
     false
   );
 
+  // Event handler for the throbber.
+  var throbberEvent = _.clone(Backbone.Events);
+  throbberEvent.on('show', function() {
+    $('#loading').show();
+  });
+  throbberEvent.on('hide', function() {
+    $('#loading').hide();
+  });
+
   /**
    * Defines sync behavior to the backend.
    *
@@ -47,6 +56,8 @@
         body.poem.author = window.MagPo.app.user;
       }
 
+      throbberEvent.trigger('show');
+
       // Send to server.
       $.ajax({
         url: 'app/save',
@@ -55,6 +66,7 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
+          throbberEvent.trigger('hide');
           if (data.status != 'ok') {
             console.error('Error saving poem to server.');
             // Prevent dialogs during autosaves.
@@ -92,6 +104,7 @@
           window.MagPo.app.poem.trigger('saved', data.status);
         },
         error: function(jqXHR, textStatus, errorThrown) {
+          throbberEvent.trigger('hide');
           console.error(errorThrown);
           // Prevent dialogs during autosaves.
           if (!autosave) {
@@ -104,6 +117,7 @@
       });
     }
     else if (model instanceof Poem && method == 'read') {
+      throbberEvent.trigger('show');
       var author = localStorage.getItem('MagPo_me');
       $.ajax({
         url: 'app/load/' + model.id,
@@ -112,6 +126,7 @@
         dataType: 'json',
         type: 'POST',
         success: function(data) {
+          throbberEvent.trigger('hide');
           if (data.status != 'ok') {
             console.error('Error fetching poem from server.');
             return;
@@ -166,10 +181,12 @@
         page = options.page;
       }
       loadingListings = true;
+      throbberEvent.trigger('show');
       $('#listings').append(window.MagPo.app.listingsView.loadingTemplate({}));
       $.ajax({
         url: 'app/list/' + page,
         success: function(data) {
+          throbberEvent.trigger('hide');
           _.each(data.poems, function(poem) {
             poem.id = poem._id;
             delete poem._id;
@@ -195,6 +212,7 @@
           $('#loading-listings').remove();
         },
         error: function() {
+          throbberEvent.trigger('hide');
           loadingListings = false;
           $('#loading-listings').remove();
         }
