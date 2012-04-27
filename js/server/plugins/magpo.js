@@ -16,6 +16,55 @@ var MagPo = exports;
 MagPo.name = 'magpo';
 
 MagPo.attach = function() {
+
+  // Static variable cache for poem words.
+  this.words = null;
+
+  /**
+   * Fetches words from the server or returns the static cache.
+   */
+  this.getWords = function(callback) {
+    if (this.words && this.words.expires > Date.now()) {
+      callback(this.words.words);
+      return;
+    }
+
+    var self = this;
+    var options = url.parse(settings.words);
+    var req = http.get(options);
+    req.on('response', function(res) {
+      var data = '';
+      var onEnd = function() {
+        // Reset the static cache for one hour.
+        self.words = {
+          expires: Date.now() + 3600000,
+          words: JSON.parse(data)
+        };
+        callback(self.words.words);
+      };
+
+      if (res.headers['content-encoding'] === 'gzip') {
+        var gunzip = zlib.createGunzip();
+        res.pipe(gunzip);
+        gunzip.on('data', function(chunk) {
+          data += chunk;
+        });
+        gunzip.on('end', onEnd);
+      }
+      else {
+        res.on('data', function onData(chunk) {
+          data += chunk;
+        });
+        res.on('end', onEnd);
+      }
+    })
+    req.on('error', function(e) {
+        console.error(e);
+        valid = false;
+        callback(valid);
+      });
+  };
+
   /**
    * Lists poems 20 per page.
    */
@@ -51,55 +100,26 @@ MagPo.attach = function() {
     var valid = true;
 
     var validateWords = function() {
-      // TODO - cache money, baby!
-      var options = url.parse(settings.words);
-      var req = http.get(options);
-      req.on('response', function(res) {
-        var data = '';
-        var onEnd = function() {
-          var drawers = JSON.parse(data);
-          // Walk through our poem and confirm the words are valid.
-          underscore(poem.words).each(function(poemWord) {
-            // If we found one invalid word the poem is invalid.
-            if (valid == false) {
-              return;
-            }
-            valid = false;
-            underscore(drawers).each(function(drawer) {
-              if (drawer.id == poemWord.vid) {
-                underscore(drawer.words).each(function(word) {
-                  if (word.id == poemWord.id && word.string == poemWord.string) {
-                    valid = true;
-                  }
-                });
-              }
-            });
-          });
-          callback(valid);
-        };
-
-        switch (res.headers['content-encoding']) {
-          case 'gzip':
-            var gunzip = zlib.createGunzip();
-            res.pipe(gunzip);
-            gunzip.on('data', function(chunk) {
-              data += chunk;
-            });
-            gunzip.on('end', onEnd);
-            break;
-          default:
-            res.on('data', function onData(chunk) {
-              data += chunk;
-            });
-            res.on('end', onEnd);
-            break;
-        }
-      })
-      req.on('error', function(e) {
-          console.error(e);
+      self.getWords(function(drawers) {
+        // Walk through our poem and confirm the words are valid.
+        underscore(poem.words).each(function(poemWord) {
+          // If we found one invalid word the poem is invalid.
+          if (valid == false) {
+            return;
+          }
           valid = false;
-          callback(valid);
+          underscore(drawers).each(function(drawer) {
+            if (drawer.id == poemWord.vid) {
+              underscore(drawer.words).each(function(word) {
+                if (word.id == poemWord.id && word.string == poemWord.string) {
+                  valid = true;
+                }
+              });
+            }
+          });
         });
+        callback(valid);
+      });
     };
 
     // First, if the author is set, verify that it's valid.
