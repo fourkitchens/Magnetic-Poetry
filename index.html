@@ -162,7 +162,7 @@
         window.MagPo = { };
       }
       $.ajax({
-        url: 'json',
+        url: 'app/drawers',
         success: function(drawers) {
           window.MagPo.app = new window.MagPo.class(drawers);
           if (loaded) {
