@@ -4,7 +4,7 @@
 
 var http = require('http');
 var mongoose = require('mongoose');
-var models = require('../../mylibs/models')
+var models = require('../../lib/models');
 var settings = require('../local');
 var underscore = require('underscore');
 var url = require('url');
