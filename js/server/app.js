@@ -30,6 +30,13 @@ app.router.get('/', function() {
   this.res.json({ status: 'ok' });
 });
 
+app.router.get('/drawers', function() {
+  var self = this;
+  app.getWords(function(drawers) {
+    self.res.json(drawers);
+  });
+});
+
 app.router.get('/save', function() {
   this.res.writeHead(400, headers);
   this.res.json({
