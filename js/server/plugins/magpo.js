@@ -60,8 +60,17 @@ MagPo.attach = function() {
     })
     req.on('error', function(e) {
         console.error(e);
-        valid = false;
-        callback(valid);
+
+        // If we have a cached version return that.
+        if (self.words) {
+          callback(self.words.words);
+          return;
+        }
+
+        // Otherwise just return an empty array, validation and new requests
+        // are SOL, bro.
+        var ret = new Array();
+        callback(ret);
       });
   };
 
