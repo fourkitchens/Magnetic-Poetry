@@ -1085,6 +1085,8 @@
   MagPo.prototype.start = function() {
     var self = this;
 
+    throbberEvent.trigger('hide');
+
     self.authView.render();
     self.listings.fetch();
 
