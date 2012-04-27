@@ -232,9 +232,10 @@
       dispatch.on('orientationChange', function() {
         if (barVisible) {
           $(self.el).draggable('option', 'helper', self.getHelper());
-          // TODO - bind the dragstart if it hasn't been bound yet.
-          if (!$(self.el).data('draggable').options.start) {
-            $(self.el).draggable('option', 'start', self.dragstart);
+          // Bind the dragstart/stop if it hasn't been bound yet.
+          if (!$(self.el).data('draggable').options.start || !$(self.el).data('draggable').options.stop) {
+            $(self.el).draggable('option', 'start', _.bind(self.dragstart, self));
+            $(self.el).draggable('option', 'stop', _.bind(self.dragstop, self));
           }
         }
         else {
@@ -250,7 +251,8 @@
       // These options are only needed for mobile devices.
       if (barVisible) {
         draggable.helper = this.getHelper();
-        draggable.start = this.dragstart;
+        draggable.start = _.bind(this.dragstart, this);
+        draggable.stop = _.bind(this.dragstop, this);
       }
 
       $(this.el).draggable(draggable);
@@ -280,6 +282,19 @@
       if (event.target.parentElement.id !== 'fridge') {
         window.MagPo.app.wordBarView.toggleBar();
       }
+      else {
+        // Store the original z-index and increase it to 1000.
+        this.zIndex = $(event.target).css('z-index');
+        $(event.target).css({ 'z-index': 1000 });
+      }
+    },
+    dragstop: function(event, ui) {
+      if (!barVisible || !this.zIndex) {
+        return;
+      }
+      // Reset the z-index to the value it was before the drag started.
+      $(event.target).css({ 'z-index': this.zIndex });
+      delete this.zIndex;
     },
     getHelper: function() {
       if ($(this.el).parent().attr('id') == 'fridge') {
@@ -439,10 +454,7 @@
           });
         }
         else if (barVisible) {
-          $('#drawers-container').css({
-            height: height,
-            top: self.hiddenHeight,
-          });
+          self.render();
         }
       });
     },
