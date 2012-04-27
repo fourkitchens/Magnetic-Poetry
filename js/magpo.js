@@ -3,6 +3,7 @@
   var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Find a Web Chef!';
   var failedToLoginTxt = 'Uh oh! There was a problem logging you in. Find a Web Chef!';
+  var needToLoginTxt = "Welcome back! If you'd like to be able to edit your poems later you should really log in from the link at the top.";
   var autosave = true;
   var isAuthor = true;
   var barVisible = $('#word-bar').is(':visible');
@@ -1077,6 +1078,16 @@
     self.authView.render();
     self.listings.fetch();
 
+    var tUser = localStorage.getItem('MagPo_tUser');
+    var user = JSON.parse(localStorage.getItem('MagPo_user'));
+    var me = localStorage.getItem('MagPo_me');
+
+    // Show a warning dialog if the user isn't logged in.
+    if (!user && me) {
+      var dialog = new MessageDialogView({ message: needToLoginTxt });
+      dialog.render().showModal({});
+    }
+
     // If this is a new poem, go ahead and perform post load actions.
     if (!window.location.hash) {
       postLoad();
@@ -1084,8 +1095,6 @@
 
     var oauth_token = getParameterByName('oauth_token');
     var oauth_verifier = getParameterByName('oauth_verifier');
-    var tUser = localStorage.getItem('MagPo_tUser');
-    var user = JSON.parse(localStorage.getItem('MagPo_user'));
     if (oauth_token.length && oauth_verifier.length && tUser) {
       // Remove the query arguments.
       // TODO - detect a hash.
