@@ -1,5 +1,29 @@
+var jsdom = require('jsdom');
+
 /*global module:false*/
 module.exports = function(grunt) {
+
+  // Custom task to minify and remove non-minified files.
+  grunt.registerTask('mymin', 'Concat, minify, and remove full files from markup.', function() {
+    var done = this.async();
+    jsdom.env(
+      'index.html',
+      ['http://code.jquery.com/jquery-1.5.min.js'],
+      function(errors, window) {
+        // Collect the files to be minified.
+        var files = new Array();
+        (function($) {
+          $('script').each(function() {
+            if ($(this).data('min') === 'magpo') {
+              files.push($(this).attr('src'));
+            }
+          });
+          console.log(files);
+          done();
+        }(window.jQuery));
+      }
+    );
+  });
 
   // Project configuration.
   grunt.initConfig({
