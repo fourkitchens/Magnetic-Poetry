@@ -957,6 +957,13 @@
       }
     },
     loadPoem: function(e) {
+      // Redirect to a new poem if the id wasn't set and a poem has
+      // already been loaded.
+      if (!$(e.currentTarget).attr('data-id') && window.MagPo.app.poem.id) {
+        window.location = '/magpo/';
+        return;
+      }
+
       window.MagPo.app.router.navigate(
         $(e.currentTarget).attr('data-id'),
         { trigger: true }
