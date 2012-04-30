@@ -1,6 +1,6 @@
 {
   "name": "magpo",
-  "version": "0.0",
+  "version": "0.0.1",
   "dependencies": {
     "jsdom": "0.2.14"
   }
