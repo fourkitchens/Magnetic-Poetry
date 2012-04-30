@@ -9,7 +9,7 @@ var und = require('underscore');
 
 // Define the default response headers.
 var headers = {
-  'Content-Type': 'application/json',
+  'Content-Type': 'application/json'
 };
 
 app.use(flatiron.plugins.http);

@@ -1,4 +1,5 @@
-var ModalView = Backbone.View.extend({
+(function($) {
+var ModalView = window.ModalView = Backbone.View.extend({
   name: "ModalView",
   modalBlanket: null,
   modalContainer: null,
@@ -135,3 +136,4 @@ var ModalView = Backbone.View.extend({
     );
   }
 });
+}(jQuery));

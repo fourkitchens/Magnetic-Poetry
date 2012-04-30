@@ -1,5 +1,59 @@
+var jsdom = require('jsdom');
+
 /*global module:false*/
 module.exports = function(grunt) {
+
+  // Custom task to concat and remove non-concated files.
+  grunt.registerMultiTask('mycat', 'Concat and remove full files from markup.', function() {
+    var self = this;
+    var done = self.async();
+
+    jsdom.env(
+      'index.html',
+      ['http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'],
+      function(errors, window) {
+        // Collect the files to be concated.
+        var files = [];
+        (function($) {
+          var magpoFilter = function() {
+            return $(this).data('min') === 'magpo';
+          };
+
+          $('script').filter(magpoFilter).each(function() {
+            files.push($(this).attr('src'));
+          });
+          var options = {};
+          if (self.data.separator) {
+            options.separator = self.data.separator;
+          }
+          var src = grunt.helper('concat', files, options);
+          grunt.file.write(self.file.dest, src);
+
+          if (self.errorCount) { done(false); }
+          grunt.log.writeln('File "' + self.file.dest + '" created.');
+
+          $('script').filter(magpoFilter).filter(':last').each(function() {
+            // JQuery doesn't insert into the DOM in a way that we can print to
+            // a string, so use vanilla JavaScript.
+            var script = window.document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = self.file.dest;
+            var parentElm = this.parentNode;
+            parentElm.insertBefore(script, this);
+          });
+
+          $('script').filter(magpoFilter).remove();
+
+          grunt.file.write('index.html', window.document.documentElement.innerHTML);
+
+          if (self.errorCount) { done(false); }
+          grunt.log.writeln('meow');
+
+          done();
+        }(window.jQuery));
+      }
+    );
+  });
 
   // Project configuration.
   grunt.initConfig({
@@ -38,7 +92,6 @@ module.exports = function(grunt) {
       files: '<config:lint.files>',
       tasks: 'lint qunit'
     },
-    
     pkg: '<json:package.json>',
     meta: {
       banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
@@ -48,7 +101,7 @@ module.exports = function(grunt) {
         ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
     },
     lint: {
-      files: ['grunt.js', 'js/**/*.js', 'test/**/*.js']
+      files: ['grunt.js', 'js/magpo.js', 'js/lib/*.js', 'js/models/*.js', 'js/server/app.js', 'js/server/plugins/*.js']
     },
     qunit: {
       files: ['test/**/*.html']
@@ -56,13 +109,18 @@ module.exports = function(grunt) {
     concat: {
       dist: {
         src: ['js/plugins.js', 'js/main.js'],
-        dest: 'js/magpo-0.1.0.js'
+        dest: 'js/magpo-<%= pkg.version %>.js'
+      }
+    },
+    mycat: {
+      dist: {
+        dest: 'js/magpo-<%= pkg.version %>.js'
       }
     },
     min: {
       dist: {
-        src: 'js/magpo-0.1.0.js',
-        dest: 'js/main.js'
+        src: 'js/magpo-<%= pkg.version %>.js',
+        dest: 'js/magpo-<%= pkg.version %>.js'
       }
     },
     jshint: {
@@ -80,7 +138,9 @@ module.exports = function(grunt) {
         browser: true
       },
       globals: {
-        jQuery: true
+        jQuery: true,
+        Backbone: true,
+        _: true
       }
     },
     uglify: {}
