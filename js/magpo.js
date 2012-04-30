@@ -46,7 +46,7 @@
    *   Sync options.
    */
   Backbone.sync = function(method, model, options) {
-    if (model instanceof Poem && (method == 'create' || method == 'update')) {
+    if (model instanceof Poem && (method === 'create' || method === 'update')) {
       var body = {
         poem: model.toJSON()
       };
@@ -68,7 +68,7 @@
         type: 'POST',
         success: function(data) {
           throbberEvent.trigger('hide');
-          if (data.status != 'ok') {
+          if (data.status !== 'ok') {
             console.error('Error saving poem to server.');
             // Prevent dialogs during autosaves.
             if (!autosave) {
@@ -117,7 +117,7 @@
         }
       });
     }
-    else if (model instanceof Poem && method == 'read') {
+    else if (model instanceof Poem && method === 'read') {
       throbberEvent.trigger('show');
       var author = localStorage.getItem('MagPo_me');
       $.ajax({
@@ -128,7 +128,7 @@
         type: 'POST',
         success: function(data) {
           throbberEvent.trigger('hide');
-          if (data.status != 'ok') {
+          if (data.status !== 'ok') {
             console.error('Error fetching poem from server.');
             return;
           }
@@ -176,7 +176,7 @@
         }
       });
     }
-    else if (model instanceof Listings && method == 'read') {
+    else if (model instanceof Listings && method === 'read') {
       var page = 0;
       if (options.page) {
         page = options.page;
@@ -198,7 +198,7 @@
               }
               var drawer = window.MagPo.app.drawers[serverWord.vid].model;
               var word = drawer.words.get(serverWord.id);
-              if (typeof word == 'undefined') {
+              if (typeof word === 'undefined') {
                 return;
               }
               poemObj.words.add(word);
@@ -207,7 +207,7 @@
           });
           // HACK - leave the page as "loading" if no new poems were returned.
           // This will prevent the pager from continuously increasing.
-          if (data.poems.length != 0) {
+          if (data.poems.length !== 0) {
             loadingListings = false;
           }
           $('#loading-listings').remove();
@@ -240,7 +240,7 @@
   var WordView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
-      class: 'draggable tiles'
+      'class': 'draggable tiles'
     },
     initialize: function() {
       var self = this;
@@ -280,8 +280,8 @@
       $(this.el).html('<span>' + this.model.get('string') + '</span>');
 
       // add the random tilt.
-      rand = Math.floor(Math.random() * 2);
-      if (rand == 1) {
+      var rand = Math.floor(Math.random() * 2);
+      if (rand === 1) {
         $(this.el).css('-webkit-transform', 'rotate(-2deg)');
       }
       var top = this.model.get('top');
@@ -316,7 +316,7 @@
       delete this.zIndex;
     },
     getHelper: function() {
-      if ($(this.el).parent().attr('id') == 'fridge') {
+      if ($(this.el).parent().attr('id') === 'fridge') {
         return 'original';
       }
       return function(event) {
@@ -344,7 +344,7 @@
   var DrawerView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
-      class: 'drawer',
+      'class': 'drawer',
       style: 'display: none'
     },
     initialize: function() {
@@ -424,7 +424,7 @@
   var DrawerHandleView = Backbone.View.extend({
     tagName: 'li',
     attributes: {
-      class: 'drawer-handle'
+      'class': 'drawer-handle'
     },
     initialize: function() {
       this.render();
@@ -441,7 +441,7 @@
         }
         $('.open-handle').removeClass('open-handle');
         $(this).addClass('open-handle');
-        if ($('.open-drawer').length == 1) {
+        if ($('.open-drawer').length === 1) {
           $('.open-drawer').removeClass('open-drawer').hide();
           $(self.model.view.$el).addClass('open-drawer').show();
         }
@@ -546,10 +546,10 @@
           if (barVisible) {
             $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
           }
-          fridgeOffset = $(self.el).offset();
+          var fridgeOffset = $(self.el).offset();
           var dropped = $(ui.draggable).data('backbone-view').model;
           var dropOffset = ui.offset;
-          resultOffset = {};
+          var resultOffset = {};
           resultOffset.top = dropOffset.top - fridgeOffset.top;
           resultOffset.left = dropOffset.left - fridgeOffset.left;
           if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
@@ -689,7 +689,7 @@
 
       // Add a listener to show the dialog after saving is complete.
       window.MagPo.app.poem.on('saved', function(msg) {
-        if (msg == 'ok') {
+        if (msg === 'ok') {
           // Create the modal view over the fridge.
           var view = new ShareDialogView();
           var fridgeOffset = $('#fridge').offset();
@@ -784,7 +784,7 @@
       );
 
       return self;
-    },
+    }
   });
 
   /**
@@ -802,10 +802,10 @@
     responseTemplate: _.template($('#response-template').html()),
     initialize: function() {
       dispatch.on('orientationChange', function() {
-        if (barVisible && $('menu').parent().attr('id') != 'word-bar') {
+        if (barVisible && $('menu').parent().attr('id') !== 'word-bar') {
           $('menu').prependTo('#word-bar');
         }
-        else if (!barVisible && $('menu').parent().attr('id') == 'word-bar') {
+        else if (!barVisible && $('menu').parent().attr('id') === 'word-bar') {
           $('menu').prependTo('body');
         }
       });
@@ -871,7 +871,7 @@
     el: '#auth',
     events: {
       'click #login': 'login',
-      'click #logout': 'logout',
+      'click #logout': 'logout'
     },
     template: _.template($('#auth-template').html()),
     render: function() {
@@ -895,8 +895,7 @@
       // Save the poem if it hasn't been saved yet so we have a valid
       // return URL.
       if (
-        (typeof window.MagPo.app.poem.id === 'undefined' || window.MagPo.app.poem.id === null)
-        &&
+        (typeof window.MagPo.app.poem.id === 'undefined' || window.MagPo.app.poem.id === null) &&
         window.MagPo.app.poem.words.length
       ) {
         window.MagPo.app.poem.save();
@@ -915,7 +914,7 @@
         url: 'app/login',
         contentType: 'application/json',
         data: JSON.stringify({
-          success: window.location.toString(),
+          success: window.location.toString()
         }),
         dataType: 'json',
         type: 'POST',
@@ -1001,7 +1000,7 @@
       );
       $(e.currentTarget).append(this.infoTemplate);
       setTimeout(function() {
-        $('#listing-info').fadeOut(1000, function() { $(this).remove() });
+        $('#listing-info').fadeOut(1000, function() { $(this).remove(); });
       }, 2000);
     }
   });
@@ -1180,7 +1179,7 @@
               if (event.data !== 200) {
                 console.error(util.format('Error (%d): Error updating poem.'));
               }
-            }
+            };
           }
 
           self.authView.loggedIn();
@@ -1227,6 +1226,47 @@
     $(document).on('touchmove', '.tiles', function(e) {});
   };
 
-  window.MagPo.class = MagPo;
-})(jQuery);
+  window.MagPo['class'] = MagPo;
+
+  var loaded = false;
+  $(window).load(function() {
+    loaded = true;
+    if (typeof window.MagPo.app !== 'undefined') {
+      window.MagPo.app.start();
+    }
+  });
+  if (typeof window.MagPo === 'undefined') {
+    window.MagPo = { };
+  }
+  $.ajax({
+    url: 'app/drawers',
+    success: function(drawers) {
+      window.MagPo.app = new window.MagPo['class'](drawers);
+      if (loaded) {
+        window.MagPo.app.start();
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      var drawers = [
+        {id: 2, name:'Drupal', words:
+          [
+            { id: 15, string: '.install', vid: 2},
+            { id: 6, string: 'devel', vid: 2}
+          ]
+        },
+        {id: 3, name:'verbs', words:
+          [
+            { id: 15, string: '.install', vid: 2}
+          ]
+        }
+      ];
+      window.MagPo.app = new window.MagPo['class'](drawers);
+      console.error(errorThrown);
+      var dialog = new window.MessageDialogView({
+        message: 'Uh oh! There was a problem loading! Try again later.'
+      });
+      dialog.render().showModal({});
+    }
+  });
+}(jQuery));
 

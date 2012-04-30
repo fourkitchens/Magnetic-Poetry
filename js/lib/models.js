@@ -48,7 +48,7 @@ var Drawer = Backbone.Model.extend({
  * @see models/simplePoem.js
  */
 var SimplePoem = Backbone.Model.extend({
-  defaults: simplePoemModel,
+  defaults: simplePoemModel
 });
 
 /**
@@ -60,7 +60,7 @@ var Poem = Backbone.Model.extend({
   defaults: poemModel,
   initialize: function() {
     var self = this;
-    var poemCollection = WordCollection.extend({
+    var PoemCollection = WordCollection.extend({
       comparator: function(a, b) {
         var bp = breakpoints[self.get('breakpoint')];
         var third = bp.rowHeight / 3;
@@ -81,9 +81,9 @@ var Poem = Backbone.Model.extend({
         }
       }
     });
-    this.words = new poemCollection();
+    this.words = new PoemCollection();
 
-    var childrenCollection = Backbone.Collection.extend({
+    var ChildrenCollection = Backbone.Collection.extend({
       comparator: function(a, b) {
         if (a.get('changed') > b.get('changed')) {
           return -1;
@@ -94,7 +94,7 @@ var Poem = Backbone.Model.extend({
         return 0;
       }
     });
-    this.children = new childrenCollection();
+    this.children = new ChildrenCollection();
   },
   getWords: function() {
     return this.words.toJSON();
@@ -149,12 +149,12 @@ var Poem = Backbone.Model.extend({
     });
     this.words.each(function(word) {
       if (!lastTop) {
-        out += Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1)
+        out += new Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1)
           .join(' ');
       }
       else if (lastTop && (word.get('top') > (lastTop + bp.rowHeight + third))) {
-        out += Array(Math.floor((word.get('top') - lastTop) / bp.rowHeight) + 1).join('\n');
-        out += Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1).join(' ');
+        out += new Array(Math.floor((word.get('top') - lastTop) / bp.rowHeight) + 1).join('\n');
+        out += new Array(Math.floor((word.get('left') - lowestLeft) / bp.charWidth) + 1).join(' ');
         lastRight = false;
       }
       if (lastRight) {
@@ -162,7 +162,7 @@ var Poem = Backbone.Model.extend({
         if (spaces <= 0) {
           spaces = 0;
         }
-        out += Array(spaces).join(' ');
+        out += new Array(spaces).join(' ');
       }
       out += word.get('string');
       lastRight = word.get('left') + (word.get('string').length * bp.charWidth);

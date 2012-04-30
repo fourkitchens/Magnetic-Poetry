@@ -145,7 +145,7 @@ Twitter.init = function(done) {
     consumer_key: settings.twitter.consumer_key,
     consumer_secret: settings.twitter.consumer_secret,
     access_token_key: settings.twitter.access_token_key,
-    access_token_secret: settings.twitter.access_token_secret,
+    access_token_secret: settings.twitter.access_token_secret
   };
   return done();
 };
