@@ -13,7 +13,7 @@ module.exports = function(grunt) {
       ['http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'],
       function(errors, window) {
         // Collect the files to be concated.
-        var files = new Array();
+        var files = [];
         (function($) {
           var magpoFilter = function() {
             return $(this).data('min') === 'magpo';
@@ -138,7 +138,9 @@ module.exports = function(grunt) {
         browser: true
       },
       globals: {
-        jQuery: true
+        jQuery: true,
+        Backbone: true,
+        _: true
       }
     },
     uglify: {}

@@ -11,6 +11,49 @@ var url = require('url');
 var UserModel = require('../models/user').UserModel;
 var zlib = require('zlib');
 
+/**
+ * Helper function to do a request to the server and callback with the results.
+ *
+ * @param {object} options
+ *   The http.request options hash.
+ * @param {object} post
+ *   The post object to send.
+ * @param {function} callback
+ *   The function to callback when the request completes.
+ */
+function request(options, post, callback) {
+  post = JSON.stringify(post);
+  if (typeof options.headers === 'undefined') {
+    options.headers = {};
+  }
+  options.headers['Content-Type'] = 'application/json';
+  options.headers['Content-Length'] = post.length;
+  var req = http.request(options, function saveRequest(res) {
+    var data = '';
+    res.on('data', function onData(chunk) {
+      data += chunk;
+    });
+    res.on('end', function() {
+      if (res.statusCode != 200) {
+        console.error('Error (' + res.statusCode + ')');
+        console.error(data);
+      }
+      if (typeof callback === 'function') {
+        callback(data, res.statusCode);
+      }
+    });
+  });
+  req.write(post);
+  req.end();
+  req.on('error', function(err) {
+    console.error('Request error.');
+    console.error(err);
+    if (typeof callback === 'function') {
+      callback(err, 0);
+    }
+  });
+}
+
 var MagPo = exports;
 
 MagPo.name = 'magpo';
@@ -57,7 +100,7 @@ MagPo.attach = function() {
         });
         res.on('end', onEnd);
       }
-    })
+    });
     req.on('error', function(e) {
         console.error(e);
 
@@ -69,7 +112,7 @@ MagPo.attach = function() {
 
         // Otherwise just return an empty array, validation and new requests
         // are SOL, bro.
-        var ret = new Array();
+        var ret = [];
         callback(ret);
       });
   };
@@ -113,7 +156,7 @@ MagPo.attach = function() {
         // Walk through our poem and confirm the words are valid.
         underscore(poem.words).each(function(poemWord) {
           // If we found one invalid word the poem is invalid.
-          if (valid == false) {
+          if (valid === false) {
             return;
           }
           valid = false;
@@ -164,14 +207,14 @@ MagPo.attach = function() {
     var fork = false;
 
     self.validatePoem(poem, function onValidated(valid) {
-      if (valid != true) {
+      if (valid !== true) {
         // Bail out with a 406 header to be sent to the client.
         callback(406, null);
         return;
       }
 
       // Reset the author to a string if it's an object.
-      if (poem.author && typeof poem.author.screen_name != 'undefined') {
+      if (poem.author && typeof poem.author.screen_name !== 'undefined') {
         poem.author = poem.author.screen_name;
       }
 
@@ -287,7 +330,7 @@ MagPo.attach = function() {
               var options = url.parse(settings.drupal.endpoint + 'n/' + doc.nid);
               options.method = 'PUT';
               options.headers = {
-                'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';',
+                'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';'
               };
 
               request(options, post);
@@ -297,7 +340,7 @@ MagPo.attach = function() {
             var options = url.parse(settings.drupal.endpoint + 'n/' + poem.nid);
             options.method = 'PUT';
             options.headers = {
-              'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';',
+              'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';'
             };
             request(options, post);
           }
@@ -352,7 +395,7 @@ MagPo.attach = function() {
         var options = url.parse(settings.drupal.endpoint + 'n');
         options.method = 'POST';
         options.headers = {
-          'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';',
+          'Cookie': self.cookie.session_name + '=' + self.cookie.sessid + ';'
         };
         request(options, post, function(data, statusCode) {
           if (statusCode != 200) {
@@ -426,7 +469,7 @@ MagPo.init = function(done) {
   // Log into Drupal.
   var post = {
     username: settings.drupal.user,
-    password: settings.drupal.password,
+    password: settings.drupal.password
   };
   var options = url.parse(settings.drupal.endpoint + 'u/login');
   options.method = 'POST';
@@ -438,7 +481,7 @@ MagPo.init = function(done) {
     data = JSON.parse(data);
     self.cookie = {
       session_name: data.session_name,
-      sessid: data.sessid,
+      sessid: data.sessid
     };
   });
 
@@ -449,45 +492,4 @@ MagPo.detach = function() {
   mongoose.connection.close();
 };
 
-/**
- * Helper function to do a request to the server and callback with the results.
- *
- * @param {object} options
- *   The http.request options hash.
- * @param {object} post
- *   The post object to send.
- * @param {function} callback
- *   The function to callback when the request completes.
- */
-function request(options, post, callback) {
-  post = JSON.stringify(post);
-  if (typeof options.headers === 'undefined') {
-    options.headers = {};
-  }
-  options.headers['Content-Type'] = 'application/json';
-  options.headers['Content-Length'] = post.length;
-  var req = http.request(options, function saveRequest(res) {
-    var data = '';
-    res.on('data', function onData(chunk) {
-      data += chunk;
-    });
-    res.on('end', function() {
-      if (res.statusCode != 200) {
-        console.error('Error (' + res.statusCode + ')');
-        console.error(data);
-      }
-      if (typeof callback === 'function') {
-        callback(data, res.statusCode);
-      }
-    });
-  });
-  req.write(post);
-  req.end();
-  req.on('error', function(err) {
-    console.error('Request error.');
-    console.error(err);
-    if (typeof callback === 'function') {
-      callback(err, 0);
-    }
-  });
-}
+
