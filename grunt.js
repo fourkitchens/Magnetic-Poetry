@@ -120,7 +120,7 @@ module.exports = function(grunt) {
     min: {
       dist: {
         src: 'js/magpo-<%= pkg.version %>.js',
-        dest: 'js/main.js'
+        dest: 'js/magpo-<%= pkg.version %>.js'
       }
     },
     jshint: {
