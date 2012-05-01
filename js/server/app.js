@@ -105,6 +105,31 @@ app.router.post('/load/:id', function(id) {
   });
 });
 
+app.router.post('/admin/:id/status', function(id) {
+  var self = this;
+  if (typeof self.req.body.status !== 'boolean') {
+    self.res.writeHead(400, headers);
+    self.res.end(JSON.stringify({
+      status: 'error',
+      error: 'Invalid status value.'
+    }));
+    return;
+  }
+  app.publishPoem(id, self.req.body.status, function onSaved(err) {
+    if (err) {
+      self.res.writeHead(err, headers);
+      self.res.end(JSON.stringify({
+        status: 'error',
+        error: 'Error saving poem.'
+      }));
+      return;
+    }
+
+    self.res.writeHead(204, headers);
+    self.res.end();
+  });
+});
+
 app.router.post('/save', function() {
   var self = this;
   if (typeof self.req.body.poem === 'undefined') {
@@ -170,3 +195,4 @@ app.router.post('/update/:id', function(id) {
 });
 
 app.start(settings.port);
+console.log('MagPo started, listening on port %d.', settings.port);
