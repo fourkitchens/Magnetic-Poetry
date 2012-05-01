@@ -220,19 +220,6 @@ MagPo.attach = function() {
       // If the poem is being unpublished, remove it as a parent
       // or response from other poems.
       if (!status) {
-        // Remove this poem as a parent of any children.
-        und(poem.children).each(function(child) {
-          self.PoemModel.update(
-            { _id: child.id },
-            { $set: { parent: null } },
-            function(err) {
-              if (err) {
-                console.error('Error unsetting parent on %s for %s.', child.id, id);
-              }
-            }
-          );
-        });
-
         // Remove this poem as a child of any parent.
         if (poem.parent) {
           self.loadPoem(poem.parent, function(err, parent) {
@@ -256,19 +243,6 @@ MagPo.attach = function() {
       // Else, make sure it gets added back in as parents and responses
       // as appropriate.
       else {
-        // Add this poem as a parent of any children.
-        und(poem.children).each(function(child) {
-          self.PoemModel.update(
-            { _id: child.id },
-            { $set: { parent: id } },
-            function(err) {
-              if (err) {
-                console.error('Error setting parent on %s for %s.', child.id, id);
-              }
-            }
-          );
-        });
-
         // Add this poem as a child of any parent.
         if (poem.parent) {
           var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
