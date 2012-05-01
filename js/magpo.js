@@ -567,14 +567,16 @@
       var eachFunction = _.bind(function(word) {
         var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
         var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
-        $(word.view.el)
+        var siblings = $(word.view.el)
           .appendTo('#fridge')
           .position({
             of: '#fridge',
             my: 'left top',
             at: 'left top',
             offset: left + ' ' + top
-          });
+          })
+          .prevAll();
+        repositionSiblings(siblings);
       }, this);
       this.collection.words.each(eachFunction);
       return this;
@@ -638,7 +640,8 @@
             my: 'left top',
             at: 'left top',
             offset: resultOffset.left + ' ' + resultOffset.top
-          }).prevAll();
+          })
+          .prevAll();
 
         repositionSiblings(siblings);
 
