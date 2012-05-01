@@ -525,23 +525,22 @@
    * Defines a view that is shared by various representations of the poem.
    */
   var PoemView = Backbone.View.extend({
-    // phone size is: 480 wide and 310 tall
-    // desktop size is: 600 wide x 378 tall
-    // ratio is .8
     /**
-     *  Transforms numbers based on the breakpoint ratios.
+     * Transforms numbers based on the breakpoint ratios.
+     *  phone size is: 480 wide and 310 tall
+     *  desktop size is: 600 wide x 378 tall
+     *  ratio is .8*
      *
-     *  @param {number} startNum
-     *    The number we are working on.
+     * @param {number} startNum
+     *   The number we are working on.
+     * @param {string} from
+     *   The breakpoint we are transforming from.
+     * @param {string} to
+     *   The breakpoint we are transforming to.
      *
-     *  @param {string} from
-     *     The breakpoint we are transforming from.
-     *  @param {string} to
-     *     The breakpoint we are transforming to.
-     *
-     *  @return {number}
-     *    The transformed number. If the breakpoints match
-     *    will return the original number.
+     * @return {number}
+     *   The transformed number. If the breakpoints match
+     *   will return the original number.
      */
     resizeWord: function(startNum, from, to) {
       var resultNum = startNum;
@@ -557,7 +556,9 @@
       return resultNum;
     },
     initialize: function() {
-      this.breakpoint = ($('#fridge').width() == 480) ? 'phone' : 'desktop';
+      this.breakpoint = ($('#fridge').width() === 480) ? 'phone' : 'desktop';
+      var orientationChange = _.bind(this.orientationChange, this);
+      dispatch.on('orientationChange', orientationChange);
     },
     render: function(breakpoint) {
       if (typeof breakpoint === 'undefined') {
@@ -577,6 +578,9 @@
       }, this);
       this.collection.words.each(eachFunction);
       return this;
+    },
+    orientationChange: function() {
+      this.breakpoint = ($('#fridge').width() === 480) ? 'phone' : 'desktop';
     }
   });
 
@@ -590,88 +594,102 @@
     initialize: function() {
       PoemView.prototype.initialize.call(this);
 
-      var self = this;
-
-      $(self.el).droppable({
+      // Handle droppable events.
+      var drop = _.bind(this.drop, this);
+      var out = _.bind(this.out, this);
+      $(this.el).droppable({
         accept: '.tiles',
-        drop: function(event, ui) {
-          // We only need to do this on mobile devices.
-          if (barVisible) {
-            $(ui.draggable).draggable(
-              'option',
-              'helper',
-              $(ui.draggable).data('backbone-view').getHelper()
-            );
-          }
-          var fridgeOffset = $(self.el).offset();
-          var dropped = $(ui.draggable).data('backbone-view').model;
-          var dropOffset = ui.offset;
-          var resultOffset = {
-            top: dropOffset.top - fridgeOffset.top,
-            left: dropOffset.left - fridgeOffset.left
-          };
-          var resizedOffset = {
-            top: self.resizeWord(resultOffset.top, self.breakpoint, 'desktop'),
-            left: self.resizeWord(resultOffset.left, self.breakpoint, 'desktop')
-          };
-          // if it's not currently in the poem, append to fridge
-          if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
-            // Move the element to the fridge so we can hide the drawer and
-            // reset its position relative to the fridge.
-            var siblings = $(ui.draggable)
-              .appendTo(self.$el)
-              .position({
-                of: self.$el,
-                my: 'left top',
-                at: 'left top',
-                offset: resultOffset.left + ' ' + resultOffset.top
-              }).prevAll();
-
-            repositionSiblings(siblings);
-
-            dropped.set('top', resizedOffset.top);
-            dropped.set('left', resizedOffset.left);
-            window.MagPo.app.poem.words.add(dropped);
-          }
-          // otherwise only change the position on the model.
-          else {
-            dropped.set('top', resizedOffset.top);
-            dropped.set('left', resizedOffset.left);
-            window.MagPo.app.poem.words.sort();
-          }
-
-          // If the poem has already been saved once, autosave on drop.
-          if (isAuthor && window.MagPo.app.poem.id) {
-            if (window.MagPo.app.timeout) {
-              clearTimeout(window.MagPo.app.timeout);
-            }
-            window.MagPo.app.timeout = setTimeout(function() {
-              window.MagPo.app.poem.save({
-                words: window.MagPo.app.poem.getWords(),
-                breakpoint: window.MagPo.app.poem.get('breakpoint')
-              });
-            }, window.MagPo.app.delay);
-          }
-        },
-        out: function(event, ui) {
-          var dropped = $(ui.draggable).data('backbone-view').model;
-          window.MagPo.app.poem.words.remove(dropped);
-
-          // If the poem has already been saved once, autosave on out.
-          if (window.MagPo.app.poem.id) {
-            if (window.MagPo.app.timeout) {
-              clearTimeout(window.MagPo.app.timeout);
-            }
-            window.MagPo.app.timeout = setTimeout(function() {
-              window.MagPo.app.poem.save({
-                words: window.MagPo.app.poem.getWords(),
-                breakpoint: window.MagPo.app.poem.get('breakpoint')
-              });
-            }, window.MagPo.app.delay);
-          }
-        }
+        drop: drop,
+        out: out
       });
+
+      // Handle orientation changes.
+      var orientationChange = _.bind(this.orientationChange, this);
+      dispatch.on('orientationChange', orientationChange);
     },
+    drop: function(event, ui) {
+      // We only need to do this on mobile devices.
+      if (barVisible) {
+        $(ui.draggable).draggable(
+          'option',
+          'helper',
+          $(ui.draggable).data('backbone-view').getHelper()
+        );
+      }
+      var fridgeOffset = $(this.el).offset();
+      var dropped = $(ui.draggable).data('backbone-view').model;
+      var dropOffset = ui.offset;
+      var resultOffset = {
+        top: dropOffset.top - fridgeOffset.top,
+        left: dropOffset.left - fridgeOffset.left
+      };
+      var resizedOffset = {
+        top: this.resizeWord(resultOffset.top, this.breakpoint, 'desktop'),
+        left: this.resizeWord(resultOffset.left, this.breakpoint, 'desktop')
+      };
+      // if it's not currently in the poem, append to fridge
+      if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
+        // Move the element to the fridge so we can hide the drawer and
+        // reset its position relative to the fridge.
+        var siblings = $(ui.draggable)
+          .appendTo(this.$el)
+          .position({
+            of: this.$el,
+            my: 'left top',
+            at: 'left top',
+            offset: resultOffset.left + ' ' + resultOffset.top
+          }).prevAll();
+
+        repositionSiblings(siblings);
+
+        dropped.set('top', resizedOffset.top);
+        dropped.set('left', resizedOffset.left);
+        window.MagPo.app.poem.words.add(dropped);
+      }
+      // otherwise only change the position on the model.
+      else {
+        dropped.set('top', resizedOffset.top);
+        dropped.set('left', resizedOffset.left);
+        window.MagPo.app.poem.words.sort();
+      }
+
+      // If the poem has already been saved once, autosave on drop.
+      if (isAuthor && window.MagPo.app.poem.id) {
+        if (window.MagPo.app.timeout) {
+          clearTimeout(window.MagPo.app.timeout);
+        }
+        window.MagPo.app.timeout = setTimeout(
+          function() {
+            window.MagPo.app.poem.save({
+              words: window.MagPo.app.poem.getWords(),
+              breakpoint: window.MagPo.app.poem.get('breakpoint')
+            });
+          },
+          window.MagPo.app.delay
+        );
+      }
+    },
+    out: function(event, ui) {
+      var dropped = $(ui.draggable).data('backbone-view').model;
+      window.MagPo.app.poem.words.remove(dropped);
+
+      // If the poem has already been saved once, autosave on out.
+      if (window.MagPo.app.poem.id) {
+        if (window.MagPo.app.timeout) {
+          clearTimeout(window.MagPo.app.timeout);
+        }
+        window.MagPo.app.timeout = setTimeout(function() {
+          window.MagPo.app.poem.save({
+            words: window.MagPo.app.poem.getWords(),
+            breakpoint: window.MagPo.app.poem.get('breakpoint')
+          });
+        }, window.MagPo.app.delay);
+      }
+    },
+    orientationChange: function() {
+      PoemView.prototype.orientationChange.call(this);
+      this.render();
+    }
   });
 
 
