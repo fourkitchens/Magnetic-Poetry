@@ -6,7 +6,7 @@ var http = require('http');
 var mongoose = require('mongoose');
 var models = require('../../lib/models');
 var settings = require('../local');
-var underscore = require('underscore');
+var und = require('underscore');
 var url = require('url');
 var UserModel = require('../models/user').UserModel;
 var zlib = require('zlib');
@@ -154,15 +154,15 @@ MagPo.attach = function() {
     var validateWords = function() {
       self.getWords(function(drawers) {
         // Walk through our poem and confirm the words are valid.
-        underscore(poem.words).each(function(poemWord) {
+        und(poem.words).each(function(poemWord) {
           // If we found one invalid word the poem is invalid.
           if (valid === false) {
             return;
           }
           valid = false;
-          underscore(drawers).each(function(drawer) {
+          und(drawers).each(function(drawer) {
             if (drawer.id == poemWord.vid) {
-              underscore(drawer.words).each(function(word) {
+              und(drawer.words).each(function(word) {
                 if (word.id == poemWord.id && word.string == poemWord.string) {
                   valid = true;
                 }
@@ -208,11 +208,99 @@ MagPo.attach = function() {
    */
   this.publishPoem = function(id, status, callback) {
     var self = this;
+
+    // Set the status of this poem and callback.
     self.PoemModel.update(
       { _id: id },
       { $set: { status: status }},
       callback
     );
+
+    self.loadPoem(id, function(err, poem) {
+      // If the poem is being unpublished, remove it as a parent
+      // or response from other poems.
+      if (!status) {
+        // Remove this poem as a parent of any children.
+        und(poem.children).each(function(child) {
+          self.PoemModel.update(
+            { _id: child.id },
+            { $set: { parent: null } },
+            function(err) {
+              if (err) {
+                console.error('Error unsetting parent on %s for %s.', child.id, id);
+              }
+            }
+          );
+        });
+
+        // Remove this poem as a child of any parent.
+        if (poem.parent) {
+          self.loadPoem(poem.parent, function(err, parent) {
+            if (err) {
+              console.error('Error unsetting child on %s for %s', poem.parent, id);
+              return;
+            }
+            und(parent.children).each(function(child) {
+              if (child.id === id) {
+                parent.children.id(child._id).remove();
+                parent.save(function(err) {
+                  if (err) {
+                    console.error('Error unsetting child on %s for %s', poem.parent, id);
+                  }
+                });
+              }
+            });
+          });
+        }
+      }
+      // Else, make sure it gets added back in as parents and responses
+      // as appropriate.
+      else {
+        // Add this poem as a parent of any children.
+        und(poem.children).each(function(child) {
+          self.PoemModel.update(
+            { _id: child.id },
+            { $set: { parent: id } },
+            function(err) {
+              if (err) {
+                console.error('Error setting parent on %s for %s.', child.id, id);
+              }
+            }
+          );
+        });
+
+        // Add this poem as a child of any parent.
+        if (poem.parent) {
+          var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
+          und(poem.words).each(function(wordObj) {
+            var word = new self.WordModel();
+            for (var y in wordObj) {
+              word[y] = wordObj[y];
+            }
+            var wordModel = new models.Word(word);
+            poemModel.words.add(wordModel);
+          });
+          var title = poemModel.stringify();
+          self.loadPoem(poem.parent, function(err, parent) {
+            if (err) {
+              console.error('Error setting child on %s for %s', poem.parent, id);
+              return;
+            }
+            parent.children.push({
+              id: id,
+              author: (poem.author.length > 20) ? 'Anonymous' : poem.author,
+              poem: title,
+              changed: poem.changed
+            });
+            parent.save(function(err) {
+              if (err) {
+                console.error('Error setting child on %s for %s', poem.parent, id);
+              }
+            });
+          });
+        }
+      }
+    });
   };
 
   /**
@@ -280,7 +368,7 @@ MagPo.attach = function() {
       poem.parent = poemObj.parent = fork;
     }
     var poemModel = new models.Poem({ breakpoint: poem.breakpoint });
-    underscore(poem.words).each(function(wordObj) {
+    und(poem.words).each(function(wordObj) {
       var word = new self.WordModel();
       for (var y in wordObj) {
         word[y] = wordObj[y];
