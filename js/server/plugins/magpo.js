@@ -197,6 +197,25 @@ MagPo.attach = function() {
   };
 
   /**
+   * Changes the status of a poem.
+   *
+   * @param {string} id
+   *   The poem's id hash.
+   * @param {boolean} status
+   *   The status to set on the poem.
+   * @param {function} callback
+   *   The function to execute on completion.
+   */
+  this.publishPoem = function(id, status, callback) {
+    var self = this;
+    self.PoemModel.update(
+      { _id: id },
+      { $set: { status: status }},
+      callback
+    );
+  };
+
+  /**
    * Saves a poem to persistant storage.
    *
    * @param {object} poem

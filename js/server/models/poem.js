@@ -14,6 +14,7 @@ var SimplePoem = require('./simplePoem');
 // We'll use mongo's buildin _id so remove this.
 delete Poem.id;
 Poem.nid = Number;
+Poem.status = Boolean;
 Poem.breakpoint = String;
 Poem.words = [ Word.WordSchema ];
 Poem.parent = String;
