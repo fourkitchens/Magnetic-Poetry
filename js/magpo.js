@@ -46,10 +46,7 @@
    *   Sync options.
    */
   Backbone.sync = function(method, model, options) {
-    if (model instanceof Poem && (method === 'create' || method === 'update')) {
-      
-    }
-    else if (model instanceof Listings && method === 'read') {
+    if (model instanceof Listings && method === 'read') {
       var page = 0;
       if (options.page) {
         page = options.page;
