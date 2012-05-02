@@ -47,127 +47,7 @@
    */
   Backbone.sync = function(method, model, options) {
     if (model instanceof Poem && (method === 'create' || method === 'update')) {
-      var body = {
-        poem: model.toJSON()
-      };
-
-      // If this is an update we should always be sending along our uuid.
-      body.poem.author = localStorage.getItem('MagPo_me');
-      if (window.MagPo.app.user) {
-        body.poem.author = window.MagPo.app.user;
-      }
-
-      throbberEvent.trigger('show');
-
-      // Send to server.
-      $.ajax({
-        url: 'app/save',
-        contentType: 'application/json',
-        data: JSON.stringify(body),
-        dataType: 'json',
-        type: 'POST',
-        success: function(data) {
-          throbberEvent.trigger('hide');
-          if (data.status !== 'ok') {
-            console.error('Error saving poem to server.');
-            // Prevent dialogs during autosaves.
-            if (!autosave) {
-              var dialog = new MessageDialogView({ message: failedToSaveTxt });
-              dialog.render().showModal({});
-              window.MagPo.app.poem.trigger('saved', data.status);
-            }
-            return;
-          }
-          // It's easier to force a reload on a fork than to modify the existing
-          // poem object.
-          var trigger = false;
-          if (model.id) {
-            trigger = true;
-          }
-          model.id = data.poem.id;
-          if (typeof data.poem.author !== 'undefined') {
-            localStorage.setItem('MagPo_me', data.poem.author);
-          }
-          if (data.redirect) {
-            // The user just forked the poem, now they're the author.
-            if (!isAuthor) {
-              isAuthor = true;
-            }
-
-            // Reset the parent and children.
-            model.set('parent', data.poem.parent);
-            model.children.reset();
-
-            // Update the URL and perform post loading actions.
-            window.MagPo.app.router.navigate(model.id, { trigger: trigger });
-            postLoad();
-          }
-          window.MagPo.app.poem.trigger('saved', data.status);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          throbberEvent.trigger('hide');
-          console.error(errorThrown);
-          // Prevent dialogs during autosaves.
-          if (!autosave) {
-            var txt = (jqXHR.status == 406) ? failedToValidateTxt : failedToSaveTxt;
-            var dialog = new MessageDialogView({ message: txt });
-            dialog.render().showModal({});
-            window.MagPo.app.poem.trigger('saved', errorThrown);
-          }
-        }
-      });
-    }
-    else if (model instanceof Poem && method === 'read') {
-      throbberEvent.trigger('show');
-      var author = localStorage.getItem('MagPo_me');
-      $.ajax({
-        url: 'app/load/' + model.id,
-        contentType: 'application/json',
-        data: JSON.stringify({ author: author }),
-        dataType: 'json',
-        type: 'POST',
-        success: function(data) {
-          throbberEvent.trigger('hide');
-          if (data.status !== 'ok') {
-            console.error('Error fetching poem from server.');
-            return;
-          }
-
-          // Reset the poem's state if we're loading a different one.
-          if (model.id != data.poem.id) {
-            // Put the magnets back in their drawers.
-            model.words.each(function(word) {
-              $(word.view.el).appendTo('#drawer-' + word.get('vid'))
-                .css('top', '')
-                .css('left', '');
-            });
-          }
-
-          isAuthor = data.author;
-          model.set('nid', data.poem.nid);
-          model.set('parent', data.poem.parent);
-          model.words.reset();
-          _(data.poem.words).each(function(serverWord) {
-            var drawer = window.MagPo.app.drawers[serverWord.vid].model;
-            var word = drawer.words.get(serverWord.id);
-            model.words.add(word);
-            word.set({ top: serverWord.top, left: serverWord.left });
-          });
-          window.MagPo.app.fridgeView.render();
-          model.children.reset();
-          _(data.poem.children).each(function(child) {
-            model.children.create(child);
-          });
-
-          // Seems the words come back unsorted sometimes so we'll
-          // force a sort on load.
-          model.words.sort();
-          model.children.sort();
-
-          // Perform post loading actions.
-          postLoad();
-        }
-      });
+      
     }
     else if (model instanceof Listings && method === 'read') {
       var page = 0;
@@ -1140,6 +1020,15 @@
     // TODO - detect the correct breakpoint.
     this.poem = new Poem({ breakpoint: 'desktop' });
 
+    // Handle events from the poem model.
+    this.poem.on('fetching', _.bind(this.fetching, this));
+    this.poem.on('fetchSuccess', _.bind(this.fetchSuccess, this));
+    this.poem.on('fetchError', _.bind(this.fetchError, this));
+    this.poem.on('saving', _.bind(this.saving, this));
+    this.poem.on('saveSuccess', _.bind(this.saveSuccess, this));
+    this.poem.on('saveError', _.bind(this.saveError, this));
+    this.poem.on('saveRedirect', _.bind(this.saveRedirect, this));
+
     this.controlsView = new ControlsView();
     this.fridgeView = new FridgeView({ collection: this.poem });
     this.shareLinkView = new ShareLinkView();
@@ -1172,6 +1061,63 @@
     this.listingsView = new ListingsView({ collection: this.listings });
 
     this.router = null;
+  };
+
+  MagPo.prototype.fetching = function(message) {
+    throbberEvent.trigger('show');
+  };
+
+  MagPo.prototype.fetchSuccess = function(message) {
+    throbberEvent.trigger('hide');
+    this.fridgeView.render();
+    postLoad();
+  };
+
+  MagPo.prototype.fetchError = function(message) {
+    throbberEvent.trigger('hide');
+
+    var txt = 'There was a problem loading the poem.';
+
+    // Handle specific errors.
+    if (message === 404) {
+      txt = 'The poem you were looking for could not be found or has been unpublished.';
+
+      this.poem.id = null;
+      this.router.navigate(this.poem.id, { trigger: false });
+    }
+
+    var dialog = new MessageDialogView({ message: txt });
+    dialog.render().showModal({});
+  };
+
+  MagPo.prototype.saving = function(message) {
+    throbberEvent.trigger('show');
+  };
+
+  MagPo.prototype.saveSuccess = function(message) {
+    throbberEvent.trigger('hide');
+  };
+
+  MagPo.prototype.saveError = function(message) {
+    throbberEvent.trigger('hide');
+
+    // Prevent dialogs during autosaves.
+    if (!autosave) {
+      var txt = (message == 406) ? failedToValidateTxt : failedToSaveTxt;
+      var dialog = new MessageDialogView({ message: txt });
+      dialog.render().showModal({});
+    }
+  };
+
+  MagPo.prototype.saveRedirect = function(message) {
+    // The user just forked the poem, now they're the author.
+    if (!isAuthor) {
+      isAuthor = true;
+    }
+
+    // Update the URL and perform post loading actions.
+    this.router.navigate(this.poem.id, { trigger: message });
+    postLoad();
   };
 
   MagPo.prototype.onSuccess = function(data) {
