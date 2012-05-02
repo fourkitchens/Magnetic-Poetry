@@ -413,6 +413,9 @@
      * Helper function to reset positions of siblings after we move dom
      * elements around.
      *
+     * Note: this function does not change the offset based on the viewport
+     * since this is happening in the drawer.
+     *
      * @param {array} siblings
      *   The list of sibling elements to reposition.
      */
