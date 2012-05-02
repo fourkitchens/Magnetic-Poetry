@@ -14,9 +14,15 @@ var SimplePoem = require('./simplePoem');
 // We'll use mongo's buildin _id so remove this.
 delete Poem.id;
 Poem.nid = Number;
+Poem.status = {
+  type: Boolean,
+  default: true
+};
 Poem.breakpoint = String;
 Poem.words = [ Word.WordSchema ];
+// Parent relationships will never be destroyed.
 Poem.parent = String;
+// Child relationships will be removed if the child is unpublished or deleted.
 Poem.children = [ SimplePoem.SimplePoemSchema ];
 
 // SERVER SIDE FIELDS:
