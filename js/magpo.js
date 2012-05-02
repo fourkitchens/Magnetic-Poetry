@@ -236,24 +236,11 @@
       'class': 'draggable tiles'
     },
     initialize: function() {
-      var self = this;
       this.model.view = this;
       this.model.bind('change', this.render, this);
 
       // Update the helper and start events if necessary.
-      dispatch.on('orientationChange', function() {
-        if (barVisible) {
-          $(self.el).draggable('option', 'helper', self.getHelper());
-          // Bind the dragstart/stop if it hasn't been bound yet.
-          if (!$(self.el).data('draggable').options.start || !$(self.el).data('draggable').options.stop) {
-            $(self.el).draggable('option', 'start', _.bind(self.dragstart, self));
-            $(self.el).draggable('option', 'stop', _.bind(self.dragstop, self));
-          }
-        }
-        else {
-          $(self.el).draggable('option', 'helper', 'original');
-        }
-      });
+      dispatch.on('orientationChange', _.bind(this.orientationChange, this));
     },
     render: function() {
       var draggable = {
@@ -284,6 +271,19 @@
       }
 
       return this;
+    },
+    orientationChange: function() {
+      if (barVisible) {
+        $(this.el).draggable('option', 'helper', this.getHelper());
+        // Bind the dragstart/stop if it hasn't been bound yet.
+        if (!$(this.el).data('draggable').options.start || !$(this.el).data('draggable').options.stop) {
+          $(this.el).draggable('option', 'start', _.bind(this.dragstart, this));
+          $(this.el).draggable('option', 'stop', _.bind(this.dragstop, this));
+        }
+      }
+      else {
+        $(this.el).draggable('option', 'helper', 'original');
+      }
     },
     dragstart: function(event, ui) {
       // Check barVisible again in case of an orientation change.
@@ -341,49 +341,50 @@
       style: 'display: none'
     },
     initialize: function() {
-      var self = this;
-      self.model.view = self;
-      self.model.words.bind('reset', self.addAll, self);
-      self.model.words.bind('all', self.render, self);
+      this.model.view = this;
+      this.model.words.bind('reset', this.addAll, this);
+      this.model.words.bind('all', this.render, this);
 
-      $(self.el).droppable({
+      $(this.el).droppable({
         accept: '.tiles',
-        drop: function(event, ui) {
-          // We only need to do this on mobile devices.
-          if (barVisible) {
-            $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
-          }
-          var dropped = $(ui.draggable).data('backbone-view').model;
-          window.MagPo.app.poem.words.remove(dropped);
-
-          // Bail if we're dropping back into the same drawer.
-          if ($(ui.draggable).parent().attr('id') === $(self.el).attr('id')) {
-            return;
-          }
-
-          var siblings = $(ui.draggable).nextAll();
-          if (dropped.get('vid') == self.model.id) {
-            $(ui.draggable).appendTo(self.$el).offset(ui.offset);
-            repositionSiblings(siblings);
-          }
-          else {
-            // Unset the top and left values for this item since its drawer is
-            // currently hidden and off the screen.
-            $(ui.draggable)
-              .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
-              .css('top', '')
-              .css('left', '');
-            repositionSiblings(siblings);
-          }
-        }
+        drop: _.bind(this.drop, this),
       });
 
-      dispatch.on('orientationChange', function() {
-        if (barVisible) {
-          var height = ($(window).height() - $('#word-bar').height() - $('#drawer-container').height());
-          $(self.el).css('height', height);
-        }
-      });
+      dispatch.on('orientationChange', _.bind(this.orientationChange, this));
+    },
+    drop: function(event, ui) {
+      // We only need to do this on mobile devices.
+      if (barVisible) {
+        $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
+      }
+      var dropped = $(ui.draggable).data('backbone-view').model;
+      window.MagPo.app.poem.words.remove(dropped);
+
+      // Bail if we're dropping back into the same drawer.
+      if ($(ui.draggable).parent().attr('id') === $(this.el).attr('id')) {
+        return;
+      }
+
+      var siblings = $(ui.draggable).nextAll();
+      if (dropped.get('vid') == this.model.id) {
+        $(ui.draggable).appendTo(this.$el).offset(ui.offset);
+        this.repositionSiblings(siblings);
+      }
+      else {
+        // Unset the top and left values for this item since its drawer is
+        // currently hidden and off the screen.
+        $(ui.draggable)
+          .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
+          .css('top', '')
+          .css('left', '');
+        this.repositionSiblings(siblings);
+      }
+    },
+    orientationChange: function() {
+      if (barVisible) {
+        var height = ($(window).height() - $('#word-bar').height() - $('#drawer-container').height());
+        $(this.el).css('height', height);
+      }
     },
     render: function() {
       $(this.el).attr('id', 'drawer-' + this.model.id);
@@ -397,15 +398,37 @@
       }
     },
     addAll: function() {
-      var self = this;
-      this.model.words.each(function(word) {
+      this.model.words.each(_.bind(function(word) {
         var wordView = new WordView({
           model: word
         });
         wordView.render();
         if (word.get('top') == null || word.get('left') == null) {
-          $(self.el).append(wordView.$el);
+          $(this.el).append(wordView.$el);
         }
+      }, this));
+    },
+
+    /**
+     * Helper function to reset positions of siblings after we move dom
+     * elements around.
+     *
+     * @param {array} siblings
+     *   The list of sibling elements to reposition.
+     */
+    repositionSiblings: function(siblings) {
+      _(siblings).each(function(sibling) {
+        var sModel = $(sibling).data('backbone-view');
+        if (!sModel) {
+          return;
+        }
+        sModel = sModel.model;
+        $(sibling).position({
+          of: '#fridge',
+          my: 'left top',
+          at: 'left top',
+          offset: sModel.get('left') + ' ' + sModel.get('top')
+        });
       });
     }
   });
@@ -418,107 +441,29 @@
     attributes: {
       'class': 'drawer-handle'
     },
+    events: {
+      click: 'click'
+    },
     initialize: function() {
       this.render();
     },
     render: function() {
-      var self = this;
-      $(self.el).html(self.model.get('name'));
-      $('#drawer-handles').append(self.$el);
-      $(self.el).click(function() {
-        // Bail if this handle's drawer is already open.
-        if ($(this).hasClass('open-handle')) {
-          $(this).removeClass('open-handle');
-          return;
-        }
-        $('.open-handle').removeClass('open-handle');
-        $(this).addClass('open-handle');
-        if ($('.open-drawer').length === 1) {
-          $('.open-drawer').removeClass('open-drawer').hide();
-          $(self.model.view.$el).addClass('open-drawer').show();
-        }
-      });
-    }
-  });
-  /**
-   * Defines the moving "word-bar" panel.
-   */
-  var WordBarView = Backbone.View.extend({
-    el: $('#drawers-container'),
-    events: {
-      'click #word-bar-handle': 'toggleBar'
+      $(this.el).html(this.model.get('name'));
+      $('#drawer-handles').append(this.$el);
     },
-    initialize: function() {
-      var self = this;
-      var height = ($(window).height() - $('#word-bar').height());
-      self.hiddenHeight = height * -1;
-      self.render();
-
-      dispatch.on('orientationChange', function() {
-        var height = ($(window).height() - $('#word-bar').height());
-        self.hiddenHeight = (height * -1);
-        // Resize the drawers according to the current state.
-        if (!barVisible) {
-          $('#drawers-container').css({
-            height: '300px',
-            top: '0px'
-          });
-        }
-        else if (barVisible) {
-          self.render();
-        }
-      });
-    },
-    render: function() {
-      if (barVisible) {
-        var self = this;
-        var height = ($(window).height() - $('#word-bar').height());
-        $('#drawers-container').css({
-          height: height,
-          top: self.hiddenHeight
-        });
-        $('#word-bar-handle').droppable({
-          accept: '.tiles',
-          over: function (event, ui) {
-            $('#word-bar-handle').text('x remove x');
-          },
-          out: function (event, ui) {
-            $('#word-bar-handle').text('^ words ^');
-          },
-          drop: function(event, ui) {
-            $('#word-bar-handle').text('^ words ^');
-            var dropped = $(ui.draggable).data('backbone-view').model;
-            window.MagPo.app.poem.words.remove(dropped);
-
-            var siblings = $(ui.draggable).nextAll();
-            // Unset the top and left values for this item since its drawer is
-            // currently hidden and off the screen.
-            $(ui.draggable)
-              .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
-              .css('top', '')
-              .css('left', '')
-              .draggable(
-                'option',
-                'helper',
-                $(ui.draggable).data('backbone-view').getHelper()
-              );
-            repositionSiblings(siblings);
-          }
-        });
+    click: function() {
+      // Bail if this handle's drawer is already open.
+      if ($(this.el).hasClass('open-handle')) {
+        $(this.el).removeClass('open-handle');
+        return;
+      }
+      $('.open-handle').removeClass('open-handle');
+      $(this.el).addClass('open-handle');
+      if ($('.open-drawer').length === 1) {
+        $('.open-drawer').removeClass('open-drawer').hide();
+        $(this.model.view.$el).addClass('open-drawer').show();
       }
     },
-    toggleBar: function() {
-      var self = this;
-      if ($('#drawers-container').hasClass('down')) {
-        $('#word-bar-handle').text('^ words ^');
-        $('#drawers-container').css('top', self.hiddenHeight);
-      }
-      else {
-        $('#word-bar-handle').text('v poem v');
-        $('#drawers-container').css('top', 0);
-      }
-      $('#drawers-container').toggleClass('down');
-    }
   });
 
   /**
@@ -556,15 +501,15 @@
       return resultNum;
     },
     repositionSiblings: function(siblings) {
-      var eachFunction = _.bind(function(sibling) {
+      _(siblings).each(_.bind(function(sibling) {
         var sModel = $(sibling).data('backbone-view');
         if (!sModel) {
           return;
         }
         sModel = sModel.model;
         var resizedOffset = {
-          top: this.resizeWord(sModel.get('top'), this.breakpoint, 'desktop'),
-          left: this.resizeWord(sModel.get('left'), this.breakpoint, 'desktop')
+          top: this.resizeWord(sModel.get('top'), 'desktop', this.breakpoint),
+          left: this.resizeWord(sModel.get('left'), 'desktop', this.breakpoint)
         };
         $(sibling).position({
           of: '#fridge',
@@ -572,19 +517,17 @@
           at: 'left top',
           offset: resizedOffset.left + ' ' + resizedOffset.top
         });
-      }, this);
-      _(siblings).each(eachFunction);
+      }, this));
     },
     initialize: function() {
       this.breakpoint = ($('#fridge').width() === 480) ? 'phone' : 'desktop';
-      var orientationChange = _.bind(this.orientationChange, this);
-      dispatch.on('orientationChange', orientationChange);
+      dispatch.on('orientationChange', _.bind(this.orientationChange, this));
     },
     render: function(breakpoint) {
       if (typeof breakpoint === 'undefined') {
         breakpoint = this.breakpoint;
       }
-      var eachFunction = _.bind(function(word) {
+      this.collection.words.each(_.bind(function(word) {
         var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
         var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
         var siblings = $(word.view.el)
@@ -597,12 +540,93 @@
           })
           .prevAll();
         this.repositionSiblings(siblings);
-      }, this);
-      this.collection.words.each(eachFunction);
+      }, this));
       return this;
     },
     orientationChange: function() {
       this.breakpoint = ($('#fridge').width() === 480) ? 'phone' : 'desktop';
+    }
+  });
+
+  /**
+   * Defines the moving "word-bar" panel.
+   */
+  var WordBarView = PoemView.extend({
+    el: $('#drawers-container'),
+    events: {
+      'click #word-bar-handle': 'toggleBar'
+    },
+    initialize: function() {
+      var height = ($(window).height() - $('#word-bar').height());
+      this.hiddenHeight = height * -1;
+      this.render();
+
+      dispatch.on('orientationChange', _.bind(this.orientationChange, this));
+    },
+    render: function() {
+      if (barVisible) {
+        var height = ($(window).height() - $('#word-bar').height());
+        $('#drawers-container').css({
+          height: height,
+          top: this.hiddenHeight
+        });
+        $('#word-bar-handle').droppable({
+          accept: '.tiles',
+          over: _.bind(this.over, this),
+          out: _.bind(this.out, this),
+          drop: _.bind(this.drop, this),
+        });
+      }
+    },
+    orientationChange: function() {
+      var height = ($(window).height() - $('#word-bar').height());
+      this.hiddenHeight = (height * -1);
+      // Resize the drawers according to the current state.
+      if (!barVisible) {
+        $('#drawers-container').css({
+          height: '300px',
+          top: '0px'
+        });
+      }
+      else if (barVisible) {
+        this.render();
+      }
+    },
+    over: function (event, ui) {
+      $('#word-bar-handle').text('x remove x');
+    },
+    out: function (event, ui) {
+      $('#word-bar-handle').text('^ words ^');
+    },
+    drop: function(event, ui) {
+      $('#word-bar-handle').text('^ words ^');
+      var dropped = $(ui.draggable).data('backbone-view').model;
+      window.MagPo.app.poem.words.remove(dropped);
+
+      var siblings = $(ui.draggable).nextAll();
+      // Unset the top and left values for this item since its drawer is
+      // currently hidden and off the screen.
+      $(ui.draggable)
+        .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
+        .css('top', '')
+        .css('left', '')
+        .draggable(
+          'option',
+          'helper',
+          $(ui.draggable).data('backbone-view').getHelper()
+        );
+      this.repositionSiblings(siblings);
+    },
+    toggleBar: function() {
+      if ($('#drawers-container').hasClass('down')) {
+        $('#word-bar-handle').text('^ words ^');
+        $('#drawers-container').css('top', this.hiddenHeight);
+      }
+      else {
+        $('#word-bar-handle').text('v poem v');
+        $('#drawers-container').css('top', 0);
+      }
+      $('#drawers-container').toggleClass('down');
     }
   });
 
@@ -617,17 +641,14 @@
       PoemView.prototype.initialize.call(this);
 
       // Handle droppable events.
-      var drop = _.bind(this.drop, this);
-      var out = _.bind(this.out, this);
       $(this.el).droppable({
         accept: '.tiles',
-        drop: drop,
-        out: out
+        drop: _.bind(this.drop, this),
+        out: _.bind(this.out, this)
       });
 
       // Handle orientation changes.
-      var orientationChange = _.bind(this.orientationChange, this);
-      dispatch.on('orientationChange', orientationChange);
+      dispatch.on('orientationChange', _.bind(this.orientationChange, this));
     },
     drop: function(event, ui) {
       // We only need to do this on mobile devices.
@@ -857,14 +878,13 @@
     },
     template: _.template($('#message-modal-template').html()),
     render: function() {
-      var self = this;
-      $(self.el).html(
-        self.template({
-          message: self.options.message
+      $(this.el).html(
+        this.template({
+          message: this.options.message
         })
       );
 
-      return self;
+      return this;
     }
   });
 
@@ -892,7 +912,6 @@
       });
     },
     render: function() {
-      var self = this;
       $('#responses-handle').hide();
       if (window.MagPo.app.poem.children.length || window.MagPo.app.poem.get('parent')) {
         $('#responses-handle').show();
@@ -905,7 +924,7 @@
 
       if (window.MagPo.app.user) {
         $('#login-menu')
-          .html(self.avatarTemplate({ user: window.MagPo.app.user.screen_name }))
+          .html(this.avatarTemplate({ user: window.MagPo.app.user.screen_name }))
           .addClass('logged-in');
       }
     },
@@ -922,7 +941,6 @@
       }
     },
     showResponses: function(event) {
-      var self = this;
       var responses = '';
       var parent = window.MagPo.app.poem.get('parent');
       var parentLink = false;
@@ -931,11 +949,12 @@
 
       if (parent) {
         parentLink = '#' + parent;
-        responses += self.menuResponseTemplate({ parentLink: parentLink });
+        responses += this.menuResponseTemplate({ parentLink: parentLink });
       }
-      window.MagPo.app.poem.children.each(function(child) {
-        responses += self.responseTemplate(child.toJSON());
-      });
+
+      window.MagPo.app.poem.children.each(_.bind(function(child) {
+        responses += this.responseTemplate(child.toJSON());
+      }, this));
 
       var dialog = new MessageDialogView({ message: responses });
       dialog.render().showModal({});
@@ -965,14 +984,12 @@
       }));
     },
     loggedIn: function() {
-      var self = this;
-      self.render();
-      $('#login', self.$el).hide();
-      $('#howdy', self.$el).show();
-      $('#logout', self.$el).show();
+      this.render();
+      $('#login', this.$el).hide();
+      $('#howdy', this.$el).show();
+      $('#logout', this.$el).show();
     },
     login: function(e) {
-      var self = this;
       // Save the poem if it hasn't been saved yet so we have a valid
       // return URL.
       if (
@@ -980,13 +997,13 @@
         window.MagPo.app.poem.words.length
       ) {
         window.MagPo.app.poem.save();
-        window.MagPo.app.poem.on('saved', function() {
-          self._login();
+        window.MagPo.app.poem.on('saved', _.bind(function() {
+          this._login();
           window.MagPo.app.poem.off('saved');
-        });
+        }, this));
       }
       else {
-        self._login();
+        this._login();
       }
     },
     _login: function() {
@@ -1096,29 +1113,6 @@
   }
 
   /**
-   * Helper function to reset positions of siblings after we move dom
-   * elements around.
-   *
-   * @param {array} siblings
-   *   The list of sibling elements to reposition.
-   */
-  function repositionSiblings(siblings) {
-    _(siblings).each(function(sibling) {
-      var sModel = $(sibling).data('backbone-view');
-      if (!sModel) {
-        return;
-      }
-      sModel = sModel.model;
-      $(sibling).position({
-        of: '#fridge',
-        my: 'left top',
-        at: 'left top',
-        offset: sModel.get('left') + ' ' + sModel.get('top')
-      });
-    });
-  }
-
-  /**
    * Helper function to get URL query arguments.
    */
   function getParameterByName(name) {
@@ -1139,22 +1133,20 @@
    * Local variables.
    */
   var MagPo = function(drawers) {
-    var self = this;
-
-    self.timeout = false;
-    self.user = false;
-    self.delay = 1000;
+    this.timeout = false;
+    this.user = false;
+    this.delay = 1000;
     // TODO - detect the correct breakpoint.
-    self.poem = new Poem({ breakpoint: 'desktop' });
+    this.poem = new Poem({ breakpoint: 'desktop' });
 
-    self.controlsView = new ControlsView();
-    self.fridgeView = new FridgeView({ collection: self.poem });
-    self.shareLinkView = new ShareLinkView();
-    self.wordBarView = new WordBarView();
+    this.controlsView = new ControlsView();
+    this.fridgeView = new FridgeView({ collection: this.poem });
+    this.shareLinkView = new ShareLinkView();
+    this.wordBarView = new WordBarView();
 
     var shown = false;
-    self.drawers = {};
-    _(drawers).each(function(drawer) {
+    this.drawers = {};
+    _(drawers).each(_.bind(function(drawer) {
       var model = new Drawer(drawer);
       var view = new DrawerView({ model: model });
       var handle = new DrawerHandleView({ model: model });
@@ -1171,23 +1163,73 @@
         model: model,
         view: view
       };
-      self.drawers[drawer.id] = drawerObj;
-    });
+      this.drawers[drawer.id] = drawerObj;
+    }, this));
 
-    self.authView = new AuthView();
-    self.listings = new Listings();
-    self.listingsView = new ListingsView({ collection: self.listings });
+    this.authView = new AuthView();
+    this.listings = new Listings();
+    this.listingsView = new ListingsView({ collection: this.listings });
 
-    self.router = null;
+    this.router = null;
+  };
+
+  MagPo.prototype.onSuccess = function(data) {
+    // Go ahead and start the router so the poem is loaded.
+    var oldId = localStorage.getItem('MagPo_me');
+
+    localStorage.removeItem('MagPo_tUser');
+
+    this.user = user = {
+      id: data.id,
+      screen_name: data.screen_name
+    };
+
+    localStorage.setItem('MagPo_me', user.screen_name);
+    localStorage.setItem('MagPo_user', JSON.stringify({
+      id: data.id,
+      screen_name: data.screen_name
+    }));
+
+    this.startRouter();
+
+    // Update any existing poems with the new id.
+    if (oldId && window.MagPo.app.poem.id) {
+      var worker = new Worker('/magpo/js/update.js');
+      worker.postMessage({
+        callback: window.location.origin + '/magpo/app/update/' + window.MagPo.app.poem.id,
+        id: window.MagPo.app.poem.id,
+        oldAuthor: oldId,
+        newAuthor: data.screen_name
+      });
+      worker.onmessage = function(event) {
+        if (event.data !== 200) {
+          console.error(util.format('Error (%d): Error updating poem.'));
+        }
+      };
+    }
+
+    this.authView.loggedIn();
+    postLoad();
+
+    // If the user saved a fork before loggin in, save it to the database.
+    var fork = localStorage.getItem('MagPo_poem');
+    if (fork) {
+      fork = JSON.parse(fork);
+      localStorage.removeItem('MagPo_poem');
+
+      // HACK - not super happy about this, but it handles all the
+      // loading logic in a simpler way.
+      var forkedPoem = new Poem(fork);
+      forkedPoem.words.reset(fork.words);
+      forkedPoem.save();
+    }
   };
 
   MagPo.prototype.start = function() {
-    var self = this;
-
     throbberEvent.trigger('hide');
 
-    self.authView.render();
-    self.listings.fetch();
+    this.authView.render();
+    this.listings.fetch();
 
     var tUser = localStorage.getItem('MagPo_tUser');
     var user = JSON.parse(localStorage.getItem('MagPo_user'));
@@ -1227,57 +1269,7 @@
         data: JSON.stringify(body),
         dataType: 'json',
         type: 'POST',
-        success: function(data) {
-          // Go ahead and start the router so the poem is loaded.
-          var oldId = localStorage.getItem('MagPo_me');
-
-          localStorage.removeItem('MagPo_tUser');
-
-          self.user = user = {
-            id: data.id,
-            screen_name: data.screen_name
-          };
-
-          localStorage.setItem('MagPo_me', user.screen_name);
-          localStorage.setItem('MagPo_user', JSON.stringify({
-            id: data.id,
-            screen_name: data.screen_name
-          }));
-
-          self.startRouter();
-
-          // Update any existing poems with the new id.
-          if (oldId && window.MagPo.app.poem.id) {
-            var worker = new Worker('/magpo/js/update.js');
-            worker.postMessage({
-              callback: window.location.origin + '/magpo/app/update/' + window.MagPo.app.poem.id,
-              id: window.MagPo.app.poem.id,
-              oldAuthor: oldId,
-              newAuthor: data.screen_name
-            });
-            worker.onmessage = function(event) {
-              if (event.data !== 200) {
-                console.error(util.format('Error (%d): Error updating poem.'));
-              }
-            };
-          }
-
-          self.authView.loggedIn();
-          postLoad();
-
-          // If the user saved a fork before loggin in, save it to the database.
-          var fork = localStorage.getItem('MagPo_poem');
-          if (fork) {
-            fork = JSON.parse(fork);
-            localStorage.removeItem('MagPo_poem');
-
-            // HACK - not super happy about this, but it handles all the
-            // loading logic in a simpler way.
-            var forkedPoem = new Poem(fork);
-            forkedPoem.words.reset(fork.words);
-            forkedPoem.save();
-          }
-        },
+        success: _.bind(this.onSuccess, this),
         error: function() {
           localStorage.removeItem('MagPo_tUser');
           // TODO - show an error and start the router?
@@ -1286,12 +1278,12 @@
     }
     else {
       if (user) {
-        self.user = user;
+        this.user = user;
         localStorage.setItem('MagPo_me', user.screen_name);
-        self.authView.loggedIn();
+        this.authView.loggedIn();
         postLoad();
       }
-      self.startRouter();
+      this.startRouter();
     }
   };
 
