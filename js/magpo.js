@@ -632,8 +632,6 @@
 
   /**
    * Defines the fridge (workspace) view.
-   *
-   * TODO - rename to PoemView and deprecate existing PoemView?
    */
   var FridgeView = PoemView.extend({
     el: $('#fridge'),
