@@ -84,7 +84,8 @@ app.router.post('/load/:id', function(id) {
       self.res.json({ status: 'error', error: 'Error loading poem.' });
       return;
     }
-    if (doc == null) {
+
+    if (doc == null || !doc.status) {
       self.res.writeHead(404, headers);
       self.res.json({ status: 'error', error: 'Poem not found.' });
       return;

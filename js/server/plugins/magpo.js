@@ -122,7 +122,7 @@ MagPo.attach = function() {
    */
   this.list = function(page, callback) {
     var limit = 20;
-    var query = this.PoemModel.find({});
+    var query = this.PoemModel.find({ status: true });
     query.limit(limit)
       .skip(limit * page)
       .sort('changed', -1)
