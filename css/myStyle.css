@@ -275,6 +275,7 @@ menu h1 {
 footer {
   display: none;
 }
+
 /* For phones in portrait we want display a message.*/
 @media only screen and (max-width: 599px) and (orientation:portrait) {
   #listings {
@@ -303,8 +304,12 @@ footer {
     display: none;
   }
 }
+
 /* Tablets with a 600px width (in portrait mode) */
 @media only screen and (min-width: 600px) and (orientation:portrait) {
+  body {
+    font-size: 1.575em;
+  }
   #main {
     min-height: 100%;
     width: 600px;
@@ -345,10 +350,16 @@ footer {
   footer {
     display: block;
   }
+  .tiles {
+    padding: 2.5px 7.5px 2.5px 7.5px;
+  }
 }
 
 /* Tablets with a 768 with (in portrait mode) */
 @media only screen and (min-width: 768px) {
+  body {
+    font-size: 1.575em;
+  }
   #main {
     min-height: 100%;
     width: 100%;
@@ -377,9 +388,16 @@ footer {
   footer {
     display: block;
   }
+  .tiles {
+    padding: 2.5px 7.5px 2.5px 7.5px;
+  }
 }
+
 /* for devices  in landscape and smaller than 1024 wide */
 @media only screen and (min-width:481px) and (max-width:1023px) and (orientation:landscape) {
+  body {
+    font-size: 1.575em;
+  }
   #workspace {
     width: 100%;
     height: 100%;
@@ -396,12 +414,23 @@ footer {
   footer {
    display: none;
   }
+  .tiles {
+    padding: 2.5px 7.5px 2.5px 7.5px;
+  }
 }
+
 /* for devices in portrait with a screen size wider than 600 */
 @media only screen and (min-width:600px) and (orientation:portrait) {
+  body {
+    font-size: 1.575em;
+  }
 }
+
 /* 1024px+ for Desktop, Laptop, or Tablet (in landscape mode) */
 @media only screen and (min-width: 1024px) {
+  body {
+    font-size: 1.575em;
+  }
   #drawers-container {
     z-index: 1;
     position: relative;
@@ -465,7 +494,10 @@ footer {
     padding-bottom: 20px;
   }
   #auth {
-    padding-bottom: 100px; 
+    padding-bottom: 100px;
+  }
+  .tiles {
+    padding: 3px 8px 3px 8px;
   }
 }
 
