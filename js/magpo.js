@@ -555,6 +555,26 @@
       }
       return resultNum;
     },
+    repositionSiblings: function(siblings) {
+      var eachFunction = _.bind(function(sibling) {
+        var sModel = $(sibling).data('backbone-view');
+        if (!sModel) {
+          return;
+        }
+        sModel = sModel.model;
+        var resizedOffset = {
+          top: this.resizeWord(sModel.get('top'), this.breakpoint, 'desktop'),
+          left: this.resizeWord(sModel.get('left'), this.breakpoint, 'desktop')
+        };
+        $(sibling).position({
+          of: '#fridge',
+          my: 'left top',
+          at: 'left top',
+          offset: resizedOffset.left + ' ' + resizedOffset.top
+        });
+      }, this);
+      _(siblings).each(eachFunction);
+    },
     initialize: function() {
       this.breakpoint = ($('#fridge').width() === 480) ? 'phone' : 'desktop';
       var orientationChange = _.bind(this.orientationChange, this);
@@ -576,7 +596,7 @@
             offset: left + ' ' + top
           })
           .prevAll();
-        repositionSiblings(siblings);
+        this.repositionSiblings(siblings);
       }, this);
       this.collection.words.each(eachFunction);
       return this;
@@ -643,7 +663,7 @@
           })
           .prevAll();
 
-        repositionSiblings(siblings);
+        this.repositionSiblings(siblings);
 
         dropped.set('top', resizedOffset.top);
         dropped.set('left', resizedOffset.left);
