@@ -170,6 +170,119 @@ var Poem = Backbone.Model.extend({
     });
 
     return out;
+  },
+  fetch: function(options) {
+    this.trigger('fetching');
+    var author = localStorage.getItem('MagPo_me');
+    $.ajax({
+      url: 'app/load/' + this.id,
+      contentType: 'application/json',
+      data: JSON.stringify({ author: author }),
+      dataType: 'json',
+      type: 'POST',
+      success: _.bind(this.fetchSuccess, this),
+      error: _.bind(this.fetchError, this)
+    });
+  },
+  fetchSuccess: function(data) {
+    if (data.status !== 'ok') {
+      this.trigger('fetchError', data.error);
+      console.error('Error fetching poem from server.');
+      return;
+    }
+
+    // Reset the poem's state if we're loading a different one.
+    if (this.id != data.poem.id) {
+      // Put the magnets back in their drawers.
+      this.words.each(function(word) {
+        $(word.view.el).appendTo('#drawer-' + word.get('vid'))
+          .css('top', '')
+          .css('left', '');
+      });
+    }
+
+    isAuthor = data.author;
+    this.set('nid', data.poem.nid);
+    this.set('parent', data.poem.parent);
+    this.words.reset();
+    _(data.poem.words).each(_.bind(function(serverWord) {
+      var drawer = window.MagPo.app.drawers[serverWord.vid].model;
+      var word = drawer.words.get(serverWord.id);
+      this.words.add(word);
+      word.set({ top: serverWord.top, left: serverWord.left });
+    }, this));
+    this.children.reset();
+    _(data.poem.children).each(function(child) {
+      this.children.create(child);
+    });
+
+    // Seems the words come back unsorted sometimes so we'll
+    // force a sort on load.
+    this.words.sort();
+    this.children.sort();
+
+    // Perform post loading actions.
+    this.trigger('fetchSuccess');
+  },
+  fetchError: function(jqXHR, textStatus, errorThrown) {
+    console.error(textStatus);
+    this.trigger('fetchError', jqXHR.status);
+  },
+  save: function(attributes, options) {
+    this.trigger('saving');
+    // Invoke the parent save function.
+    Backbone.Model.prototype.save.call(this, attributes, options);
+
+    // Now sync with the server.
+    var body = {
+      poem: this.toJSON()
+    };
+
+    // If this is an update we should always be sending along our uuid.
+    body.poem.author = localStorage.getItem('MagPo_me');
+    if (window.MagPo.app.user) {
+      body.poem.author = window.MagPo.app.user;
+    }
+
+    // Send to server.
+    $.ajax({
+      url: 'app/save',
+      contentType: 'application/json',
+      data: JSON.stringify(body),
+      dataType: 'json',
+      type: 'POST',
+      success: _.bind(this.saveSuccess, this),
+      error: _.bind(this.saveError, this),
+    });
+  },
+  saveSuccess: function(data) {
+    if (data.status !== 'ok') {
+      console.error('Error saving poem to server.');
+      this.trigger('saveError', data.status);
+      return;
+    }
+    // It's easier to force a reload on a fork than to modify the existing
+    // poem object.
+    var trigger = false;
+    if (this.id) {
+      trigger = true;
+    }
+    this.id = data.poem.id;
+    if (typeof data.poem.author !== 'undefined') {
+      localStorage.setItem('MagPo_me', data.poem.author);
+    }
+    if (data.redirect) {
+      // Reset the parent and children.
+      this.set('parent', data.poem.parent);
+      this.children.reset();
+
+      this.trigger('saveRedirect', trigger);
+    }
+    this.trigger('saveSuccess', data.status);
+  },
+  saveError: function(jqXHR, textStatus, errorThrown) {
+    console.error(errorThrown);
+    this.trigger('saveError', jqXHR.status);
   }
 });
 
