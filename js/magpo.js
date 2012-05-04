@@ -667,7 +667,7 @@
       }
 
       // Add a listener to show the dialog after saving is complete.
-      window.MagPo.app.poem.on('saved', function(msg) {
+      window.MagPo.app.poem.on('saveSuccess', function(msg) {
         if (msg === 'ok') {
           // Create the modal view over the fridge.
           var view = new ShareDialogView();
@@ -874,9 +874,9 @@
         window.MagPo.app.poem.words.length
       ) {
         window.MagPo.app.poem.save();
-        window.MagPo.app.poem.on('saved', _.bind(function() {
+        window.MagPo.app.poem.on('saveSuccess', _.bind(function() {
           this._login();
-          window.MagPo.app.poem.off('saved');
+          window.MagPo.app.poem.off('saveSuccess');
         }, this));
       }
       else {
@@ -1015,15 +1015,7 @@
     this.delay = 1000;
     // TODO - detect the correct breakpoint.
     this.poem = new Poem({ breakpoint: 'desktop' });
-
-    // Handle events from the poem model.
-    this.poem.on('fetching', _.bind(this.fetching, this));
-    this.poem.on('fetchSuccess', _.bind(this.fetchSuccess, this));
-    this.poem.on('fetchError', _.bind(this.fetchError, this));
-    this.poem.on('saving', _.bind(this.saving, this));
-    this.poem.on('saveSuccess', _.bind(this.saveSuccess, this));
-    this.poem.on('saveError', _.bind(this.saveError, this));
-    this.poem.on('saveRedirect', _.bind(this.saveRedirect, this));
+    this.attachListeners(this.poem);
 
     this.controlsView = new ControlsView();
     this.fridgeView = new FridgeView({ collection: this.poem });
@@ -1057,6 +1049,17 @@
     this.listingsView = new ListingsView({ collection: this.listings });
 
     this.router = null;
+  };
+
+  MagPo.prototype.attachListeners = function(poem) {
+    // Handle events from the poem model.
+    poem.on('fetching', _.bind(this.fetching, this));
+    poem.on('fetchSuccess', _.bind(this.fetchSuccess, this));
+    poem.on('fetchError', _.bind(this.fetchError, this));
+    poem.on('saving', _.bind(this.saving, this));
+    poem.on('saveSuccess', _.bind(this.saveSuccess, this));
+    poem.on('saveError', _.bind(this.saveError, this));
+    poem.on('saveRedirect', _.bind(this.saveRedirect, this));
   };
 
   MagPo.prototype.fetching = function(message) {
@@ -1106,11 +1109,6 @@
   };
 
   MagPo.prototype.saveRedirect = function(message) {
-    // The user just forked the poem, now they're the author.
-    if (!window.MagPo.app.poem.isAuthor) {
-      window.MagPo.app.poem.isAuthor = true;
-    }
-
     // Update the URL and perform post loading actions.
     this.router.navigate(this.poem.id, { trigger: message });
     postLoad();
@@ -1160,11 +1158,18 @@
       fork = JSON.parse(fork);
       localStorage.removeItem('MagPo_poem');
 
-      // HACK - not super happy about this, but it handles all the
-      // loading logic in a simpler way.
-      var forkedPoem = new Poem(fork);
-      forkedPoem.words.reset(fork.words);
-      forkedPoem.save();
+      // Replace the poem with the fork, re-attach the listeners, and save.
+      this.poem = this.fridgeView.collection = new Poem(fork);
+      this.attachListeners(this.poem);
+      this.poem.words.reset();
+      _.each(fork.words, _.bind(function(fWord) {
+        var word = this.drawers[fWord.vid].model.words.get(fWord.id);
+        word.set('top', fWord.top);
+        word.set('left', fWord.left);
+        this.poem.words.add(word);
+      }, this));
+
+      this.poem.save();
     }
   };
 
