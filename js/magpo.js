@@ -5,7 +5,6 @@
   var failedToLoginTxt = 'Uh oh! There was a problem logging you in. Find a Web Chef!';
   var needToLoginTxt = "Welcome back! If you'd like to be able to edit your poems later you should really log in from the link at the top.";
   var autosave = true;
-  var isAuthor = true;
   var barVisible = $('#word-bar').is(':visible');
   var listingsVisible = $('#listings').is(':visible');
   var listingsPage = 0;
@@ -576,7 +575,7 @@
       }
 
       // If the poem has already been saved once, autosave on drop.
-      if (isAuthor && window.MagPo.app.poem.id) {
+      if (window.MagPo.app.poem.isAuthor && window.MagPo.app.poem.id) {
         if (window.MagPo.app.timeout) {
           clearTimeout(window.MagPo.app.timeout);
         }
@@ -596,7 +595,7 @@
       window.MagPo.app.poem.words.remove(dropped);
 
       // If the poem has already been saved once, autosave on out.
-      if (window.MagPo.app.poem.id) {
+      if (window.MagPo.app.poem.isAuthor && window.MagPo.app.poem.id) {
         if (window.MagPo.app.timeout) {
           clearTimeout(window.MagPo.app.timeout);
         }
@@ -625,7 +624,7 @@
       'click': 'openShareDialog'
     },
     render: function() {
-      if (!isAuthor) {
+      if (!window.MagPo.app.poem.isAuthor) {
         // If the user isn't logged in, we're going to prevent forks.
         if (window.MagPo.app.user) {
           $(this.el).html('Respond');
@@ -654,7 +653,7 @@
       // If the user isn't logged in, bail on this, and log them in.
       // The poem will be saved in its current state and updated when
       // we get back.
-      if (!isAuthor && !window.MagPo.app.user) {
+      if (!window.MagPo.app.poem.isAuthor && !window.MagPo.app.user) {
         // Store the poem in local storage,
         // we'll save it to the database when login is complete.
         localStorage.setItem('MagPo_poem', JSON.stringify(window.MagPo.app.poem.toJSON()));
@@ -912,7 +911,7 @@
       window.MagPo.app.user = null;
 
       // Force this to false regardless of what it's currently set to.
-      isAuthor = false;
+      window.MagPo.app.poem.isAuthor = false;
 
       // Re-render stuff.
       this.render();
@@ -1108,8 +1107,8 @@
 
   MagPo.prototype.saveRedirect = function(message) {
     // The user just forked the poem, now they're the author.
-    if (!isAuthor) {
-      isAuthor = true;
+    if (!window.MagPo.app.poem.isAuthor) {
+      window.MagPo.app.poem.isAuthor = true;
     }
 
     // Update the URL and perform post loading actions.
