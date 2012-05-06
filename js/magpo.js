@@ -422,7 +422,7 @@
           left: this.resizeWord(sModel.get('left'), 'desktop', this.breakpoint)
         };
         $(sibling).position({
-          of: '#fridge',
+          of: this.$el,
           my: 'left top',
           at: 'left top',
           offset: resizedOffset.left + ' ' + resizedOffset.top
@@ -441,9 +441,9 @@
         var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
         var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
         var siblings = $(word.view.el)
-          .appendTo('#fridge')
+          .appendTo(this.$el)
           .position({
-            of: '#fridge',
+            of: this.$el,
             my: 'left top',
             at: 'left top',
             offset: left + ' ' + top
@@ -1012,7 +1012,6 @@
         time: moment(poem.get('changed')).format('D MMM, h:mma'),
         poem: poemListingView.render().$el.html()
       }));
-      //poemListingView.$el.height();
     },
     loadOnScroll: function(e) {
       if (!listingsVisible || loadingListings) {
