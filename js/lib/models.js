@@ -212,9 +212,9 @@ var Poem = Backbone.Model.extend({
       word.set({ top: serverWord.top, left: serverWord.left });
     }, this));
     this.children.reset();
-    _(data.poem.children).each(function(child) {
+    _(data.poem.children).each(_.bind(function(child) {
       this.children.create(child);
-    });
+    }, this));
 
     // Seems the words come back unsorted sometimes so we'll
     // force a sort on load.
