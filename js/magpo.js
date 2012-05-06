@@ -437,19 +437,20 @@
       if (typeof breakpoint === 'undefined') {
         breakpoint = this.breakpoint;
       }
+      // First append the words to the dom.
+      this.collection.words.each(_.bind(function(word) {
+        $(word.view.el).appendTo(this.$el);
+      }, this));
+      // Then set their positions all at once.
       this.collection.words.each(_.bind(function(word) {
         var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
         var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
-        var siblings = $(word.view.el)
-          .appendTo(this.$el)
-          .position({
-            of: this.$el,
-            my: 'left top',
-            at: 'left top',
-            offset: left + ' ' + top
-          })
-          .prevAll();
-        this.repositionSiblings(siblings);
+        $(word.view.el).position({
+          of: this.$el,
+          my: 'left top',
+          at: 'left top',
+          offset: left + ' ' + top
+        });
       }, this));
       return this;
     },
@@ -552,23 +553,25 @@
       if (typeof breakpoint === 'undefined') {
         breakpoint = this.breakpoint;
       }
+      // First append the words to the dom.
+      this.collection.words.each(_.bind(function(word) {
+        $(word.view.el).appendTo(this.$el);
+      }, this));
+      // Then set their positions all at once.
       this.collection.words.each(_.bind(function(word) {
         var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
         var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
-        var siblings = $(word.view.el)
-          .appendTo(this.$el)
-          .position({
+        $(word.view.el).position({
             of: this.$el,
             my: 'left top',
             at: 'left top',
             offset: left + ' ' + top
           })
-          .prevAll();
-        this.repositionSiblings(siblings);
       }, this));
       return this;
     }
   });
+
   /**
    * Defines the fridge (workspace) view.
    */

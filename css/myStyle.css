@@ -102,13 +102,13 @@ menu ul li.logged-in {
   box-shadow: 2px 2px 0px 0px #666;
 }
 .listing-poem {
-  font-size: .6em;
-  width: 320px;
-  height: 206.67px;
+  font-size: .225em;
+  width: 150px;
+  height: 96.75px;
 }
 .listing-poem .tiles {
   cursor: none;
-  padding: 1.33px 4px 1.33px 4px;
+  padding: .5px 1.5px .5px 1.5px;
   position: relative;
 }
 .drawer .tiles {
