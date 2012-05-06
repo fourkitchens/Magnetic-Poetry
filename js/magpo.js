@@ -114,6 +114,29 @@
   var WordView = Backbone.View.extend({
     tagName: 'div',
     attributes: {
+      'class': 'tiles'
+    },
+    initialize: function() {
+      this.model.view = this;
+      this.model.bind('change', this.render, this);
+    },
+    render: function() {
+      $(this.el).data('backbone-view', this);
+
+      $(this.el).html('<span>' + this.model.get('string') + '</span>');
+
+      // add the random tilt.
+      var rand = Math.floor(Math.random() * 2);
+      if (rand === 1) {
+        $(this.el).css('-webkit-transform', 'rotate(-2deg)');
+      }
+
+      return this;
+    }
+  });
+
+  var DraggableWordView = WordView.extend({
+    attributes: {
       'class': 'draggable tiles'
     },
     initialize: function() {
@@ -280,7 +303,7 @@
     },
     addAll: function() {
       this.model.words.each(_.bind(function(word) {
-        var wordView = new WordView({
+        var wordView = new DraggableWordView({
           model: word
         });
         wordView.render();
@@ -541,6 +564,7 @@
             offset: left + ' ' + top
           })
           .prevAll();
+        this.repositionSiblings(siblings);
       }, this));
       return this;
     }
