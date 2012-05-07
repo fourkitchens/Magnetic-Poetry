@@ -101,11 +101,6 @@ menu ul li.logged-in {
   -moz-box-shadow: 2px 2px 0px 0px #666;
   box-shadow: 2px 2px 0px 0px #666;
 }
-
-#fridge .tiles {
-  position: absolute;
-}
-
 .listing-poem {
   position: relative;
   font-size: .225em;
