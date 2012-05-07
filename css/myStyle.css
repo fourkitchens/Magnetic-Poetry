@@ -102,6 +102,7 @@ menu ul li.logged-in {
   box-shadow: 2px 2px 0px 0px #666;
 }
 .listing-poem {
+  position: relative;
   font-size: .225em;
   width: 150px;
   height: 96.75px;
@@ -109,7 +110,7 @@ menu ul li.logged-in {
 .listing-poem .tiles {
   cursor: none;
   padding: .5px 1.5px .5px 1.5px;
-  position: relative;
+  position: absolute;
 }
 .drawer .tiles {
   margin: 4px 0 0 4px;
