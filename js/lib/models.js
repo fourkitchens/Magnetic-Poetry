@@ -10,6 +10,10 @@ if (typeof require !== 'undefined') {
   var poemModel = require('../models/poem');
   var WordCollection = require('./collections').WordCollection;
   var breakpoints = require('../lib/breakpoints.js');
+  var u = require('underscore');
+
+  // :( jQuery not used on the server side.
+  var jQuery = null;
 }
 else {
   var wordModel = window.MagPo.models.Word;
@@ -17,8 +21,10 @@ else {
   var poemModel = window.MagPo.models.Poem;
   var WordCollection = window.MagPo.WordCollection;
   var breakpoints = window.MagPo.breakpoints;
+  var u = _;
 }
 
+(function($, _) {
 /**
  * Defines the word model.
  *
@@ -254,7 +260,7 @@ var Poem = Backbone.Model.extend({
       dataType: 'json',
       type: 'POST',
       success: _.bind(this.saveSuccess, this),
-      error: _.bind(this.saveError, this),
+      error: _.bind(this.saveError, this)
     });
   },
   saveSuccess: function(data) {
@@ -298,4 +304,5 @@ else {
 exp.Word = Word;
 exp.Drawer = Drawer;
 exp.Poem = Poem;
+}(jQuery, u));
 

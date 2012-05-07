@@ -140,7 +140,9 @@ module.exports = function(grunt) {
       globals: {
         jQuery: true,
         Backbone: true,
-        _: true
+        _: true,
+        console: true,
+        require: true
       }
     },
     uglify: {}

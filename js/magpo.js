@@ -250,7 +250,7 @@
 
       $(this.el).droppable({
         accept: '.tiles',
-        drop: _.bind(this.drop, this),
+        drop: _.bind(this.drop, this)
       });
 
       dispatch.on('orientationChange', _.bind(this.orientationChange, this));
@@ -406,7 +406,7 @@
         resultNum = startNum * 1.25;
       }
       else if (to === 'phoneListing') {
-        resultNum = startNum * .25;
+        resultNum = startNum * 0.25;
       }
       return resultNum;
     },
@@ -564,12 +564,12 @@
         var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
         var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
         $(word.view.el).position({
-            of: this.$el,
-            my: 'left top',
-            at: 'left top',
-            offset: left + ' ' + top,
-            collision: 'none'
-          })
+          of: this.$el,
+          my: 'left top',
+          at: 'left top',
+          offset: left + ' ' + top,
+          collision: 'none'
+        });
       }, this));
       return this;
     }
@@ -734,7 +734,9 @@
       }
 
       // Add a listener to show the dialog after saving is complete.
-      window.MagPo.app.poem.on('saveSuccess', function(msg) {
+      // This function needs to be run once after the poem save link is clicked.
+      // @see https://github.com/documentcloud/backbone/pull/594
+      window.MagPo.app.poem.on('saveSuccess', _.once(function(msg) {
         if (msg === 'ok') {
           // Create the modal view over the fridge.
           var view = new ShareDialogView();
@@ -747,10 +749,8 @@
           }
         }
 
-        // Remove the listener.
-        window.MagPo.app.poem.off('saved');
         autosave = true;
-      });
+      }));
 
       // Save the poem.
       window.MagPo.app.poem.save({
@@ -880,7 +880,7 @@
       else {
         window.MagPo.app.authView.login();
         $('#login-menu')
-          .html(avatarTemplate({ user: window.MagPo.app.user.screen_name }))
+          .html(this.avatarTemplate({ user: window.MagPo.app.user.screen_name }))
           .toggleClass('logged-in');
       }
     },
@@ -1093,7 +1093,7 @@
     var shown = false;
     this.drawers = {};
     _(drawers).each(_.bind(function(drawer) {
-      var model = new Drawer(drawer);
+      var model = new window.MagPo.Drawer(drawer);
       var view = new DrawerView({ model: model });
       var handle = new DrawerHandleView({ model: model });
 
@@ -1188,7 +1188,7 @@
 
     localStorage.removeItem('MagPo_tUser');
 
-    this.user = user = {
+    var user = this.user = {
       id: data.id,
       screen_name: data.screen_name
     };
@@ -1274,7 +1274,7 @@
       history.pushState({}, '', path);
 
       // Send the login information to the back end.
-      body = {
+      var body = {
         oauth_token: oauth_token,
         oauth_verifier: oauth_verifier,
         user: tUser
