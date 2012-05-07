@@ -1065,6 +1065,7 @@
   };
 
   MagPo.prototype.fetchSuccess = function(message) {
+    isAuthor = message.isAuthor;
     throbberEvent.trigger('hide');
     this.fridgeView.render();
     postLoad();
