@@ -514,7 +514,6 @@
       var dropped = $(ui.draggable).data('backbone-view').model;
       window.MagPo.app.poem.words.remove(dropped);
 
-      var siblings = $(ui.draggable).nextAll();
       // Unset the top and left values for this item since its drawer is
       // currently hidden and off the screen.
       $(ui.draggable)
@@ -526,7 +525,6 @@
           'helper',
           $(ui.draggable).data('backbone-view').getHelper()
         );
-      this.repositionSiblings(siblings);
     },
     toggleBar: function() {
       if ($('#drawers-container').hasClass('down')) {
@@ -614,17 +612,14 @@
       if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
         // Move the element to the fridge so we can hide the drawer and
         // reset its position relative to the fridge.
-        var siblings = $(ui.draggable)
+        $(ui.draggable)
           .appendTo(this.$el)
           .position({
             of: this.$el,
             my: 'left top',
             at: 'left top',
             offset: resultOffset.left + ' ' + resultOffset.top
-          })
-          .prevAll();
-
-        this.repositionSiblings(siblings);
+          });
 
         dropped.set('top', resizedOffset.top);
         dropped.set('left', resizedOffset.left);
