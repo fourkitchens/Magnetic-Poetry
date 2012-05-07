@@ -307,6 +307,10 @@ footer {
     cursor: pointer;
   }
 
+  .listing-poem {
+    font-size: .75em;
+  }
+
   .listing .time {
     float: right;
   }
