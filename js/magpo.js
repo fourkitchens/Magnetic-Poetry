@@ -334,7 +334,8 @@
           of: '#fridge',
           my: 'left top',
           at: 'left top',
-          offset: sModel.get('left') + ' ' + sModel.get('top')
+          offset: sModel.get('left') + ' ' + sModel.get('top'),
+          collision: 'none'
         });
       });
     }
@@ -425,7 +426,8 @@
           of: this.$el,
           my: 'left top',
           at: 'left top',
-          offset: resizedOffset.left + ' ' + resizedOffset.top
+          offset: resizedOffset.left + ' ' + resizedOffset.top,
+          collision: 'none'
         });
       }, this));
     },
@@ -449,7 +451,8 @@
           of: this.$el,
           my: 'left top',
           at: 'left top',
-          offset: left + ' ' + top
+          offset: left + ' ' + top,
+          collision: 'none'
         });
       }, this));
       return this;
@@ -565,7 +568,8 @@
             of: this.$el,
             my: 'left top',
             at: 'left top',
-            offset: left + ' ' + top
+            offset: left + ' ' + top,
+            collision: 'none'
           })
       }, this));
       return this;
@@ -620,7 +624,8 @@
             of: this.$el,
             my: 'left top',
             at: 'left top',
-            offset: resultOffset.left + ' ' + resultOffset.top
+            offset: resultOffset.left + ' ' + resultOffset.top,
+            collision: 'none'
           })
           .prevAll();
 
