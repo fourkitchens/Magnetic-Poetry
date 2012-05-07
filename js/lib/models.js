@@ -59,42 +59,44 @@ var SimplePoem = Backbone.Model.extend({
 var Poem = Backbone.Model.extend({
   defaults: poemModel,
   initialize: function() {
-    var self = this;
+    this.isAuthor = true;
     var PoemCollection = WordCollection.extend({
-      comparator: function(a, b) {
-        var bp = breakpoints[self.get('breakpoint')];
-        var third = bp.rowHeight / 3;
-        var aTop = a.get('top');
-        var bTop = b.get('top');
-        // Sort the collection in a "multi-dimensional" array where:
-        if (bTop < (aTop - third)) {
-          return 1;
-        }
-        else if (bTop >= (aTop - third) && bTop <= (aTop + bp.rowHeight + third)) {
-          if (b.get('left') < a.get('left')) {
-            return 1;
-          }
-          return -1;
-        }
-        else {
-          return -1;
-        }
-      }
+      comparator: _.bind(this.poemComparator, this)
     });
     this.words = new PoemCollection();
 
     var ChildrenCollection = Backbone.Collection.extend({
-      comparator: function(a, b) {
-        if (a.get('changed') > b.get('changed')) {
-          return -1;
-        }
-        else if (a.get('changed') < b.get('changed')) {
-          return 1;
-        }
-        return 0;
-      }
+      comparator: _.bind(this.childrenComparator, this)
     });
     this.children = new ChildrenCollection();
+  },
+  poemComparator: function(a, b) {
+    var bp = breakpoints[this.get('breakpoint')];
+    var third = bp.rowHeight / 3;
+    var aTop = a.get('top');
+    var bTop = b.get('top');
+    // Sort the collection in a "multi-dimensional" array where:
+    if (bTop < (aTop - third)) {
+      return 1;
+    }
+    else if (bTop >= (aTop - third) && bTop <= (aTop + bp.rowHeight + third)) {
+      if (b.get('left') < a.get('left')) {
+        return 1;
+      }
+      return -1;
+    }
+    else {
+      return -1;
+    }
+  },
+  childrenComparator: function(a, b) {
+    if (a.get('changed') > b.get('changed')) {
+      return -1;
+    }
+    else if (a.get('changed') < b.get('changed')) {
+      return 1;
+    }
+    return 0;
   },
   getWords: function() {
     return this.words.toJSON();
@@ -201,6 +203,7 @@ var Poem = Backbone.Model.extend({
       });
     }
 
+    this.isAuthor = data.author;
     this.set('nid', data.poem.nid);
     this.set('parent', data.poem.parent);
     this.words.reset();
@@ -221,7 +224,7 @@ var Poem = Backbone.Model.extend({
     this.children.sort();
 
     // Perform post loading actions.
-    this.trigger('fetchSuccess', { isAuthor: data.author });
+    this.trigger('fetchSuccess');
   },
   fetchError: function(jqXHR, textStatus, errorThrown) {
     console.error(textStatus);
