@@ -101,6 +101,17 @@ menu ul li.logged-in {
   -moz-box-shadow: 2px 2px 0px 0px #666;
   box-shadow: 2px 2px 0px 0px #666;
 }
+.listing-poem {
+  position: relative;
+  font-size: .225em;
+  width: 150px;
+  height: 96.75px;
+}
+.listing-poem .tiles {
+  cursor: none;
+  padding: .5px 1.5px .5px 1.5px;
+  position: absolute;
+}
 .drawer .tiles {
   margin: 4px 0 0 4px;
 }
@@ -294,6 +305,10 @@ footer {
     border-bottom: 1px solid #8EB498;
     border-top: 1px solid #B2E2BF;
     cursor: pointer;
+  }
+
+  .listing-poem {
+    font-size: .75em;
   }
 
   .listing .time {

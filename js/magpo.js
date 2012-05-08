@@ -66,10 +66,14 @@
                 return;
               }
               var drawer = window.MagPo.app.drawers[serverWord.vid].model;
-              var word = drawer.words.get(serverWord.id);
+              var word = new Word(serverWord);
               if (typeof word === 'undefined') {
                 return;
               }
+              var wordView = new WordView({
+                model: word
+              });
+              wordView.render();
               poemObj.words.add(word);
             });
             model.add(poemObj);
@@ -108,6 +112,29 @@
    */
   var WordView = Backbone.View.extend({
     tagName: 'div',
+    attributes: {
+      'class': 'tiles'
+    },
+    initialize: function() {
+      this.model.view = this;
+      this.model.bind('change', this.render, this);
+    },
+    render: function() {
+      $(this.el).data('backbone-view', this);
+
+      $(this.el).html('<span>' + this.model.get('string') + '</span>');
+
+      // add the random tilt.
+      var rand = Math.floor(Math.random() * 2);
+      if (rand === 1) {
+        $(this.el).css('-webkit-transform', 'rotate(-2deg)');
+      }
+
+      return this;
+    }
+  });
+
+  var DraggableWordView = WordView.extend({
     attributes: {
       'class': 'draggable tiles'
     },
@@ -223,7 +250,7 @@
 
       $(this.el).droppable({
         accept: '.tiles',
-        drop: _.bind(this.drop, this),
+        drop: _.bind(this.drop, this)
       });
 
       dispatch.on('orientationChange', _.bind(this.orientationChange, this));
@@ -275,7 +302,7 @@
     },
     addAll: function() {
       this.model.words.each(_.bind(function(word) {
-        var wordView = new WordView({
+        var wordView = new DraggableWordView({
           model: word
         });
         wordView.render();
@@ -306,7 +333,8 @@
           of: '#fridge',
           my: 'left top',
           at: 'left top',
-          offset: sModel.get('left') + ' ' + sModel.get('top')
+          offset: sModel.get('left') + ' ' + sModel.get('top'),
+          collision: 'none'
         });
       });
     }
@@ -342,7 +370,7 @@
         $('.open-drawer').removeClass('open-drawer').hide();
         $(this.model.view.$el).addClass('open-drawer').show();
       }
-    },
+    }
   });
 
   /**
@@ -377,6 +405,9 @@
       else if (to === 'desktop') {
         resultNum = startNum * 1.25;
       }
+      else if (to === 'phoneListing') {
+        resultNum = startNum * 0.25;
+      }
       return resultNum;
     },
     repositionSiblings: function(siblings) {
@@ -391,10 +422,11 @@
           left: this.resizeWord(sModel.get('left'), 'desktop', this.breakpoint)
         };
         $(sibling).position({
-          of: '#fridge',
+          of: this.$el,
           my: 'left top',
           at: 'left top',
-          offset: resizedOffset.left + ' ' + resizedOffset.top
+          offset: resizedOffset.left + ' ' + resizedOffset.top,
+          collision: 'none'
         });
       }, this));
     },
@@ -406,19 +438,21 @@
       if (typeof breakpoint === 'undefined') {
         breakpoint = this.breakpoint;
       }
+      // First append the words to the dom.
+      this.collection.words.each(_.bind(function(word) {
+        $(word.view.el).appendTo(this.$el);
+      }, this));
+      // Then set their positions all at once.
       this.collection.words.each(_.bind(function(word) {
         var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
         var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
-        var siblings = $(word.view.el)
-          .appendTo('#fridge')
-          .position({
-            of: '#fridge',
-            my: 'left top',
-            at: 'left top',
-            offset: left + ' ' + top
-          })
-          .prevAll();
-        this.repositionSiblings(siblings);
+        $(word.view.el).position({
+          of: this.$el,
+          my: 'left top',
+          at: 'left top',
+          offset: left + ' ' + top,
+          collision: 'none'
+        });
       }, this));
       return this;
     },
@@ -453,7 +487,7 @@
           accept: '.tiles',
           over: _.bind(this.over, this),
           out: _.bind(this.out, this),
-          drop: _.bind(this.drop, this),
+          drop: _.bind(this.drop, this)
         });
       }
     },
@@ -471,10 +505,10 @@
         this.render();
       }
     },
-    over: function (event, ui) {
+    over: function(event, ui) {
       $('#word-bar-handle').text('x remove x');
     },
-    out: function (event, ui) {
+    out: function(event, ui) {
       $('#word-bar-handle').text('^ words ^');
     },
     drop: function(event, ui) {
@@ -506,6 +540,38 @@
         $('#drawers-container').css('top', 0);
       }
       $('#drawers-container').toggleClass('down');
+    }
+  });
+
+  /**
+   * Defines the poem listing view.
+   *
+   */
+  var PoemListingView = PoemView.extend({
+    initialize: function() {
+      this.breakpoint = 'phoneListing';
+    },
+    render: function(breakpoint) {
+      if (typeof breakpoint === 'undefined') {
+        breakpoint = this.breakpoint;
+      }
+      // First append the words to the dom.
+      this.collection.words.each(_.bind(function(word) {
+        $(word.view.el).appendTo(this.$el);
+      }, this));
+      // Then set their positions all at once.
+      this.collection.words.each(_.bind(function(word) {
+        var left = this.resizeWord(word.get('left'), 'desktop', breakpoint);
+        var top = this.resizeWord(word.get('top'), 'desktop', breakpoint);
+        $(word.view.el).position({
+          of: this.$el,
+          my: 'left top',
+          at: 'left top',
+          offset: left + ' ' + top,
+          collision: 'none'
+        });
+      }, this));
+      return this;
     }
   });
 
@@ -557,7 +623,8 @@
             of: this.$el,
             my: 'left top',
             at: 'left top',
-            offset: resultOffset.left + ' ' + resultOffset.top
+            offset: resultOffset.left + ' ' + resultOffset.top,
+            collision: 'none'
           })
           .prevAll();
 
@@ -667,7 +734,9 @@
       }
 
       // Add a listener to show the dialog after saving is complete.
-      window.MagPo.app.poem.on('saveSuccess', function(msg) {
+      // This function needs to be run once after the poem save link is clicked.
+      // @see https://github.com/documentcloud/backbone/pull/594
+      window.MagPo.app.poem.on('saveSuccess', _.once(function(msg) {
         if (msg === 'ok') {
           // Create the modal view over the fridge.
           var view = new ShareDialogView();
@@ -680,10 +749,8 @@
           }
         }
 
-        // Remove the listener.
-        window.MagPo.app.poem.off('saved');
         autosave = true;
-      });
+      }));
 
       // Save the poem.
       window.MagPo.app.poem.save({
@@ -813,7 +880,7 @@
       else {
         window.MagPo.app.authView.login();
         $('#login-menu')
-          .html(avatarTemplate({ user: window.MagPo.app.user.screen_name }))
+          .html(this.avatarTemplate({ user: window.MagPo.app.user.screen_name }))
           .toggleClass('logged-in');
       }
     },
@@ -942,6 +1009,7 @@
     },
     addOne: function(poem) {
       var author = '@' + poem.get('author');
+      var poemListingView = new PoemListingView({collection: poem});
       if (author.length > 20) {
         author = 'Anonymous';
       }
@@ -949,7 +1017,7 @@
         id: poem.id,
         author: author,
         time: moment(poem.get('changed')).format('D MMM, h:mma'),
-        poem: poem.stringify()
+        poem: poemListingView.render().$el.html()
       }));
     },
     loadOnScroll: function(e) {
@@ -1025,7 +1093,7 @@
     var shown = false;
     this.drawers = {};
     _(drawers).each(_.bind(function(drawer) {
-      var model = new Drawer(drawer);
+      var model = new window.MagPo.Drawer(drawer);
       var view = new DrawerView({ model: model });
       var handle = new DrawerHandleView({ model: model });
 
@@ -1120,7 +1188,7 @@
 
     localStorage.removeItem('MagPo_tUser');
 
-    this.user = user = {
+    var user = this.user = {
       id: data.id,
       screen_name: data.screen_name
     };
@@ -1206,7 +1274,7 @@
       history.pushState({}, '', path);
 
       // Send the login information to the back end.
-      body = {
+      var body = {
         oauth_token: oauth_token,
         oauth_verifier: oauth_verifier,
         user: tUser
