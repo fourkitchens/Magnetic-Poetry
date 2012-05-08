@@ -201,7 +201,6 @@ var Poem = Backbone.Model.extend({
       });
     }
 
-    isAuthor = data.author;
     this.set('nid', data.poem.nid);
     this.set('parent', data.poem.parent);
     this.words.reset();
@@ -222,7 +221,7 @@ var Poem = Backbone.Model.extend({
     this.children.sort();
 
     // Perform post loading actions.
-    this.trigger('fetchSuccess');
+    this.trigger('fetchSuccess', { isAuthor: data.author });
   },
   fetchError: function(jqXHR, textStatus, errorThrown) {
     console.error(textStatus);
