@@ -2,44 +2,26 @@
  * @fileoverview defines the poem model.
  */
 
-if (typeof module !== 'undefined') {
+define(function(require, exports, module) {
   var Backbone = require('backbone');
-  var Word = require('./word');
-  var SimplePoem = require('./simplePoem');
-}
-else {
-  var Word = window.MagPo.Word;
-  var SimplePoem = window.MagPo.SimplePoem;
-}
+  var Word = require('models/word');
+  var SimplePoem = require('models/simplePoem');
 
-/**
- * Type definition for Poem model.
- */
-var Poem = {
-  id: null,
-  nid: null,
-  status: true,
-  breakpoint: '',
-  words: Backbone.Collection.extend({
-    model: Word
-  }),
-  parent: null,
-  children: Backbone.Collection.extend({
-    model: SimplePoem
-  })
-};
-
-if (typeof module === 'undefined') {
-  // Set usable defaults.
-  if (typeof window.MagPo === 'undefined') {
-    window.MagPo = { models: {} };
-  }
-  else if (typeof window.MagPo.models === 'undefined') {
-    window.MagPo.models = {};
-  }
-  window.MagPo.models.Poem = Poem;
-}
-else {
-  module.exports = Poem;
-}
+  /**
+   * Type definition for Poem model.
+   */
+  exports = {
+    id: null,
+    nid: null,
+    status: true,
+    breakpoint: '',
+    words: Backbone.Collection.extend({
+      model: Word
+    }),
+    parent: null,
+    children: Backbone.Collection.extend({
+      model: SimplePoem
+    })
+  };
+});
 

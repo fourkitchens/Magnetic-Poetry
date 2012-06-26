@@ -3,23 +3,11 @@
  * between the client and server.
  */
 
-if (typeof exports === 'undefined') {
-  if (typeof window.MagPo === 'undefined') {
-    window.MagPo = {};
+define({
+  desktop: {
+    minWidth: null,
+    maxWidth: null,
+    rowHeight: 29,
+    charWidth: 8
   }
-  var exp = window.MagPo.breakpoints = {};
-}
-else {
-  var exp = module.exports = {};
-}
-
-/**
- * Defines desktop row height and char width.
- */
-exp.desktop = {
-  minWidth: null,
-  maxWidth: null,
-  rowHeight: 29,
-  charWidth: 8
-};
-
+});
