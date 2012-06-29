@@ -1,8 +1,11 @@
 define(function(require, exports, module) {
   var _ = require('underscore');
   var $ = require('jquery');
+  require('jqueryui');
   var Backbone = require('backbone');
+  var moment = require('moment');
 
+  var Word = require('lib/models').Word;
   var Drawer = require('lib/models').Drawer;
   var Poem = require('lib/models').Poem;
   var WordCollection = require('lib/models').WordCollection;
@@ -76,7 +79,7 @@ define(function(require, exports, module) {
                 return;
               }
               var drawer = MagPo.drawers[serverWord.vid].model;
-              var word = new require('lib/models').Word(serverWord);
+              var word = new Word(serverWord);
               if (typeof word === 'undefined') {
                 return;
               }
@@ -113,7 +116,7 @@ define(function(require, exports, module) {
     },
     load: function(id) {
       MagPo.poem.id = id;
-      MagPo.poem.fetch({ id: MagPo.poem.id });
+      MagPo.poem.fetch({ id: MagPo.poem.id, drawers: MagPo.drawers });
     }
   });
 
@@ -661,7 +664,7 @@ define(function(require, exports, module) {
             MagPo.poem.save({
               words: MagPo.poem.getWords(),
               breakpoint: MagPo.poem.get('breakpoint')
-            });
+            }, { user: MagPo.user });
           },
           MagPo.delay
         );
@@ -766,7 +769,7 @@ define(function(require, exports, module) {
       MagPo.poem.save({
         words: MagPo.poem.getWords(),
         breakpoint: MagPo.poem.get('breakpoint')
-      });
+      }, { user: MagPo.user });
     }
   });
 
@@ -950,7 +953,7 @@ define(function(require, exports, module) {
         (typeof MagPo.poem.id === 'undefined' || MagPo.poem.id === null) &&
         MagPo.poem.words.length
       ) {
-        MagPo.poem.save();
+        MagPo.poem.save({}, { user: MagPo.user });
         MagPo.poem.on('saveSuccess', _.bind(function() {
           this._login();
           MagPo.poem.off('saveSuccess');
@@ -1088,8 +1091,10 @@ define(function(require, exports, module) {
    * Local variables.
    */
   var MagPo = {
+    initialized: false,
     started: false,
     init: function(drawers) {
+      this.initialized = true;
       this.timeout = false;
       this.user = false;
       this.delay = 1000;
@@ -1240,7 +1245,7 @@ define(function(require, exports, module) {
           this.poem.words.add(word);
         }, this));
 
-        this.poem.save();
+        this.poem.save({}, { user: this.user });
       }
     },
     start: function() {
@@ -1314,7 +1319,8 @@ define(function(require, exports, module) {
       this.router = new AppRouter();
       Backbone.history.start();
       $(document).on('touchmove', '.tiles', function(e) {});
-    }
+    },
+    messageDialogView: MessageDialogView
   };
 
   return MagPo;

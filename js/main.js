@@ -4,8 +4,10 @@ require.config({
       'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min',
       'vendor/jquery-1.7.2.min'
     ],
+    jqueryui: 'vendor/jquery-ui-1.8.18.custom.min',
     underscore: 'vendor/underscore-min',
-    backbone: 'vendor/backbone-min'
+    backbone: 'vendor/backbone-min',
+    moment: 'vendor/moment.min'
   },
   shim: {
     underscore: {
@@ -14,21 +16,18 @@ require.config({
     backbone: {
       deps: ['underscore', 'jquery'],
       exports: 'Backbone'
-    }
+    },
   }
 });
 
-require(['jquery', 'magpo'], function($, MagPo) {
+require(['jquery', 'magpo', 'jqueryui'], function($, MagPo) {
   var loaded = false;
   $(window).load(function() {
     loaded = true;
-    if (!MagPo.started) {
+    if (MagPo.initialized && !MagPo.started) {
       MagPo.start();
     }
   });
-  if (typeof window.MagPo === 'undefined') {
-    window.MagPo = { };
-  }
   $.ajax({
     url: 'app/drawers',
     success: function(drawers) {
@@ -53,7 +52,8 @@ require(['jquery', 'magpo'], function($, MagPo) {
       ];
       MagPo.init(drawers);
       console.error(errorThrown);
-      var dialog = new window.MessageDialogView({
+      // TODO - fix this!
+      var dialog = new MagPo.messageDialogView({
         message: 'Uh oh! There was a problem loading! Try again later.'
       });
       dialog.render().showModal({});

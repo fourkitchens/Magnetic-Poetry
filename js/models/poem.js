@@ -2,10 +2,23 @@
  * @fileoverview defines the poem model.
  */
 
+var server = false;
+if (typeof define !== 'function') {
+  var define = require('amdefine')(module);
+  server = true;
+}
+
 define(function(require, exports, module) {
   var Backbone = require('backbone');
-  var Word = require('models/word');
-  var SimplePoem = require('models/simplePoem');
+
+  if (server) {
+    var Word = require('./word');
+    var SimplePoem = require('./simplePoem');
+  }
+  else {
+    var Word = require('models/word');
+    var SimplePoem = require('models/simplePoem');
+  }
 
   /**
    * Type definition for Poem model.

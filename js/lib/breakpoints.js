@@ -3,6 +3,10 @@
  * between the client and server.
  */
 
+if (typeof define !== 'function') {
+  var define = require('amdefine')(module);
+}
+
 define({
   desktop: {
     minWidth: null,

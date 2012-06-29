@@ -2,9 +2,27 @@
  * @fileoverview Defines models for MagPo.
  */
 
+var server = false;
+if (typeof define !== 'function') {
+  var define = require('amdefine')(module);
+  server = true;
+}
+
 define(function(require, exports, module) {
-  // :( jQuery not used on the server side.
-  var $ = require('jquery');
+  if (!server) {
+    var $ = require('jquery');
+    var WordModel = require('models/word');
+    var SimplePoemModel = require('models/simplePoem');
+    var PoemModel = require('models/poem');
+    var Breakpoints = require('lib/breakpoints');
+  }
+  else {
+    var $ = function() {};
+    var WordModel = require('../models/word');
+    var SimplePoemModel = require('../models/simplePoem');
+    var PoemModel = require('../models/poem');
+    var Breakpoints = require('../lib/breakpoints');
+  }
   var _ = require('underscore');
   var Backbone = require('backbone');
 
@@ -14,7 +32,7 @@ define(function(require, exports, module) {
    * @see models/word.js
    */
   var Word = Backbone.Model.extend({
-    defaults: require('models/word')
+    defaults: WordModel
   });
 
   var WordCollection = Backbone.Collection.extend({
@@ -41,7 +59,7 @@ define(function(require, exports, module) {
    * @see models/simplePoem.js
    */
   var SimplePoem = Backbone.Model.extend({
-    defaults: require('models/simplePoem')
+    defaults: SimplePoemModel
   });
 
   /**
@@ -50,7 +68,7 @@ define(function(require, exports, module) {
    * @see models/poem.js
    */
   var Poem = Backbone.Model.extend({
-    defaults: require('models/poem'),
+    defaults: PoemModel,
     initialize: function() {
       this.isAuthor = true;
       var PoemCollection = WordCollection.extend({
@@ -64,7 +82,7 @@ define(function(require, exports, module) {
       this.children = new ChildrenCollection();
     },
     poemComparator: function(a, b) {
-      var bp = require('lib/breakpoints')[this.get('breakpoint')];
+      var bp = Breakpoints[this.get('breakpoint')];
       var third = bp.rowHeight / 3;
       var aTop = a.get('top');
       var bTop = b.get('top');
@@ -108,7 +126,7 @@ define(function(require, exports, module) {
         simple = true;
       }
 
-      var bp = require('lib/breakpoints')[self.get('breakpoint')];
+      var bp = Breakpoints[self.get('breakpoint')];
       var lastRight = false;
       var lastTop = false;
       var lowestLeft = false;
@@ -168,6 +186,7 @@ define(function(require, exports, module) {
     },
     fetch: function(options) {
       this.trigger('fetching');
+      this.drawers = options.drawers;
       var author = localStorage.getItem('MagPo_me');
       $.ajax({
         url: 'app/load/' + this.id,
@@ -201,7 +220,7 @@ define(function(require, exports, module) {
       this.set('parent', data.poem.parent);
       this.words.reset();
       _(data.poem.words).each(_.bind(function(serverWord) {
-        var drawer = window.MagPo.app.drawers[serverWord.vid].model;
+        var drawer = this.drawers[serverWord.vid].model;
         var word = drawer.words.get(serverWord.id);
         this.words.add(word);
         word.set({ top: serverWord.top, left: serverWord.left });
@@ -235,8 +254,8 @@ define(function(require, exports, module) {
 
       // If this is an update we should always be sending along our uuid.
       body.poem.author = localStorage.getItem('MagPo_me');
-      if (window.MagPo.app.user) {
-        body.poem.author = window.MagPo.app.user;
+      if (options.user) {
+        body.poem.author = options.user;
       }
 
       // Send to server.
