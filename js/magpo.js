@@ -1,4 +1,17 @@
-(function($) {
+define(function(require, exports, module) {
+  var _ = require('underscore');
+  var $ = require('jquery');
+  require('jqueryui');
+  var Backbone = require('backbone');
+  var moment = require('moment');
+
+  var Word = require('lib/models').Word;
+  var Drawer = require('lib/models').Drawer;
+  var Poem = require('lib/models').Poem;
+  var WordCollection = require('lib/models').WordCollection;
+  var Listings = require('lib/models').Listings;
+
+  var ModalView = require('vendor/Backbone.ModalDialog');
 
   var failedToValidateTxt = "Uh oh! There was a problem validating your poem. Why you trying to hack us, bro?";
   var failedToSaveTxt = 'Uh oh! There was a problem saving your poem. Find a Web Chef!';
@@ -52,7 +65,7 @@
       }
       loadingListings = true;
       throbberEvent.trigger('show');
-      $('#listings').append(window.MagPo.app.listingsView.loadingTemplate({}));
+      $('#listings').append(MagPo.listingsView.loadingTemplate({}));
       $.ajax({
         url: 'app/list/' + page,
         success: function(data) {
@@ -62,10 +75,10 @@
             delete poem._id;
             var poemObj = new Poem(poem);
             _(poem.words).each(function(serverWord) {
-              if (!window.MagPo.app.drawers[serverWord.vid]) {
+              if (!MagPo.drawers[serverWord.vid]) {
                 return;
               }
-              var drawer = window.MagPo.app.drawers[serverWord.vid].model;
+              var drawer = MagPo.drawers[serverWord.vid].model;
               var word = new Word(serverWord);
               if (typeof word === 'undefined') {
                 return;
@@ -102,8 +115,8 @@
       ':id': 'load'
     },
     load: function(id) {
-      window.MagPo.app.poem.id = id;
-      window.MagPo.app.poem.fetch({ id: window.MagPo.app.poem.id });
+      MagPo.poem.id = id;
+      MagPo.poem.fetch({ id: MagPo.poem.id, drawers: MagPo.drawers });
     }
   });
 
@@ -195,7 +208,7 @@
       }
       // Only do this if the word is in a drawer.
       if (event.target.parentElement.id !== 'fridge') {
-        window.MagPo.app.wordBarView.toggleBar();
+        MagPo.wordBarView.toggleBar();
       }
       else {
         // Store the original z-index and increase it to 1000.
@@ -261,7 +274,7 @@
         $(ui.draggable).draggable('option', 'helper', $(ui.draggable).data('backbone-view').getHelper());
       }
       var dropped = $(ui.draggable).data('backbone-view').model;
-      window.MagPo.app.poem.words.remove(dropped);
+      MagPo.poem.words.remove(dropped);
 
       // Bail if we're dropping back into the same drawer.
       if ($(ui.draggable).parent().attr('id') === $(this.el).attr('id')) {
@@ -277,7 +290,7 @@
         // Unset the top and left values for this item since its drawer is
         // currently hidden and off the screen.
         $(ui.draggable)
-          .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
+          .appendTo(MagPo.drawers[dropped.get('vid')].view.$el)
           .css('top', '')
           .css('left', '');
         this.repositionSiblings(siblings);
@@ -514,13 +527,13 @@
     drop: function(event, ui) {
       $('#word-bar-handle').text('^ words ^');
       var dropped = $(ui.draggable).data('backbone-view').model;
-      window.MagPo.app.poem.words.remove(dropped);
+      MagPo.poem.words.remove(dropped);
 
       var siblings = $(ui.draggable).nextAll();
       // Unset the top and left values for this item since its drawer is
       // currently hidden and off the screen.
       $(ui.draggable)
-        .appendTo(window.MagPo.app.drawers[dropped.get('vid')].view.$el)
+        .appendTo(MagPo.drawers[dropped.get('vid')].view.$el)
         .css('top', '')
         .css('left', '')
         .draggable(
@@ -614,7 +627,7 @@
         left: this.resizeWord(resultOffset.left, this.breakpoint, 'desktop')
       };
       // if it's not currently in the poem, append to fridge
-      if (!window.MagPo.app.poem.words.get({ id: dropped.id })) {
+      if (!MagPo.poem.words.get({ id: dropped.id })) {
         // Move the element to the fridge so we can hide the drawer and
         // reset its position relative to the fridge.
         var siblings = $(ui.draggable)
@@ -632,46 +645,46 @@
 
         dropped.set('top', resizedOffset.top);
         dropped.set('left', resizedOffset.left);
-        window.MagPo.app.poem.words.add(dropped);
+        MagPo.poem.words.add(dropped);
       }
       // otherwise only change the position on the model.
       else {
         dropped.set('top', resizedOffset.top);
         dropped.set('left', resizedOffset.left);
-        window.MagPo.app.poem.words.sort();
+        MagPo.poem.words.sort();
       }
 
       // If the poem has already been saved once, autosave on drop.
-      if (window.MagPo.app.poem.isAuthor && window.MagPo.app.poem.id) {
-        if (window.MagPo.app.timeout) {
-          clearTimeout(window.MagPo.app.timeout);
+      if (MagPo.poem.isAuthor && MagPo.poem.id) {
+        if (MagPo.timeout) {
+          clearTimeout(MagPo.timeout);
         }
-        window.MagPo.app.timeout = setTimeout(
+        MagPo.timeout = setTimeout(
           function() {
-            window.MagPo.app.poem.save({
-              words: window.MagPo.app.poem.getWords(),
-              breakpoint: window.MagPo.app.poem.get('breakpoint')
-            });
+            MagPo.poem.save({
+              words: MagPo.poem.getWords(),
+              breakpoint: MagPo.poem.get('breakpoint')
+            }, { user: MagPo.user });
           },
-          window.MagPo.app.delay
+          MagPo.delay
         );
       }
     },
     out: function(event, ui) {
       var dropped = $(ui.draggable).data('backbone-view').model;
-      window.MagPo.app.poem.words.remove(dropped);
+      MagPo.poem.words.remove(dropped);
 
       // If the poem has already been saved once, autosave on out.
-      if (window.MagPo.app.poem.isAuthor && window.MagPo.app.poem.id) {
-        if (window.MagPo.app.timeout) {
-          clearTimeout(window.MagPo.app.timeout);
+      if (MagPo.poem.isAuthor && MagPo.poem.id) {
+        if (MagPo.timeout) {
+          clearTimeout(MagPo.timeout);
         }
-        window.MagPo.app.timeout = setTimeout(function() {
-          window.MagPo.app.poem.save({
-            words: window.MagPo.app.poem.getWords(),
-            breakpoint: window.MagPo.app.poem.get('breakpoint')
+        MagPo.timeout = setTimeout(function() {
+          MagPo.poem.save({
+            words: MagPo.poem.getWords(),
+            breakpoint: MagPo.poem.get('breakpoint')
           });
-        }, window.MagPo.app.delay);
+        }, MagPo.delay);
       }
     },
     orientationChange: function() {
@@ -691,16 +704,16 @@
       'click': 'openShareDialog'
     },
     render: function() {
-      if (!window.MagPo.app.poem.isAuthor) {
+      if (!MagPo.poem.isAuthor) {
         // If the user isn't logged in, we're going to prevent forks.
-        if (window.MagPo.app.user) {
+        if (MagPo.user) {
           $(this.el).html('Respond');
         }
         else {
           $(this.el).html('Login to respond');
         }
       }
-      else if (!window.MagPo.app.poem.id) {
+      else if (!MagPo.poem.id) {
         $(this.el).html('Share');
       }
       else {
@@ -711,7 +724,7 @@
       autosave = false;
       event.stopPropagation();
 
-      if (!window.MagPo.app.poem.id && !window.MagPo.app.poem.words.length) {
+      if (!MagPo.poem.id && !MagPo.poem.words.length) {
         var dialog = new MessageDialogView({ message: 'Add some words to your poem before sharing!' });
         dialog.render().showModal({});
         return;
@@ -720,23 +733,23 @@
       // If the user isn't logged in, bail on this, and log them in.
       // The poem will be saved in its current state and updated when
       // we get back.
-      if (!window.MagPo.app.poem.isAuthor && !window.MagPo.app.user) {
+      if (!MagPo.poem.isAuthor && !MagPo.user) {
         // Store the poem in local storage,
         // we'll save it to the database when login is complete.
-        localStorage.setItem('MagPo_poem', JSON.stringify(window.MagPo.app.poem.toJSON()));
-        window.MagPo.app.authView._login();
+        localStorage.setItem('MagPo_poem', JSON.stringify(MagPo.poem.toJSON()));
+        MagPo.authView._login();
         return;
       }
 
       // Stop any autosaves.
-      if (window.MagPo.app.timeout) {
-        clearTimeout(window.MagPo.app.timeout);
+      if (MagPo.timeout) {
+        clearTimeout(MagPo.timeout);
       }
 
       // Add a listener to show the dialog after saving is complete.
       // This function needs to be run once after the poem save link is clicked.
       // @see https://github.com/documentcloud/backbone/pull/594
-      window.MagPo.app.poem.on('saveSuccess', _.once(function(msg) {
+      MagPo.poem.on('saveSuccess', _.once(function(msg) {
         if (msg === 'ok') {
           // Create the modal view over the fridge.
           var view = new ShareDialogView();
@@ -744,7 +757,7 @@
           view.render().showModal({ x: fridgeOffset.left, y: fridgeOffset.top });
           twttr.widgets.load();
 
-          if (!window.MagPo.app.user) {
+          if (!MagPo.user) {
             $('#loginInfo').show();
           }
         }
@@ -753,17 +766,17 @@
       }));
 
       // Save the poem.
-      window.MagPo.app.poem.save({
-        words: window.MagPo.app.poem.getWords(),
-        breakpoint: window.MagPo.app.poem.get('breakpoint')
-      });
+      MagPo.poem.save({
+        words: MagPo.poem.getWords(),
+        breakpoint: MagPo.poem.get('breakpoint')
+      }, { user: MagPo.user });
     }
   });
 
   /**
    * Defines the share dialog view.
    */
-  var ShareDialogView = window.ModalView.extend({
+  var ShareDialogView = ModalView.extend({
     defaultOptions: {
       fadeInDuration: 150,
       fadeOutDuration: 150,
@@ -780,7 +793,7 @@
       // functionality to break the rest of the app.
       var string = '';
       try {
-        string = window.MagPo.app.poem.stringify();
+        string = MagPo.poem.stringify();
       }
       catch (exception) {
         console.error(exception.message);
@@ -801,14 +814,14 @@
       return this;
     },
     login: function() {
-      window.MagPo.app.authView._login();
+      MagPo.authView._login();
     }
   });
 
   /**
    * Defines the message dialog view.
    */
-  var MessageDialogView = window.MessageDialogView = window.ModalView.extend({
+  var MessageDialogView = ModalView.extend({
     defaultOptions: {
       fadeInDuration: 150,
       fadeOutDuration: 150,
@@ -835,7 +848,7 @@
   /**
    * Defines the controls view.
    */
-  var ControlsView = window.ControlsView = Backbone.View.extend({
+  var ControlsView = Backbone.View.extend({
     el: 'menu ul',
     events: {
       'click #login-menu': 'toggleLogin',
@@ -857,7 +870,7 @@
     },
     render: function() {
       $('#responses-handle').hide();
-      if (window.MagPo.app.poem.children.length || window.MagPo.app.poem.get('parent')) {
+      if (MagPo.poem.children.length || MagPo.poem.get('parent')) {
         $('#responses-handle').show();
       }
 
@@ -866,27 +879,27 @@
         $('menu').prependTo('#word-bar');
       }
 
-      if (window.MagPo.app.user) {
+      if (MagPo.user) {
         $('#login-menu')
-          .html(this.avatarTemplate({ user: window.MagPo.app.user.screen_name }))
+          .html(this.avatarTemplate({ user: MagPo.user.screen_name }))
           .addClass('logged-in');
       }
     },
     toggleLogin: function(e) {
-      if (window.MagPo.app.user) {
-        window.MagPo.app.authView.logout();
+      if (MagPo.user) {
+        MagPo.authView.logout();
         $('#login-menu').toggleClass('logged-in').text('Login');
       }
       else {
-        window.MagPo.app.authView.login();
+        MagPo.authView.login();
         $('#login-menu')
-          .html(this.avatarTemplate({ user: window.MagPo.app.user.screen_name }))
+          .html(this.avatarTemplate({ user: MagPo.user.screen_name }))
           .toggleClass('logged-in');
       }
     },
     showResponses: function(event) {
       var responses = '';
-      var parent = window.MagPo.app.poem.get('parent');
+      var parent = MagPo.poem.get('parent');
       var parentLink = false;
 
       event.stopPropagation();
@@ -896,7 +909,7 @@
         responses += this.menuResponseTemplate({ parentLink: parentLink });
       }
 
-      window.MagPo.app.poem.children.each(_.bind(function(child) {
+      MagPo.poem.children.each(_.bind(function(child) {
         responses += this.responseTemplate(child.toJSON());
       }, this));
 
@@ -904,14 +917,14 @@
       dialog.render().showModal({});
     },
     openShareDialog: function(e) {
-      window.MagPo.app.shareLinkView.openShareDialog(e);
+      MagPo.shareLinkView.openShareDialog(e);
     }
   });
 
   /**
    * Defines the authentication view.
    */
-  var AuthView = window.MagPo.AuthView = Backbone.View.extend({
+  var AuthView = Backbone.View.extend({
     el: '#auth',
     events: {
       'click #login': 'login',
@@ -920,8 +933,8 @@
     template: _.template($('#auth-template').html()),
     render: function() {
       var user = '';
-      if (window.MagPo.app.user && typeof window.MagPo.app.user.screen_name !== 'undefined') {
-        user = window.MagPo.app.user.screen_name;
+      if (MagPo.user && typeof MagPo.user.screen_name !== 'undefined') {
+        user = MagPo.user.screen_name;
       }
       $(this.el).html(this.template({
         user: user
@@ -937,13 +950,13 @@
       // Save the poem if it hasn't been saved yet so we have a valid
       // return URL.
       if (
-        (typeof window.MagPo.app.poem.id === 'undefined' || window.MagPo.app.poem.id === null) &&
-        window.MagPo.app.poem.words.length
+        (typeof MagPo.poem.id === 'undefined' || MagPo.poem.id === null) &&
+        MagPo.poem.words.length
       ) {
-        window.MagPo.app.poem.save();
-        window.MagPo.app.poem.on('saveSuccess', _.bind(function() {
+        MagPo.poem.save({}, { user: MagPo.user });
+        MagPo.poem.on('saveSuccess', _.bind(function() {
           this._login();
-          window.MagPo.app.poem.off('saveSuccess');
+          MagPo.poem.off('saveSuccess');
         }, this));
       }
       else {
@@ -975,10 +988,10 @@
       // Delete local storage info, etc.
       localStorage.removeItem('MagPo_me');
       localStorage.removeItem('MagPo_user');
-      window.MagPo.app.user = null;
+      MagPo.user = null;
 
       // Force this to false regardless of what it's currently set to.
-      window.MagPo.app.poem.isAuthor = false;
+      MagPo.poem.isAuthor = false;
 
       // Re-render stuff.
       this.render();
@@ -1026,18 +1039,18 @@
       }
       if ($(window).height() + $(window).scrollTop() >= $(document).height() - 600) {
         listingsPage++;
-        window.MagPo.app.listings.fetch({ page: listingsPage });
+        MagPo.listings.fetch({ page: listingsPage });
       }
     },
     loadPoem: function(e) {
       // Redirect to a new poem if the id wasn't set and a poem has
       // already been loaded.
-      if (!$(e.currentTarget).attr('data-id') && window.MagPo.app.poem.id) {
+      if (!$(e.currentTarget).attr('data-id') && MagPo.poem.id) {
         window.location = '/magpo/';
         return;
       }
 
-      window.MagPo.app.router.navigate(
+      MagPo.router.navigate(
         $(e.currentTarget).attr('data-id'),
         { trigger: true }
       );
@@ -1053,8 +1066,8 @@
    */
   function postLoad() {
     // Re-render the controls.
-    window.MagPo.app.controlsView.render();
-    window.MagPo.app.shareLinkView.render();
+    MagPo.controlsView.render();
+    MagPo.shareLinkView.render();
   }
 
   /**
@@ -1077,284 +1090,238 @@
   /**
    * Local variables.
    */
-  var MagPo = function(drawers) {
-    this.timeout = false;
-    this.user = false;
-    this.delay = 1000;
-    // TODO - detect the correct breakpoint.
-    this.poem = new Poem({ breakpoint: 'desktop' });
-    this.attachListeners(this.poem);
-
-    this.controlsView = new ControlsView();
-    this.fridgeView = new FridgeView({ collection: this.poem });
-    this.shareLinkView = new ShareLinkView();
-    this.wordBarView = new WordBarView();
-
-    var shown = false;
-    this.drawers = {};
-    _(drawers).each(_.bind(function(drawer) {
-      var model = new window.MagPo.Drawer(drawer);
-      var view = new DrawerView({ model: model });
-      var handle = new DrawerHandleView({ model: model });
-
-      // Open the first drawer.
-      if (!shown) {
-        $(handle.el).addClass('open-handle');
-        $(view.el).addClass('open-drawer').show();
-        shown = true;
-      }
-
-      model.words.reset(drawer.words);
-      var drawerObj = {
-        model: model,
-        view: view
-      };
-      this.drawers[drawer.id] = drawerObj;
-    }, this));
-
-    this.authView = new AuthView();
-    this.listings = new Listings();
-    this.listingsView = new ListingsView({ collection: this.listings });
-
-    this.router = null;
-  };
-
-  MagPo.prototype.attachListeners = function(poem) {
-    // Handle events from the poem model.
-    poem.on('fetching', _.bind(this.fetching, this));
-    poem.on('fetchSuccess', _.bind(this.fetchSuccess, this));
-    poem.on('fetchError', _.bind(this.fetchError, this));
-    poem.on('saving', _.bind(this.saving, this));
-    poem.on('saveSuccess', _.bind(this.saveSuccess, this));
-    poem.on('saveError', _.bind(this.saveError, this));
-    poem.on('saveRedirect', _.bind(this.saveRedirect, this));
-  };
-
-  MagPo.prototype.fetching = function(message) {
-    throbberEvent.trigger('show');
-  };
-
-  MagPo.prototype.fetchSuccess = function(message) {
-    throbberEvent.trigger('hide');
-    this.fridgeView.render();
-    postLoad();
-  };
-
-  MagPo.prototype.fetchError = function(message) {
-    throbberEvent.trigger('hide');
-
-    var txt = 'There was a problem loading the poem.';
-
-    // Handle specific errors.
-    if (message === 404) {
-      txt = 'The poem you were looking for could not be found or has been unpublished.';
-
-      this.poem.id = null;
-      this.router.navigate(this.poem.id, { trigger: false });
-    }
-
-    var dialog = new MessageDialogView({ message: txt });
-    dialog.render().showModal({});
-  };
-
-  MagPo.prototype.saving = function(message) {
-    throbberEvent.trigger('show');
-  };
-
-  MagPo.prototype.saveSuccess = function(message) {
-    throbberEvent.trigger('hide');
-  };
-
-  MagPo.prototype.saveError = function(message) {
-    throbberEvent.trigger('hide');
-
-    // Prevent dialogs during autosaves.
-    if (!autosave) {
-      var txt = (message == 406) ? failedToValidateTxt : failedToSaveTxt;
-      var dialog = new MessageDialogView({ message: txt });
-      dialog.render().showModal({});
-    }
-  };
-
-  MagPo.prototype.saveRedirect = function(message) {
-    // Update the URL and perform post loading actions.
-    this.router.navigate(this.poem.id, { trigger: message });
-    postLoad();
-  };
-
-  MagPo.prototype.onSuccess = function(data) {
-    // Go ahead and start the router so the poem is loaded.
-    var oldId = localStorage.getItem('MagPo_me');
-
-    localStorage.removeItem('MagPo_tUser');
-
-    var user = this.user = {
-      id: data.id,
-      screen_name: data.screen_name
-    };
-
-    localStorage.setItem('MagPo_me', user.screen_name);
-    localStorage.setItem('MagPo_user', JSON.stringify({
-      id: data.id,
-      screen_name: data.screen_name
-    }));
-
-    this.startRouter();
-
-    // Update any existing poems with the new id.
-    if (oldId && window.MagPo.app.poem.id) {
-      var worker = new Worker('/magpo/js/update.js');
-      worker.postMessage({
-        callback: window.location.origin + '/magpo/app/update/' + window.MagPo.app.poem.id,
-        id: window.MagPo.app.poem.id,
-        oldAuthor: oldId,
-        newAuthor: data.screen_name
-      });
-      worker.onmessage = function(event) {
-        if (event.data !== 200) {
-          console.error(util.format('Error (%d): Error updating poem.'));
-        }
-      };
-    }
-
-    this.authView.loggedIn();
-    postLoad();
-
-    // If the user saved a fork before loggin in, save it to the database.
-    var fork = localStorage.getItem('MagPo_poem');
-    if (fork) {
-      fork = JSON.parse(fork);
-      localStorage.removeItem('MagPo_poem');
-
-      // Replace the poem with the fork, re-attach the listeners, and save.
-      this.poem = this.fridgeView.collection = new Poem(fork);
+  var MagPo = {
+    initialized: false,
+    started: false,
+    init: function(drawers) {
+      this.initialized = true;
+      this.timeout = false;
+      this.user = false;
+      this.delay = 1000;
+      // TODO - detect the correct breakpoint.
+      this.poem = new Poem({ breakpoint: 'desktop' });
       this.attachListeners(this.poem);
-      this.poem.words.reset();
-      _.each(fork.words, _.bind(function(fWord) {
-        var word = this.drawers[fWord.vid].model.words.get(fWord.id);
-        word.set('top', fWord.top);
-        word.set('left', fWord.left);
-        this.poem.words.add(word);
+
+      this.controlsView = new ControlsView();
+      this.fridgeView = new FridgeView({ collection: this.poem });
+      this.shareLinkView = new ShareLinkView();
+      this.wordBarView = new WordBarView();
+
+      var shown = false;
+      this.drawers = {};
+      _(drawers).each(_.bind(function(drawer) {
+        var model = new Drawer(drawer);
+        var view = new DrawerView({ model: model });
+        var handle = new DrawerHandleView({ model: model });
+
+        // Open the first drawer.
+        if (!shown) {
+          $(handle.el).addClass('open-handle');
+          $(view.el).addClass('open-drawer').show();
+          shown = true;
+        }
+
+        model.words.reset(drawer.words);
+        var drawerObj = {
+          model: model,
+          view: view
+        };
+        this.drawers[drawer.id] = drawerObj;
       }, this));
 
-      this.poem.save();
-    }
-  };
+      this.authView = new AuthView();
+      this.listings = new Listings();
+      this.listingsView = new ListingsView({ collection: this.listings });
 
-  MagPo.prototype.start = function() {
-    throbberEvent.trigger('hide');
-
-    this.authView.render();
-    this.listings.fetch();
-
-    var tUser = localStorage.getItem('MagPo_tUser');
-    var user = JSON.parse(localStorage.getItem('MagPo_user'));
-    var me = localStorage.getItem('MagPo_me');
-
-    // Show a warning dialog if the user isn't logged in.
-    if (!user && me) {
-      var dialog = new MessageDialogView({ message: needToLoginTxt });
-      dialog.render().showModal({});
-    }
-
-    // If this is a new poem, go ahead and perform post load actions.
-    if (!window.location.hash) {
+      this.router = null;
+    },
+    attachListeners: function(poem) {
+      // Handle events from the poem model.
+      poem.on('fetching', _.bind(this.fetching, this));
+      poem.on('fetchSuccess', _.bind(this.fetchSuccess, this));
+      poem.on('fetchError', _.bind(this.fetchError, this));
+      poem.on('saving', _.bind(this.saving, this));
+      poem.on('saveSuccess', _.bind(this.saveSuccess, this));
+      poem.on('saveError', _.bind(this.saveError, this));
+      poem.on('saveRedirect', _.bind(this.saveRedirect, this));
+    },
+    fetching: function(message) {
+      throbberEvent.trigger('show');
+    },
+    fetchSuccess: function(message) {
+      throbberEvent.trigger('hide');
+      this.fridgeView.render();
       postLoad();
-    }
+    },
+    fetchError: function(message) {
+      throbberEvent.trigger('hide');
 
-    var oauth_token = getParameterByName('oauth_token');
-    var oauth_verifier = getParameterByName('oauth_verifier');
-    if (oauth_token.length && oauth_verifier.length && tUser) {
-      // Remove the query arguments.
-      // TODO - detect a hash.
-      var path = window.location.pathname;
-      if (window.location.hash) {
-        path += window.location.hash;
+      var txt = 'There was a problem loading the poem.';
+
+      // Handle specific errors.
+      if (message === 404) {
+        txt = 'The poem you were looking for could not be found or has been unpublished.';
+
+        this.poem.id = null;
+        this.router.navigate(this.poem.id, { trigger: false });
       }
-      history.pushState({}, '', path);
 
-      // Send the login information to the back end.
-      var body = {
-        oauth_token: oauth_token,
-        oauth_verifier: oauth_verifier,
-        user: tUser
-      };
-      $.ajax({
-        url: 'app/login-verify',
-        contentType: 'application/json',
-        data: JSON.stringify(body),
-        dataType: 'json',
-        type: 'POST',
-        success: _.bind(this.onSuccess, this),
-        error: function() {
-          localStorage.removeItem('MagPo_tUser');
-          // TODO - show an error and start the router?
-        }
-      });
-    }
-    else {
-      if (user) {
-        this.user = user;
-        localStorage.setItem('MagPo_me', user.screen_name);
-        this.authView.loggedIn();
-        postLoad();
-      }
-      this.startRouter();
-    }
-  };
+      var dialog = new MessageDialogView({ message: txt });
+      dialog.render().showModal({});
+    },
+    saving: function(message) {
+      throbberEvent.trigger('show');
+    },
+    saveSuccess: function(message) {
+      throbberEvent.trigger('hide');
+    },
+    saveError: function(message) {
+      throbberEvent.trigger('hide');
 
-  /**
-   * Starts the router.
-   * NOTE: This can only happen after the window is loaded to avoid
-   *  issues with positioning tiles in webkit browsers.
-   */
-  MagPo.prototype.startRouter = function() {
-    this.router = new AppRouter();
-    Backbone.history.start();
-    $(document).on('touchmove', '.tiles', function(e) {});
-  };
-
-  window.MagPo['class'] = MagPo;
-
-  var loaded = false;
-  $(window).load(function() {
-    loaded = true;
-    if (typeof window.MagPo.app !== 'undefined') {
-      window.MagPo.app.start();
-    }
-  });
-  if (typeof window.MagPo === 'undefined') {
-    window.MagPo = { };
-  }
-  $.ajax({
-    url: 'app/drawers',
-    success: function(drawers) {
-      window.MagPo.app = new window.MagPo['class'](drawers);
-      if (loaded) {
-        window.MagPo.app.start();
+      // Prevent dialogs during autosaves.
+      if (!autosave) {
+        var txt = (message == 406) ? failedToValidateTxt : failedToSaveTxt;
+        var dialog = new MessageDialogView({ message: txt });
+        dialog.render().showModal({});
       }
     },
-    error: function(jqXHR, textStatus, errorThrown) {
-      var drawers = [
-        {id: 2, name:'Drupal', words:
-          [
-            { id: 15, string: '.install', vid: 2},
-            { id: 6, string: 'devel', vid: 2}
-          ]
-        },
-        {id: 3, name:'verbs', words:
-          [
-            { id: 15, string: '.install', vid: 2}
-          ]
-        }
-      ];
-      window.MagPo.app = new window.MagPo['class'](drawers);
-      console.error(errorThrown);
-      var dialog = new window.MessageDialogView({
-        message: 'Uh oh! There was a problem loading! Try again later.'
-      });
-      dialog.render().showModal({});
-    }
-  });
-}(jQuery));
+    saveRedirect: function(message) {
+      // Update the URL and perform post loading actions.
+      this.router.navigate(this.poem.id, { trigger: message });
+      postLoad();
+    },
+    onSuccess: function(data) {
+      // Go ahead and start the router so the poem is loaded.
+      var oldId = localStorage.getItem('MagPo_me');
 
+      localStorage.removeItem('MagPo_tUser');
+
+      var user = this.user = {
+        id: data.id,
+        screen_name: data.screen_name
+      };
+
+      localStorage.setItem('MagPo_me', user.screen_name);
+      localStorage.setItem('MagPo_user', JSON.stringify({
+        id: data.id,
+        screen_name: data.screen_name
+      }));
+
+      this.startRouter();
+
+      // Update any existing poems with the new id.
+      if (oldId && this.poem.id) {
+        var worker = new Worker('/magpo/js/update.js');
+        worker.postMessage({
+          callback: window.location.origin + '/magpo/app/update/' + this.poem.id,
+          id: this.poem.id,
+          oldAuthor: oldId,
+          newAuthor: data.screen_name
+        });
+        worker.onmessage = function(event) {
+          if (event.data !== 200) {
+            console.error(util.format('Error (%d): Error updating poem.'));
+          }
+        };
+      }
+
+      this.authView.loggedIn();
+      postLoad();
+
+      // If the user saved a fork before loggin in, save it to the database.
+      var fork = localStorage.getItem('MagPo_poem');
+      if (fork) {
+        fork = JSON.parse(fork);
+        localStorage.removeItem('MagPo_poem');
+
+        // Replace the poem with the fork, re-attach the listeners, and save.
+        this.poem = this.fridgeView.collection = new Poem(fork);
+        this.attachListeners(this.poem);
+        this.poem.words.reset();
+        _.each(fork.words, _.bind(function(fWord) {
+          var word = this.drawers[fWord.vid].model.words.get(fWord.id);
+          word.set('top', fWord.top);
+          word.set('left', fWord.left);
+          this.poem.words.add(word);
+        }, this));
+
+        this.poem.save({}, { user: this.user });
+      }
+    },
+    start: function() {
+      this.started = true;
+      throbberEvent.trigger('hide');
+
+      this.authView.render();
+      this.listings.fetch();
+
+      var tUser = localStorage.getItem('MagPo_tUser');
+      var user = JSON.parse(localStorage.getItem('MagPo_user'));
+      var me = localStorage.getItem('MagPo_me');
+
+      // Show a warning dialog if the user isn't logged in.
+      if (!user && me) {
+        var dialog = new MessageDialogView({ message: needToLoginTxt });
+        dialog.render().showModal({});
+      }
+
+      // If this is a new poem, go ahead and perform post load actions.
+      if (!window.location.hash) {
+        postLoad();
+      }
+
+      var oauth_token = getParameterByName('oauth_token');
+      var oauth_verifier = getParameterByName('oauth_verifier');
+      if (oauth_token.length && oauth_verifier.length && tUser) {
+        // Remove the query arguments.
+        // TODO - detect a hash.
+        var path = window.location.pathname;
+        if (window.location.hash) {
+          path += window.location.hash;
+        }
+        history.pushState({}, '', path);
+
+        // Send the login information to the back end.
+        var body = {
+          oauth_token: oauth_token,
+          oauth_verifier: oauth_verifier,
+          user: tUser
+        };
+        $.ajax({
+          url: 'app/login-verify',
+          contentType: 'application/json',
+          data: JSON.stringify(body),
+          dataType: 'json',
+          type: 'POST',
+          success: _.bind(this.onSuccess, this),
+          error: function() {
+            localStorage.removeItem('MagPo_tUser');
+            // TODO - show an error and start the router?
+          }
+        });
+      }
+      else {
+        if (user) {
+          this.user = user;
+          localStorage.setItem('MagPo_me', user.screen_name);
+          this.authView.loggedIn();
+          postLoad();
+        }
+        this.startRouter();
+      }
+    },
+    /**
+     * Starts the router.
+     * NOTE: This can only happen after the window is loaded to avoid
+     *  issues with positioning tiles in webkit browsers.
+     */
+    startRouter: function() {
+      this.router = new AppRouter();
+      Backbone.history.start();
+      $(document).on('touchmove', '.tiles', function(e) {});
+    },
+    messageDialogView: MessageDialogView
+  };
+
+  return MagPo;
+});
