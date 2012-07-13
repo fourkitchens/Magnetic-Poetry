@@ -1046,7 +1046,7 @@ define(function(require, exports, module) {
       // Redirect to a new poem if the id wasn't set and a poem has
       // already been loaded.
       if (!$(e.currentTarget).attr('data-id') && MagPo.poem.id) {
-        window.location = '/magpo/';
+        window.location = '/drupo/';
         return;
       }
 
@@ -1211,9 +1211,9 @@ define(function(require, exports, module) {
 
       // Update any existing poems with the new id.
       if (oldId && this.poem.id) {
-        var worker = new Worker('/magpo/js/update.js');
+        var worker = new Worker('/drupo/js/update.js');
         worker.postMessage({
-          callback: window.location.origin + '/magpo/app/update/' + this.poem.id,
+          callback: window.location.origin + '/drupo/app/update/' + this.poem.id,
           id: this.poem.id,
           oldAuthor: oldId,
           newAuthor: data.screen_name

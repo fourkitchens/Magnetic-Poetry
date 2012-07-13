@@ -361,7 +361,7 @@ MagPo.attach = function() {
           {
             value: title.length ?
               poemModel.stringify(false).replace(' ', '&nbsp;', 'g') :
-              '<a href="/magpo/#' + poem.id + '">fork it and make it better!</a>'
+              '<a href="/drupo/#' + poem.id + '">fork it and make it better!</a>'
           }
         ]
       },
