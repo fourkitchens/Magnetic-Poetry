@@ -2,36 +2,41 @@
  * @fileoverview Defines models for MagPo.
  */
 
-// Server side definitions.
-if (typeof require !== 'undefined') {
+var server = false;
+if (typeof define !== 'function') {
+  var define = require('amdefine')(module);
+  server = true;
+}
+
+define(function(require, exports, module) {
+  if (!server) {
+    var $ = require('jquery');
+    var WordModel = require('models/word');
+    var SimplePoemModel = require('models/simplePoem');
+    var PoemModel = require('models/poem');
+    var Breakpoints = require('lib/breakpoints');
+  }
+  else {
+    var $ = function() {};
+    var WordModel = require('../models/word');
+    var SimplePoemModel = require('../models/simplePoem');
+    var PoemModel = require('../models/poem');
+    var Breakpoints = require('../lib/breakpoints');
+  }
+  var _ = require('underscore');
   var Backbone = require('backbone');
-  var wordModel = require('../models/word');
-  var simplePoemModel = require('../models/simplePoem');
-  var poemModel = require('../models/poem');
-  var WordCollection = require('./collections').WordCollection;
-  var breakpoints = require('../lib/breakpoints.js');
-  var u = require('underscore');
 
-  // :( jQuery not used on the server side.
-  var jQuery = null;
-}
-else {
-  var wordModel = window.MagPo.models.Word;
-  var simplePoemModel = window.MagPo.models.SimplePoem;
-  var poemModel = window.MagPo.models.Poem;
-  var WordCollection = window.MagPo.WordCollection;
-  var breakpoints = window.MagPo.breakpoints;
-  var u = _;
-}
-
-(function($, _) {
   /**
    * Defines the word model.
    *
    * @see models/word.js
    */
   var Word = Backbone.Model.extend({
-    defaults: wordModel
+    defaults: WordModel
+  });
+
+  var WordCollection = Backbone.Collection.extend({
+    model: Word
   });
 
   /**
@@ -54,7 +59,7 @@ else {
    * @see models/simplePoem.js
    */
   var SimplePoem = Backbone.Model.extend({
-    defaults: simplePoemModel
+    defaults: SimplePoemModel
   });
 
   /**
@@ -63,7 +68,7 @@ else {
    * @see models/poem.js
    */
   var Poem = Backbone.Model.extend({
-    defaults: poemModel,
+    defaults: PoemModel,
     initialize: function() {
       this.isAuthor = true;
       var PoemCollection = WordCollection.extend({
@@ -77,7 +82,7 @@ else {
       this.children = new ChildrenCollection();
     },
     poemComparator: function(a, b) {
-      var bp = breakpoints[this.get('breakpoint')];
+      var bp = Breakpoints[this.get('breakpoint')];
       var third = bp.rowHeight / 3;
       var aTop = a.get('top');
       var bTop = b.get('top');
@@ -121,7 +126,7 @@ else {
         simple = true;
       }
 
-      var bp = breakpoints[self.get('breakpoint')];
+      var bp = Breakpoints[self.get('breakpoint')];
       var lastRight = false;
       var lastTop = false;
       var lowestLeft = false;
@@ -181,6 +186,7 @@ else {
     },
     fetch: function(options) {
       this.trigger('fetching');
+      this.drawers = options.drawers;
       var author = localStorage.getItem('MagPo_me');
       $.ajax({
         url: 'app/load/' + this.id,
@@ -214,7 +220,7 @@ else {
       this.set('parent', data.poem.parent);
       this.words.reset();
       _(data.poem.words).each(_.bind(function(serverWord) {
-        var drawer = window.MagPo.app.drawers[serverWord.vid].model;
+        var drawer = this.drawers[serverWord.vid].model;
         var word = drawer.words.get(serverWord.id);
         this.words.add(word);
         word.set({ top: serverWord.top, left: serverWord.left });
@@ -248,8 +254,8 @@ else {
 
       // If this is an update we should always be sending along our uuid.
       body.poem.author = localStorage.getItem('MagPo_me');
-      if (window.MagPo.app.user) {
-        body.poem.author = window.MagPo.app.user;
+      if (options.user) {
+        body.poem.author = options.user;
       }
 
       // Send to server.
@@ -294,15 +300,14 @@ else {
     }
   });
 
-  // Export the definitions.
-  if (typeof exports === 'undefined') {
-    var exp = window.MagPo;
-  }
-  else {
-    var exp = exports;
-  }
-  exp.Word = Word;
-  exp.Drawer = Drawer;
-  exp.Poem = Poem;
-}(jQuery, u));
+  var Listings = Backbone.Collection.extend({
+    model: Poem
+  });
+
+  exports.Word = Word;
+  exports.WordCollection = WordCollection;
+  exports.Drawer = Drawer;
+  exports.Poem = Poem;
+  exports.Listings = Listings;
+});
 
