@@ -5,6 +5,7 @@ require.config({
       'vendor/jquery-1.7.2.min'
     ],
     jqueryui: 'vendor/jquery-ui-1.8.18.custom.min',
+    touchpunch: 'vendor/jquery-ui-touch-punch/jquery.ui.touch-punch',
     underscore: 'vendor/underscore-min',
     backbone: 'vendor/backbone-min',
     moment: 'vendor/moment.min'
@@ -20,7 +21,7 @@ require.config({
   }
 });
 
-require(['jquery', 'magpo', 'jqueryui'], function($, MagPo) {
+require(['jquery', 'magpo', 'jqueryui', 'touchpunch'], function($, MagPo) {
   var loaded = false;
   $(window).load(function() {
     loaded = true;
