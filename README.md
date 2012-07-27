@@ -7,11 +7,9 @@ This web app brings the fun of magnetic poetry to all of your devices. There's n
 
 It is built using [Backbone.js](http://backbonejs.org/), [Underscore.js](http://underscorejs.org/), [Require.js](http://requirejs.org/), [Node.js](http://nodejs.org/), and [MongoDB](http://www.mongodb.org/).
 
-Demo: http://drupalpoetry.com (uses [Drupal](http://drupal.org/] a content manager)
+Our site [DrupalPoetry.com](http://drupalpoetry.com) also uses [Drupal](http://drupal.org/) to administer the content.
 
-Below is a slide deck that explains more about the technoligies and process that went into building the magnetic poetry web app.
-
-http://fourkitchens.github.com/drupo-presentation
+If you would like to learn more about the technoligies and process that went into building the magnetic poetry web app, check out [Elliott](https://github.com/elliotttf) and [Mike's](https://github.com/mirzu) [slide deck](http://fourkitchens.github.com/drupo-presentation).
 
 Server configuration
 --------------------
